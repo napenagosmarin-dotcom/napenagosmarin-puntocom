@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesión - Aura Travel</title>
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/styles.css?v=1.1" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <!-- Botón de Volver al Inicio -->
+  <a href="/index.html" class="btn-back-home" style="position: absolute; top: 24px; left: 24px; z-index: 100; display: flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 50px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;" onmouseover="this.style.background='rgba(255, 255, 255, 0.1)'; this.style.transform='translateX(-3px)'; this.style.borderColor='rgba(255,255,255,0.2)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'; this.style.transform='translateX(0)'; this.style.borderColor='rgba(255,255,255,0.1)';">
+    <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
+    <span>Volver al Inicio</span>
+  </a>
+
+  <main class="main-content main-content--auth" id="mainContent">
+    <section class="auth-section">
+      <div class="auth-form-panel auth-form-panel--solo">
+        <form id="loginForm" class="form form-auth login-premium">
+          <div class="login-header">
+            <div class="login-icon-wrapper">
+              <i data-lucide="user-circle"></i>
+            </div>
+            <h2>¡Bienvenido de Nuevo!</h2>
+            <p>Ingresa tus datos para acceder a tu cuenta.</p>
+          </div>
+
+          <div class="form-group premium-group">
+            <label for="Email">Correo Electrónico</label>
+            <div class="input-icon-wrapper">
+              <i data-lucide="mail" class="input-icon"></i>
+              <input type="email" id="Email" placeholder="tu@correo.com" required>
+            </div>
+          </div>
+
+          <div class="form-group premium-group">
+            <label for="Contrasena">Contraseña</label>
+            <div class="input-icon-wrapper password-field-wrapper">
+              <i data-lucide="lock" class="input-icon"></i>
+              <input type="password" id="Contrasena" placeholder="••••••••" required>
+              <button type="button" class="password-toggle" data-target="Contrasena" aria-label="Mostrar contraseña">
+                <i data-lucide="eye" class="toggle-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="login-options">
+            <label class="remember-me">
+              <input type="checkbox">
+              <span>Recordarme</span>
+            </label>
+            <a href="/src/pages/forgot-password.html" class="forgot-password">¿Olvidaste tu contraseña?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primario btn-login">
+            Ingresar <i data-lucide="arrow-right" class="btn-icon"></i>
+          </button>
+
+          <p id="errorMessage" class="error-msg"></p>
+
+          <div class="login-divider">
+            <span>o continúa con</span>
+          </div>
+
+          <p class="login-register-text">
+            ¿Aún no tienes una cuenta? <a href="/src/pages/register.html">Regístrate aquí</a>
+          </p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/login.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

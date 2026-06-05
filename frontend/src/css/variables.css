@@ -1,0 +1,33 @@
+:root {
+  /* Colores principales */
+  --color-primario: #1a3c5e;      /* Azul oscuro elegante */
+  --color-secundario: #c9a84c;    /* Dorado hotel */
+  --color-acento: #e8f4f8;        /* Azul muy claro */
+  --color-fondo: #f5f5f5;
+  --color-blanco: #ffffff;
+  --color-texto: #2c2c2c;
+  --color-texto-claro: #6b6b6b;
+  --color-error: #e74c3c;
+  --color-exito: #27ae60;
+
+  /* Tipografía */
+  --fuente-principal: 'Georgia', serif;
+  --fuente-secundaria: 'Arial', sans-serif;
+  --tamanio-base: 16px;
+  --tamanio-titulo: 2rem;
+  --tamanio-subtitulo: 1.5rem;
+
+  /* Espaciado */
+  --espaciado-sm: 8px;
+  --espaciado-md: 16px;
+  --espaciado-lg: 32px;
+  --espaciado-xl: 64px;
+
+  /* Bordes y sombras */
+  --radio-borde: 8px;
+  --sombra: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --sombra-hover: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+  /* Transiciones */
+  --transicion: all 0.3s ease;
+}

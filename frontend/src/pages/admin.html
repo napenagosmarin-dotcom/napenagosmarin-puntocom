@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Administrador - Aura Travel</title>
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/styles.css?v=1.1" />
+  <link rel="stylesheet" href="../css/admin.css?v=1.1" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__logo">
+        <div class="admin-sidebar__logo-icon">
+          <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" class="admin-sidebar__logo-svg">
+            <defs>
+              <linearGradient id="ngcv" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#7b2ff7"/>
+                <stop offset="100%" stop-color="#00d4ff"/>
+              </linearGradient>
+              <linearGradient id="ngc" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00d4ff"/>
+                <stop offset="100%" stop-color="#7b2ff7"/>
+              </linearGradient>
+              <linearGradient id="ngring" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.9"/>
+                <stop offset="50%" stop-color="#9b59f5" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#7b2ff7" stop-opacity="0.8"/>
+              </linearGradient>
+              <linearGradient id="ngshine" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <circle cx="19" cy="19" r="19" fill="#0d0b2e"/>
+            <circle cx="19" cy="19" r="18.5" fill="none" stroke="url(#ngring)" stroke-width="0.8"/>
+            <circle cx="19" cy="19" r="15.5" fill="none" stroke="url(#ngc)" stroke-width="0.3" opacity="0.3"/>
+            <ellipse cx="19" cy="11" rx="8" ry="4" fill="url(#ngshine)"/>
+            <polygon points="5,31 9.5,31 19,6 16.5,6" fill="url(#ngcv)"/>
+            <polygon points="21.5,6 19,6 28.5,31 33,31" fill="url(#ngcv)"/>
+            <rect x="9.5" y="19.5" width="19" height="4" rx="1" fill="url(#ngc)"/>
+            <polygon points="14,19.5 24,19.5 19,14.5" fill="#0d0b2e"/>
+            <line x1="5.5" y1="31" x2="18.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
+            <line x1="32.5" y1="31" x2="19.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
+            <circle cx="19" cy="6" r="1.4" fill="#e040fb"/>
+          </svg>
+        </div>
+        <div>
+          <span class="admin-sidebar__logo-nombre">Aura Travel</span>
+          <span class="admin-sidebar__logo-rol">Panel Admin</span>
+        </div>
+      </div>
+
+      <nav class="admin-sidebar__nav">
+        <button class="admin-nav-item active" data-section="dashboard">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="admin-nav-item" data-section="reservas">
+          <i data-lucide="calendar-check"></i>
+          <span>Reservas</span>
+        </button>
+        <button class="admin-nav-item" data-section="habitaciones">
+          <i data-lucide="bed"></i>
+          <span>Habitaciones</span>
+        </button>
+        <button class="admin-nav-item" data-section="usuarios">
+          <i data-lucide="users"></i>
+          <span>Usuarios</span>
+        </button>
+        <button class="admin-nav-item" data-section="clientes">
+          <i data-lucide="user-check"></i>
+          <span>Clientes</span>
+        </button>
+        <button class="admin-nav-item" data-section="cabanas">
+          <i data-lucide="tent"></i>
+          <span>Cabañas</span>
+        </button>
+        <button class="admin-nav-item" data-section="paquetes">
+          <i data-lucide="package"></i>
+          <span>Paquetes</span>
+        </button>
+        <button class="admin-nav-item" data-section="servicios">
+          <i data-lucide="star"></i>
+          <span>Servicios</span>
+        </button>
+      </nav>
+
+      <div class="admin-sidebar__footer">
+        <p class="admin-sidebar__welcome" id="adminName"></p>
+        <button id="logoutBtn" class="admin-sidebar__logout">
+          <i data-lucide="log-out"></i>
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="admin-main">
+
+      <!-- HEADER -->
+      <header class="admin-header">
+        <div class="admin-header__title">
+          <p class="admin-header__eyebrow">Sistema de Gestión</p>
+          <h1 id="sectionTitle">Panel de Control</h1>
+        </div>
+        <div class="admin-header__actions">
+          <div class="admin-search">
+            <i data-lucide="search" class="admin-search__icon"></i>
+            <input id="searchInput" type="search" placeholder="Buscar...">
+          </div>
+          <button id="newItemBtn" class="btn btn-primario" style="display:none;">
+            <i data-lucide="plus" class="btn-icon"></i>
+            Nueva habitación
+          </button>
+        </div>
+      </header>
+
+      <!-- SECCIONES -->
+      <section id="section-dashboard" class="admin-section active">
+        <div class="dashboard-content">
+          <!-- Tarjetas de resumen (KPIs) -->
+          <div class="stats-grid" id="statsGrid">
+            <div class="stat-card stat-card--ocupacion">
+              <div class="stat-card__icon">🏕️</div>
+              <div class="stat-card__info">
+                <span class="stat-card__numero" id="kpi-ocupacion">—</span>
+                <span class="stat-card__label">Tasa de Ocupación</span>
+              </div>
+              <div class="stat-card__sub" id="kpi-ocupacion-sub">
+                <span class="kpi-trend kpi-trend--positive" id="kpi-ocupacion-trend"></span> vs mes anterior
+              </div>
+            </div>
+
+            <div class="stat-card stat-card--ingresos">
+              <div class="stat-card__icon">💰</div>
+              <div class="stat-card__info">
+                <span class="stat-card__numero" id="kpi-ingresos" style="font-size: 1.8rem;">—</span>
+                <span class="stat-card__label">Ingresos Mensuales</span>
+              </div>
+              <div class="stat-card__sub" id="kpi-ingresos-sub">
+                <span class="kpi-trend kpi-trend--positive" id="kpi-ingresos-trend"></span> este mes
+              </div>
+            </div>
+
+            <div class="stat-card stat-card--satisfaccion">
+              <div class="stat-card__icon">⭐</div>
+              <div class="stat-card__info">
+                <span class="stat-card__numero" id="kpi-satisfaccion">—</span>
+                <span class="stat-card__label">Satisfacción del Cliente</span>
+              </div>
+              <div class="stat-card__sub" id="kpi-satisfaccion-sub">
+                <span class="kpi-trend kpi-trend--positive" id="kpi-satisfaccion-trend"></span> promedio general
+              </div>
+            </div>
+
+            <div class="stat-card stat-card--reservas" data-section="reservas" style="cursor:pointer;">
+              <div class="stat-card__icon">📅</div>
+              <div class="stat-card__info">
+                <span class="stat-card__numero" id="kpi-reservas">—</span>
+                <span class="stat-card__label">Reservas Activas</span>
+              </div>
+              <div class="stat-card__sub" id="kpi-reservas-sub">
+                <span class="kpi-trend kpi-trend--positive" id="kpi-reservas-trend"></span> programadas esta semana
+              </div>
+            </div>
+          </div>
+
+          <!-- Fila 1: Gráficas Estado Cabañas + Clientes -->
+          <div class="dashboard-charts">
+            <div class="chart-container">
+              <h3>🏕️ Estado de Cabañas</h3>
+              <canvas id="grafica-cabanas"></canvas>
+            </div>
+            <div class="chart-container">
+              <h3>👥 Clientes</h3>
+              <canvas id="grafica-clientes"></canvas>
+            </div>
+          </div><!-- /dashboard-charts -->
+
+          <!-- Fila 2: Top Paquetes y Servicios -->
+          <div class="dashboard-bottom">
+            <!-- Top Paquetes -->
+            <div class="dashboard-card">
+              <div class="dashboard-card__header">
+                <h2 class="dashboard-card__titulo">✈️ Top Paquetes</h2>
+                <button class="dashboard-card__ver-todo admin-nav-item" data-section="paquetes" style="background:none;border:none;cursor:pointer;">Ver todos</button>
+              </div>
+              <div class="table-wrapper" id="tabla-top-paquetes">
+                <p class="dashboard-loading">Cargando...</p>
+              </div>
+            </div>
+
+            <!-- Top Servicios -->
+            <div class="dashboard-card">
+              <div class="dashboard-card__header">
+                <h2 class="dashboard-card__titulo">⭐ Top Servicios</h2>
+                <button class="dashboard-card__ver-todo admin-nav-item" data-section="servicios" style="background:none;border:none;cursor:pointer;">Ver todos</button>
+              </div>
+              <div class="table-wrapper" id="tabla-top-servicios">
+                <p class="dashboard-loading">Cargando...</p>
+              </div>
+            </div>
+          </div><!-- /dashboard-bottom -->
+
+          <!-- Fila 3: Reservas Activas (ancho completo) -->
+          <div class="chart-container chart-wide" style="margin-top: 1.5rem;">
+            <h3>📅 Reservas Activas</h3>
+            <canvas id="grafica-reservas"></canvas>
+          </div>
+
+        </div><!-- /section-dashboard inner -->
+      </section>
+
+      <section id="section-reservas" class="admin-section">
+        <div id="reservasList"></div>
+      </section>
+
+      <section id="section-habitaciones" class="admin-section">
+        <div class="cards-grid" id="habitacionesGrid"></div>
+        <div id="paginacion-habitaciones-admin" class="admin-pagination"></div>
+      </section>
+
+      <section id="section-usuarios" class="admin-section">
+        <div id="usuariosList"></div>
+      </section>
+
+      <section id="section-clientes" class="admin-section">
+        <div id="clientesList"></div>
+      </section>
+
+      <section id="section-cabanas" class="admin-section">
+        <div class="cards-grid" id="cabanasGrid"></div>
+        <div id="paginacion-cabanas-admin" class="admin-pagination"></div>
+      </section>
+
+      <section id="section-paquetes" class="admin-section">
+        <div id="paquetesList"></div>
+        <div id="paginacion-paquetes-admin" class="admin-pagination"></div>
+      </section>
+
+      <section id="section-servicios" class="admin-section">
+        <div id="serviciosList"></div>
+        <div id="paginacion-servicios-admin" class="admin-pagination"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL DE EDICIÓN / CREACIÓN -->
+  <div id="modalOverlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Nuevo Registro</h3>
+        <button onclick="cerrarModal()" class="modal-close">&times;</button>
+      </div>
+      <div id="modalContent" class="modal-body">
+        <!-- El contenido se carga dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE VISTA DETALLE -->
+  <div id="detalleModalOverlay" class="modal-overlay">
+    <div class="modal-box modal-box-ver">
+      <div class="modal-header">
+        <h3 id="detalleTitulo">Detalle</h3>
+        <button onclick="cerrarDetalle()" class="modal-close">&times;</button>
+      </div>
+      <div id="detalleContent" class="modal-ver-body">
+        <!-- El contenido se carga dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/admin.js?v=1.1"></script>
+  <script>lucide.createIcons();</script>
+  <!-- MODAL DE CONFIRMACIÓN -->
+  <div id="confirmModalOverlay" class="modal-overlay">
+    <div class="modal-box modal-confirm">
+      <div class="modal-confirm__icon">
+        <i data-lucide="alert-triangle"></i>
+      </div>
+      <div class="modal-confirm__content">
+        <h3 id="confirmTitle">¿Estás seguro?</h3>
+        <p id="confirmMessage">Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-confirm__actions">
+        <button id="confirmCancelBtn" class="btn-confirm-cancel" onclick="cerrarConfirmacion()">Cancelar</button>
+        <button id="confirmOkBtn" class="btn-confirm-ok">Eliminar</button>
+      </div>
+    </div>
+  </div>
+  <!-- CONTENEDOR DE NOTIFICACIONES -->
+  <div id="notificationContainer" class="notification-container"></div>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Aura Travel</title>
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/styles.css?v=1.1" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div id="header-container"></div>
+  <button class="sidebar__toggle" id="sidebarToggle" aria-label="Abrir menú">☰</button>
+  <div class="sidebar__overlay" id="sidebarOverlay"></div>
+
+  <main class="main-content" id="mainContent">
+    <section class="dashboard-section">
+      <div class="container">
+
+        <!-- Encabezado -->
+        <div class="dashboard-header">
+          <div>
+            <h1 class="dashboard-titulo">Panel de Control</h1>
+            <p class="dashboard-subtitulo">Resumen general de Aura Travel</p>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+            <div class="dashboard-fecha" id="dashboard-fecha"></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button id="btn-refresh-dashboard" class="btn btn-refresh">Actualizar ahora</button>
+              <div id="dashboard-last-updated" class="refresh-label">Última actualización: —</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje de error global -->
+        <div id="dashboard-error" class="dashboard-alert" style="display:none;">
+          ⚠️ No se pudo conectar con el servidor. Verifica que el backend esté corriendo en <strong>http://localhost:3001</strong>
+        </div>
+
+        <!-- Tarjetas de resumen (KPIs) -->
+        <div class="stats-grid">
+          <div class="stat-card stat-card--ocupacion">
+            <div class="stat-card__icon">🏕️</div>
+            <div class="stat-card__info">
+              <span class="stat-card__numero" id="kpi-ocupacion">—</span>
+              <span class="stat-card__label">Tasa de Ocupación</span>
+            </div>
+            <div class="stat-card__sub" id="kpi-ocupacion-sub">
+              <span class="kpi-trend kpi-trend--positive" id="kpi-ocupacion-trend"></span> vs mes anterior
+            </div>
+          </div>
+
+          <div class="stat-card stat-card--ingresos">
+            <div class="stat-card__icon">💰</div>
+            <div class="stat-card__info">
+              <span class="stat-card__numero" id="kpi-ingresos" style="font-size: 1.8rem;">—</span>
+              <span class="stat-card__label">Ingresos Mensuales</span>
+            </div>
+            <div class="stat-card__sub" id="kpi-ingresos-sub">
+              <span class="kpi-trend kpi-trend--positive" id="kpi-ingresos-trend"></span> este mes
+            </div>
+          </div>
+
+          <div class="stat-card stat-card--satisfaccion">
+            <div class="stat-card__icon">⭐</div>
+            <div class="stat-card__info">
+              <span class="stat-card__numero" id="kpi-satisfaccion">—</span>
+              <span class="stat-card__label">Satisfacción del Cliente</span>
+            </div>
+            <div class="stat-card__sub" id="kpi-satisfaccion-sub">
+              <span class="kpi-trend kpi-trend--positive" id="kpi-satisfaccion-trend"></span> promedio general
+            </div>
+          </div>
+
+          <div class="stat-card stat-card--reservas">
+            <div class="stat-card__icon">📅</div>
+            <div class="stat-card__info">
+              <span class="stat-card__numero" id="kpi-reservas">—</span>
+              <span class="stat-card__label">Reservas Activas</span>
+            </div>
+            <div class="stat-card__sub" id="kpi-reservas-sub">
+              <span class="kpi-trend kpi-trend--positive" id="kpi-reservas-trend"></span> programadas esta semana
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ GRÁFICAS ══════════════════════════════════════════════════════ -->
+        <div class="dashboard-graficas">
+
+          <!-- Gráfica 1: Estado de cabañas (Dona) -->
+          <div class="dashboard-card grafica-card">
+            <div class="dashboard-card__header">
+              <h2 class="dashboard-card__titulo">🏕️ Estado de cabañas</h2>
+            </div>
+            <div class="grafica-body">
+              <canvas id="grafica-cabanas"></canvas>
+            </div>
+          </div>
+
+          <!-- Gráfica 2: Clientes activos vs inactivos (Barras) -->
+          <div class="dashboard-card grafica-card">
+            <div class="dashboard-card__header">
+              <h2 class="dashboard-card__titulo">👥 Clientes</h2>
+            </div>
+            <div class="grafica-body">
+              <canvas id="grafica-clientes"></canvas>
+            </div>
+          </div>
+
+          <!-- Gráfica 3: Reservas por estado (Barras horizontales) -->
+          <div class="dashboard-card grafica-card grafica-card--wide">
+            <div class="dashboard-card__header">
+              <h2 class="dashboard-card__titulo">📅 Reservas Activas</h2>
+            </div>
+            <div class="grafica-body">
+              <canvas id="grafica-reservas"></canvas>
+            </div>
+          </div>
+
+        </div>
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+        <!-- Fila inferior: Top Paquetes y Servicios -->
+        <div class="dashboard-bottom">
+
+          <!-- Top Paquetes -->
+          <div class="dashboard-card">
+            <div class="dashboard-card__header">
+              <h2 class="dashboard-card__titulo">✈️ Top Paquetes</h2>
+              <a href="paquetes.html" class="dashboard-card__ver-todo">Ver todos</a>
+            </div>
+            <div class="table-wrapper" id="tabla-top-paquetes">
+              <p class="dashboard-loading">Cargando...</p>
+            </div>
+          </div>
+
+          <!-- Top Servicios -->
+          <div class="dashboard-card">
+            <div class="dashboard-card__header">
+              <h2 class="dashboard-card__titulo">⭐ Top Servicios</h2>
+              <a href="servicios.html" class="dashboard-card__ver-todo">Ver todos</a>
+            </div>
+            <div class="table-wrapper" id="tabla-top-servicios">
+              <p class="dashboard-loading">Cargando...</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <div id="footer-container"></div>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>
