@@ -453,7 +453,7 @@ async function cargarHabitaciones() {
                             <h3>${h.NombreHabitacion || 'Habitación'}</h3>
                             <p>${h.Descripcion || 'Descripción breve de la habitación.'}</p>
                         </div>
-                        <div class="room-info" style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                        <div class="room-info" style="margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
                             <span class="room-price">${precio}</span>
                         </div>
                         <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
@@ -761,7 +761,7 @@ async function cargarCabanas() {
                                 <span>🚪 Habitaciones: ${c.NumeroHabitaciones || 0}</span>
                             </div>
                         </div>
-                        <div class="room-info" style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                        <div class="room-info" style="margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
                             <span class="room-price">${precio}</span>
                         </div>
                         <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
@@ -1257,27 +1257,30 @@ async function cargarPaquetes() {
                                     <h3>${p.NombrePaquete || p.nombre || 'Paquete'}</h3>
                                     <p>${p.Descripcion || 'Sin descripción disponible.'}</p>
                                     <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 0.5rem; display: flex; flex-direction: column; gap: 4px;">
-                                        <span>🏠 Habitación: ${p.NombreHabitacion || '-'}</span>
-                                        <span>🛠️ Servicio: ${p.NombreServicio || '-'}</span>
+                                        ${p.NombreHabitacion ? `<span>🏠 Habitación: ${p.NombreHabitacion}</span>` : ''}
+                                        ${p.NombreCabana ? `<span>🏕️ Cabaña: ${p.NombreCabana}</span>` : ''}
+                                        <span>🛠️ Servicios: ${p.NombreServicio || '-'}</span>
                                     </div>
                                 </div>
-                                <div class="room-info" style="margin-top: 1rem; display: flex; align-items: center; gap: 8px;">
+                                <div class="room-info" style="margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
                                     <span class="room-price">${precio}</span>
-                                    <span class="badge-status ${estadoClass}">${estado}</span>
-                                    <button onclick="toggleEstadoPaquete(${p.IDPaquete}, ${p.Estado})" class="btn-icon-admin" title="Cambiar Estado" style="padding:4px;">
-                                        <i data-lucide="refresh-cw" style="width:16px;"></i>
-                                    </button>
                                 </div>
-                                <div class="card__acciones" style="display:flex; gap:8px; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
-                                    <button onclick="verDetallePaquete(${p.IDPaquete})" class="btn-icon-admin btn-view" title="Ver Detalle">
-                                        <i data-lucide="eye" style="width:16px;"></i>
-                                    </button>
-                                    <button onclick="editarPaquete(${p.IDPaquete})" class="btn-icon-admin btn-edit" title="Editar">
-                                        <i data-lucide="edit-2" style="width:16px;"></i>
-                                    </button>
-                                    <button onclick="eliminarPaquete(${p.IDPaquete})" class="btn-icon-admin btn-delete" title="Eliminar">
-                                        <i data-lucide="trash-2" style="width:16px;"></i>
-                                    </button>
+                                <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
+                                    <span class="badge-status ${estadoClass}">${estado}</span>
+                                    <div style="display:flex; gap:8px;">
+                                        <button onclick="toggleEstadoPaquete(${p.IDPaquete}, ${p.Estado})" class="btn-icon-admin" title="Cambiar Estado">
+                                            <i data-lucide="refresh-cw" style="width:16px;"></i>
+                                        </button>
+                                        <button onclick="verDetallePaquete(${p.IDPaquete})" class="btn-icon-admin btn-view" title="Ver Detalle">
+                                            <i data-lucide="eye" style="width:16px;"></i>
+                                        </button>
+                                        <button onclick="editarPaquete(${p.IDPaquete})" class="btn-icon-admin btn-edit" title="Editar">
+                                            <i data-lucide="edit-2" style="width:16px;"></i>
+                                        </button>
+                                        <button onclick="eliminarPaquete(${p.IDPaquete})" class="btn-icon-admin btn-delete" title="Eliminar">
+                                            <i data-lucide="trash-2" style="width:16px;"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </article>`;
@@ -1353,7 +1356,7 @@ async function cargarServicios() {
                                         <span>👥 Max. Personas: ${s.CantidadMaximaPersonas || '-'}</span>
                                     </div>
                                 </div>
-                                <div class="room-info" style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                                <div class="room-info" style="margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
                                     <span class="room-price">${costo}</span>
                                 </div>
                                 <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
@@ -1959,6 +1962,45 @@ async function abrirModalCrear() {
     document.getElementById('modalOverlay').classList.add('activo');
 }
 
+window.calcularPrecioPaquete = () => {
+    let subtotal = 0;
+    
+    // Habitación
+    const habSelect = document.getElementById('select-habitacion');
+    if (habSelect && habSelect.selectedOptions.length > 0) {
+        subtotal += Number(habSelect.selectedOptions[0].dataset.precio || 0);
+    }
+    
+    // Cabaña
+    const cabSelect = document.getElementById('select-cabana');
+    if (cabSelect && cabSelect.selectedOptions.length > 0) {
+        subtotal += Number(cabSelect.selectedOptions[0].dataset.precio || 0);
+    }
+    
+    // Servicios
+    const servCheckboxes = document.querySelectorAll('input[name="IDServicioCheckbox"]:checked');
+    servCheckboxes.forEach(chk => {
+        subtotal += Number(chk.dataset.precio || 0);
+    });
+    
+    // Descuento
+    const descInput = document.getElementById('input-descuento');
+    const precioFinalInput = document.getElementById('input-precio-final');
+    
+    if (descInput && precioFinalInput) {
+        const numServicios = document.querySelectorAll('input[name="IDServicioCheckbox"]:checked').length;
+        let total = subtotal;
+        
+        if (numServicios >= 2) {
+            const descuento = Number(descInput.value || 0);
+            total = subtotal - (subtotal * (descuento / 100)); // Calculado como porcentaje
+        }
+        
+        if (total < 0) total = 0;
+        precioFinalInput.value = total;
+    }
+};
+
 function renderForm(section, data = null, extra = {}) {
     const isEdit = !!data;
     let fields = '';
@@ -1997,50 +2039,61 @@ function renderForm(section, data = null, extra = {}) {
             fields = `
                 <div class="form-group">
                     <label>🆔 NRO DOCUMENTO</label>
-                    <input type="text" name="NroDocumento" value="${data?.NroDocumento || ''}" ${isEdit ? 'readonly' : ''} required>
+                    <input type="text" name="NroDocumento" value="${data?.NroDocumento || ''}" pattern="\\d+" title="Solo debe contener números." required>
+                    <span class="field-error" id="err-NroDocumento"></span>
                 </div>
                 <div class="form-group">
                     <label>👤 NOMBRE</label>
-                    <input type="text" name="Nombre" value="${data?.Nombre || ''}" required>
+                    <input type="text" name="Nombre" value="${data?.Nombre || ''}" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo debe contener letras y espacios." required>
+                    <span class="field-error" id="err-Nombre"></span>
                 </div>
                 <div class="form-group">
                     <label>👤 APELLIDO</label>
-                    <input type="text" name="Apellido" value="${data?.Apellido || ''}">
+                    <input type="text" name="Apellido" value="${data?.Apellido || ''}" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo debe contener letras y espacios.">
+                    <span class="field-error" id="err-Apellido"></span>
                 </div>
                 <div class="form-group">
                     <label>📧 EMAIL</label>
-                    <input type="email" name="Email" value="${data?.Email || ''}" required>
+                    <input type="email" name="Email" value="${data?.Email || data?.Correo || ''}" required>
                 </div>
                 <div class="form-group">
                     <label>📞 TELÉFONO</label>
-                    <input type="text" name="Telefono" value="${data?.Telefono || ''}">
+                    <input type="text" name="Telefono" value="${data?.Telefono || ''}" pattern="\\d+" title="Solo debe contener números.">
+                    <span class="field-error" id="err-Telefono"></span>
                 </div>
                 <div class="form-group">
                     <label>📍 DIRECCIÓN</label>
                     <input type="text" name="Direccion" value="${data?.Direccion || ''}">
-                </div>`;
+                </div>
+                ${isEdit ? `<input type="hidden" name="Estado" value="${data?.Estado ?? 1}">` : ''}
+                ${isEdit ? `<input type="hidden" name="IDRol" value="${data?.IDRol ?? 1}">` : ''}`;
             break;
         case 'cabanas':
             fields = `
                 <div class="form-group">
                     <label>🏠 NOMBRE DE LA CABAÑA</label>
-                    <input type="text" name="NombreCabana" value="${data?.NombreCabana || ''}" required>
+                    <input type="text" name="NombreCabana" value="${data?.NombreCabana || ''}" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo debe contener letras y espacios." required>
+                    <span class="field-error" id="err-NombreCabana"></span>
                 </div>
                 <div class="form-group">
                     <label>📝 DESCRIPCIÓN</label>
-                    <textarea name="Descripcion">${data?.Descripcion || ''}</textarea>
+                    <textarea name="Descripcion" title="Solo debe contener letras y espacios.">${data?.Descripcion || ''}</textarea>
+                    <span class="field-error" id="err-Descripcion"></span>
                 </div>
                 <div class="form-group">
                     <label>👥 CAPACIDAD DE PERSONAS</label>
-                    <input type="number" name="CapacidadPersonas" value="${data?.CapacidadPersonas || ''}" required>
+                    <input type="text" name="CapacidadPersonas" value="${data?.CapacidadPersonas || ''}" pattern="\\d+" title="Solo debe contener números." required>
+                    <span class="field-error" id="err-CapacidadPersonas"></span>
                 </div>
                 <div class="form-group">
                     <label>🚪 NÚMERO DE HABITACIONES</label>
-                    <input type="number" name="NumeroHabitaciones" value="${data?.NumeroHabitaciones || ''}" required>
+                    <input type="text" name="NumeroHabitaciones" value="${data?.NumeroHabitaciones || ''}" pattern="\\d+" title="Solo debe contener números." required>
+                    <span class="field-error" id="err-NumeroHabitaciones"></span>
                 </div>
                 <div class="form-group">
                     <label>💰 PRECIO POR NOCHE</label>
-                    <input type="number" name="PrecioNoche" value="${data?.PrecioNoche || ''}" required>
+                    <input type="text" name="PrecioNoche" value="${data?.PrecioNoche || ''}" pattern="\\d+" title="Solo debe contener números." required>
+                    <span class="field-error" id="err-PrecioNoche"></span>
                 </div>
                 <div class="form-group" style="text-align: center; margin-bottom: 1rem;">
                     <img id="preview-img-modal" src="${data?.ImagenCabana || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
@@ -2048,7 +2101,8 @@ function renderForm(section, data = null, extra = {}) {
                 <div class="form-group">
                     <label>🖼️ IMAGEN URL</label>
                     <input type="text" name="ImagenCabana" value="${data?.ImagenCabana || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'">
-                </div>`;
+                </div>
+                ${isEdit ? `<input type="hidden" name="Estado" value="${data?.Estado ?? 1}">` : ''}`;
             break;
         case 'usuarios':
             fields = `
@@ -2093,6 +2147,7 @@ function renderForm(section, data = null, extra = {}) {
                 </div>` : ''}`;
             break;
         case 'paquetes':
+            const selectedServices = (data?.IDServicio || '').toString().split(',');
             fields = `
                 <div class="form-group">
                     <label>📦 NOMBRE PAQUETE</label>
@@ -2104,40 +2159,50 @@ function renderForm(section, data = null, extra = {}) {
                 </div>
                 <div class="form-group">
                     <label>🏨 HABITACIÓN</label>
-                    <select name="IDHabitacion" required>
-                        <option value="">Seleccione una...</option>
+                    <select name="IDHabitacion" id="select-habitacion" onchange="window.calcularPrecioPaquete()">
+                        <option value="" data-precio="0">Ninguna</option>
                         ${(extra.habitaciones || []).filter(h => h.Estado === 1 || h.IDHabitacion === data?.IDHabitacion).map(h => `
-                            <option value="${h.IDHabitacion}" ${h.IDHabitacion === data?.IDHabitacion ? 'selected' : ''}>
-                                ${h.NombreHabitacion}
-                            </option>
-                        `).join('')}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>🛠️ SERVICIO</label>
-                    <select name="IDServicio" required>
-                        <option value="">Seleccione uno...</option>
-                        ${(extra.servicios || []).map(s => `
-                            <option value="${s.IDServicio}" ${s.IDServicio === data?.IDServicio ? 'selected' : ''}>
-                                 ${s.nombre || s.NombreServicio}
+                            <option value="${h.IDHabitacion}" data-precio="${h.precio || h.Precio || 0}" ${h.IDHabitacion === data?.IDHabitacion ? 'selected' : ''}>
+                                ${h.NombreHabitacion} ($${Number(h.precio || h.Precio || 0).toLocaleString('es-CO')})
                             </option>
                         `).join('')}
                     </select>
                 </div>
                 <div class="form-group">
                     <label>🏕️ CABAÑA</label>
-                    <select name="IDCabana">
-                        <option value="">Seleccione una...</option>
-                        ${(extra.cabanas || []).filter(c => Number(c.Estado) === 5 || c.IDCabana === data?.IDCabana).map(c => `
-                            <option value="${c.IDCabana}" ${c.IDCabana === data?.IDCabana ? 'selected' : ''}>
-                                ${c.NombreCabana}
+                    <select name="IDCabana" id="select-cabana" onchange="window.calcularPrecioPaquete()">
+                        <option value="" data-precio="0">Ninguna</option>
+                        ${(extra.cabanas || []).filter(c => Number(c.Estado) === 1 || c.IDCabana === data?.IDCabana).map(c => `
+                            <option value="${c.IDCabana}" data-precio="${c.PrecioNoche || c.precioNoche || 0}" ${c.IDCabana === data?.IDCabana ? 'selected' : ''}>
+                                ${c.NombreCabana} ($${Number(c.PrecioNoche || c.precioNoche || 0).toLocaleString('es-CO')})
                             </option>
                         `).join('')}
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>💰 PRECIO</label>
-                    <input type="number" name="precio" value="${data?.precio || data?.Precio || ''}" required>
+                    <label>🛠️ SERVICIOS INCLUIDOS</label>
+                    <div id="checkboxes-servicios" style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                        ${(extra.servicios || []).map(s => `
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; margin: 0; padding: 4px; transition: background 0.2s; border-radius: 4px;">
+                                <input type="checkbox" name="IDServicioCheckbox" value="${s.IDServicio}" data-precio="${s.precio || s.Costo || 0}" ${selectedServices.includes(s.IDServicio.toString()) ? 'checked' : ''} onchange="window.calcularPrecioPaquete()" style="width: 18px; height: 18px; accent-color: #6366f1; cursor: pointer;">
+                                <span>${s.nombre || s.NombreServicio} <strong style="color: rgba(255,255,255,0.5); font-weight: normal;">($${Number(s.precio || s.Costo || 0).toLocaleString('es-CO')})</strong></span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+                <div style="background-color: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1);">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>📉 DESCUENTO (%)</span>
+                            <span style="font-size: 0.8rem; color: #10b981; font-weight: normal;">(Se aplica al elegir 2 o más servicios)</span>
+                        </label>
+                        <input type="number" name="Descuento" id="input-descuento" value="${data?.Descuento || 0}" oninput="window.calcularPrecioPaquete()" min="0" max="100" step="any">
+                        <input type="hidden" name="TipoDescuento" value="porcentaje">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>💰 PRECIO FINAL AUTOMÁTICO</label>
+                    <input type="number" name="precio" id="input-precio-final" value="${data?.precio || data?.Precio || 0}" required readonly style="background-color: rgba(255,255,255,0.05); color: #10b981; font-weight: bold;">
                 </div>
                 <div class="form-group" style="text-align: center; margin-bottom: 1rem;">
                     <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
@@ -2199,7 +2264,7 @@ function renderForm(section, data = null, extra = {}) {
     switch (section) {
         case 'habitaciones': itemId = data?.IDHabitacion || null; break;
         case 'usuarios':     itemId = data?.IDUsuario    || null; break;
-        case 'clientes':     itemId = data?.NroDocumento || null; break;
+        case 'clientes':     itemId = data?.IDCliente    || null; break;
         case 'cabanas':      itemId = data?.IDCabana     || null; break;
         case 'paquetes':     itemId = data?.IDPaquete    || null; break;
         case 'servicios':    itemId = data?.IDServicio   || null; break;
@@ -2217,11 +2282,65 @@ function renderForm(section, data = null, extra = {}) {
             if (descrEl) {
                 body.Descripcion = descrEl.value.trim();
             }
+            const checkboxes = document.querySelectorAll('input[name="IDServicioCheckbox"]:checked');
+            body.IDServicio = Array.from(checkboxes).map(c => c.value);
+        }
+
+        // Limpiar errores previos
+        document.querySelectorAll('.field-error').forEach(el => { el.textContent = ''; el.classList.remove('visible'); });
+        document.querySelectorAll('.form-group input, .form-group textarea').forEach(el => el.classList.remove('input-error'));
+
+        // Validación Frontend con errores inline
+        const letrasEspaciosRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+        const numerosRegex = /^\d+$/;
+        let hayError = false;
+
+        function marcarError(campo, mensaje) {
+            const errEl = document.getElementById('err-' + campo);
+            const inputEl = e.target.querySelector(`[name="${campo}"]`);
+            if (errEl) { errEl.textContent = mensaje; errEl.classList.add('visible'); }
+            if (inputEl) inputEl.classList.add('input-error');
+            hayError = true;
+        }
+
+        if (section === 'clientes') {
+            if (body.Nombre && !letrasEspaciosRegex.test(body.Nombre)) {
+                marcarError('Nombre', 'Solo debe contener letras y espacios.');
+            }
+            if (body.Apellido && !letrasEspaciosRegex.test(body.Apellido)) {
+                marcarError('Apellido', 'Solo debe contener letras y espacios.');
+            }
+            if (body.NroDocumento && !numerosRegex.test(body.NroDocumento)) {
+                marcarError('NroDocumento', 'Solo debe contener números.');
+            }
+            if (body.Telefono && !numerosRegex.test(body.Telefono)) {
+                marcarError('Telefono', 'Solo debe contener números.');
+            }
+        } else if (section === 'cabanas') {
+            if (body.NombreCabana && !letrasEspaciosRegex.test(body.NombreCabana)) {
+                marcarError('NombreCabana', 'Solo debe contener letras y espacios.');
+            }
+            if (body.Descripcion && !letrasEspaciosRegex.test(body.Descripcion)) {
+                marcarError('Descripcion', 'Solo debe contener letras y espacios.');
+            }
+            if (body.CapacidadPersonas && !numerosRegex.test(body.CapacidadPersonas.toString())) {
+                marcarError('CapacidadPersonas', 'Solo debe contener números.');
+            }
+            if (body.NumeroHabitaciones && !numerosRegex.test(body.NumeroHabitaciones.toString())) {
+                marcarError('NumeroHabitaciones', 'Solo debe contener números.');
+            }
+            if (body.PrecioNoche && !numerosRegex.test(body.PrecioNoche.toString())) {
+                marcarError('PrecioNoche', 'Solo debe contener números.');
+            }
+        }
+
+        if (hayError) {
+            return mostrarNotificacion('Corrige los errores marcados en el formulario.', 'error', 'Error de Validación');
         }
 
         // Conversión de tipos para números
         ['precio', 'PrecioNoche', 'CapacidadPersonas', 'CantidadMaximaPersonas', 'NumeroHabitaciones', 'IDHabitacion', 'IDServicio', 'IDCabana', 'IDRol', 'Estado'].forEach(key => {
-            if (body[key]) body[key] = Number(body[key]);
+            if (body[key] !== undefined && body[key] !== '') body[key] = Number(body[key]);
         });
 
         const method = id ? 'PUT' : 'POST';
@@ -2240,7 +2359,7 @@ function renderForm(section, data = null, extra = {}) {
                 mostrarNotificacion(`Registro ${id ? 'actualizado' : 'creado'} correctamente.`, 'success');
             } else {
                 const err = await res.json();
-                mostrarNotificacion(err.message || 'No se pudo guardar el registro.', 'error', 'Error al guardar');
+                mostrarNotificacion(err.error || err.message || 'No se pudo guardar el registro.', 'error', 'Error al guardar');
             }
         } catch (e) {
             mostrarNotificacion('Error de conexión con el servidor.', 'error');

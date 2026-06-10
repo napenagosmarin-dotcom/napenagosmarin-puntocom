@@ -549,6 +549,54 @@
       .stats-bar { flex-wrap: wrap; gap: 32px; padding: 40px 24px; }
       .rooms-header { flex-direction: column; gap: 20px; align-items: flex-start; }
     }
+    /* ─── MODAL PREMIUM ─── */
+    .landing-modal-overlay {
+      position: fixed; inset: 0; z-index: 99999;
+      background: rgba(10,8,24,0.8); backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden; transition: all 0.4s ease;
+      padding: 20px;
+    }
+    .landing-modal-overlay.active { opacity: 1; visibility: visible; }
+    .landing-modal {
+      background: linear-gradient(135deg, rgba(13,11,46,0.95), rgba(10,8,24,0.98));
+      border: 1px solid rgba(0,212,255,0.2); border-radius: 16px;
+      width: 100%; max-width: 900px; max-height: 90vh;
+      overflow-y: auto; display: flex; flex-direction: column;
+      position: relative;
+      transform: scale(0.95) translateY(20px); transition: all 0.4s ease;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .landing-modal-overlay.active .landing-modal { transform: scale(1) translateY(0); }
+    .landing-modal-close {
+      position: absolute; top: 20px; right: 20px; z-index: 10;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s; font-size: 1.2rem;
+    }
+    .landing-modal-close:hover { background: var(--c-cyan); color: var(--c-dark); border-color: var(--c-cyan); transform: rotate(90deg); }
+    .landing-modal-hero { width: 100%; height: 350px; position: relative; flex-shrink: 0; }
+    .landing-modal-img { width: 100%; height: 100%; object-fit: cover; border-radius: 15px 15px 0 0; }
+    .landing-modal-hero::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,8,24,1) 0%, transparent 80%);
+    }
+    .landing-modal-body { padding: 40px; position: relative; z-index: 2; margin-top: -60px; }
+    .landing-modal-tag { font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--c-cyan); margin-bottom: 10px; display: inline-block; font-weight: 600; }
+    .landing-modal-title { font-family: var(--ff-serif); font-size: 2.8rem; font-weight: 400; line-height: 1.1; margin-bottom: 20px; }
+    .landing-modal-price { font-size: 1.2rem; font-weight: 300; color: rgba(255,255,255,0.7); margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+    .landing-modal-price span { color: var(--c-cyan); font-size: 1.8rem; font-weight: 500; }
+    .landing-modal-desc { font-size: 1rem; font-weight: 300; color: rgba(255,255,255,0.6); line-height: 1.8; margin-bottom: 40px; }
+    .landing-modal-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px; }
+    .lm-feature { display: flex; align-items: center; gap: 12px; }
+    .lm-feature i { color: var(--c-cyan); font-size: 1.2rem; width: 20px; text-align: center; }
+    .lm-feature div { font-size: 0.9rem; color: rgba(255,255,255,0.8); }
+    @media (max-width: 768px) {
+      .landing-modal-hero { height: 250px; }
+      .landing-modal-body { padding: 24px; margin-top: -40px; }
+      .landing-modal-title { font-size: 2rem; }
+    }
   </style>
 </head>
 <body>
@@ -701,43 +749,8 @@
       </div>
 
     </div>
-    <div class="rooms-grid reveal">
-      <div class="room-card">
-        <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80" alt="Suite Presidencial"/>
-        <div class="room-card-overlay">
-          <span class="room-tag">Suite Exclusiva</span>
-          <div class="room-name">Suite Presidencial</div>
-          <div class="room-price">Desde <span>$850.000</span> / noche</div>
-        </div>
-        <div class="room-arrow">→</div>
-      </div>
-      <div class="room-card">
-        <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80" alt="Junior Suite"/>
-        <div class="room-card-overlay">
-          <span class="room-tag">Suite</span>
-          <div class="room-name">Junior Suite</div>
-          <div class="room-price">Desde <span>$420.000</span> / noche</div>
-        </div>
-        <div class="room-arrow">→</div>
-      </div>
-      <div class="room-card">
-        <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=600&q=80" alt="Habitación Deluxe"/>
-        <div class="room-card-overlay">
-          <span class="room-tag">Deluxe</span>
-          <div class="room-name">Habitación Deluxe</div>
-          <div class="room-price">Desde <span>$280.000</span> / noche</div>
-        </div>
-        <div class="room-arrow">→</div>
-      </div>
-      <div class="room-card">
-        <img src="https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=600&q=80" alt="Suite Vista Ciudad"/>
-        <div class="room-card-overlay">
-          <span class="room-tag">Vista Panorámica</span>
-          <div class="room-name">Suite Vista Ciudad</div>
-          <div class="room-price">Desde <span>$560.000</span> / noche</div>
-        </div>
-        <div class="room-arrow">→</div>
-      </div>
+    <div class="rooms-grid reveal" id="grid-habitaciones">
+      <!-- Habitaciones renderizadas dinámicamente -->
     </div>
   </section>
   <!-- ── PAQUETES ── -->
@@ -749,35 +762,8 @@
     </div>
   </div>
 
-  <div class="rooms-grid reveal">
-
-    <div class="room-card">
-      <img src="https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&w=800&q=80"/>
-      <div class="room-card-overlay">
-        <span class="room-tag">Romántico</span>
-        <div class="room-name">Escapada en Pareja</div>
-        <div class="room-price">Desde <span>$1.200.000</span></div>
-      </div>
-    </div>
-
-    <div class="room-card">
-      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"/>
-      <div class="room-card-overlay">
-        <span class="room-tag">Aventura</span>
-        <div class="room-name">Tour Medellín Extremo</div>
-        <div class="room-price">Desde <span>$950.000</span></div>
-      </div>
-    </div>
-
-    <div class="room-card">
-      <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80"/>
-      <div class="room-card-overlay">
-        <span class="room-tag">Relax</span>
-        <div class="room-name">Spa & Bienestar</div>
-        <div class="room-price">Desde <span>$780.000</span></div>
-      </div>
-    </div>
-
+  <div class="rooms-grid reveal" id="grid-paquetes">
+    <!-- Paquetes renderizados dinámicamente -->
   </div>
 </section>
 
@@ -790,53 +776,8 @@
       <h2 class="section-title reveal reveal-delay-1">Servicios <em>Premium</em></h2>
     </div>
 
-    <div class="services-grid">
-
-      <div class="service-card reveal">
-        <div class="service-icon">
-          <i class="fas fa-utensils"></i>
-        </div>
-        <div class="service-name">Restaurante de Autor</div>
-        <p class="service-desc">Cocina de fusión colombiana con ingredientes de temporada y maridaje exclusivo.</p>
-        <div class="service-line"></div>
-      </div>
-
-      <div class="service-card reveal reveal-delay-1">
-        <div class="service-icon">
-          <i class="fas fa-spa"></i>
-        </div>
-        <div class="service-name">Spa &amp; Bienestar</div>
-        <p class="service-desc">Rituales ancestrales y tratamientos modernos para la renovación total del cuerpo y mente.</p>
-        <div class="service-line"></div>
-      </div>
-
-      <div class="service-card reveal reveal-delay-2">
-        <div class="service-icon">
-          <i class="fas fa-water"></i>
-        </div>
-        <div class="service-name">Piscina Infinita</div>
-        <p class="service-desc">Vista panorámica de Medellín desde nuestra piscina exterior con temperatura controlada.</p>
-        <div class="service-line"></div>
-      </div>
-
-      <div class="service-card reveal reveal-delay-1">
-        <div class="service-icon">
-          <i class="fas fa-landmark"></i>
-        </div>
-        <div class="service-name">Experiencias Culturales</div>
-        <p class="service-desc">Tours guiados, visitas a museos y experiencias auténticas de la cultura paisa.</p>
-        <div class="service-line"></div>
-      </div>
-
-      <div class="service-card reveal reveal-delay-2">
-        <div class="service-icon">
-          <i class="fas fa-dumbbell"></i>
-        </div>
-        <div class="service-name">Fitness &amp; Yoga</div>
-        <p class="service-desc">Gimnasio equipado y clases de yoga al amanecer con vista a la montaña.</p>
-        <div class="service-line"></div>
-      </div>
-
+    <div class="services-grid" id="grid-servicios">
+      <!-- Servicios renderizados dinámicamente -->
     </div>
   </div>
 </section>
@@ -1000,6 +941,34 @@
     }
     setInterval(() => goTo((current + 1) % testimonials.length), 5000);
   </script>
+  
+  <!-- MODAL PREMIUM HTML -->
+  <div class="landing-modal-overlay" id="landingModalOverlay" onclick="cerrarModalDetalle(event)">
+    <div class="landing-modal" id="landingModal">
+      <button class="landing-modal-close" onclick="cerrarModalDetalle(event, true)">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="landing-modal-hero">
+        <img class="landing-modal-img" id="lm-img" src="" alt="Imagen de detalle">
+      </div>
+      <div class="landing-modal-body">
+        <span class="landing-modal-tag" id="lm-tag">Etiqueta</span>
+        <h2 class="landing-modal-title" id="lm-title">Título del Elemento</h2>
+        <div class="landing-modal-price">
+          Desde <span id="lm-price">$0</span> <span id="lm-price-suffix" style="font-size:1rem;"></span>
+        </div>
+        <p class="landing-modal-desc" id="lm-desc">Descripción detallada del elemento.</p>
+        <div class="landing-modal-features" id="lm-features">
+          <!-- Características inyectadas con JS -->
+        </div>
+        <div class="landing-modal-actions">
+          <button class="btn-hero-primary" onclick="window.location.href='src/pages/login.html'">Reservar Ahora</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="src/js/landing.js"></script>
 </body>
 </html>
 

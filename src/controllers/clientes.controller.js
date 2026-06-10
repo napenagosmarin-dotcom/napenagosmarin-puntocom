@@ -4,6 +4,18 @@
 
 const Cliente = require('../models/models.cliente.js');
 
+
+const letrasEspaciosRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+const numerosRegex = /^\d+$/;
+
+function validarCliente(data) {
+    if (data.Nombre && !letrasEspaciosRegex.test(data.Nombre.toString())) return 'El nombre solo debe contener letras y espacios.';
+    if (data.Apellido && !letrasEspaciosRegex.test(data.Apellido.toString())) return 'El apellido solo debe contener letras y espacios.';
+    if (data.NroDocumento && !numerosRegex.test(data.NroDocumento.toString())) return 'El documento solo debe contener números.';
+    if (data.Telefono && !numerosRegex.test(data.Telefono.toString())) return 'El teléfono solo debe contener números.';
+    return null;
+}
+
 const ClientesController = {
 
     async getAllClientes(req, res) {
@@ -48,6 +60,9 @@ const ClientesController = {
 
     async createCliente(req, res) {
         try {
+            const errorValidacion = validarCliente(req.body);
+            if (errorValidacion) return res.status(400).json({ error: errorValidacion });
+
             const nuevoCliente = await Cliente.create(req.body);
             res.status(201).json(nuevoCliente);
         } catch (error) {
@@ -57,6 +72,9 @@ const ClientesController = {
 
     async updateCliente(req, res) {
         try {
+            const errorValidacion = validarCliente(req.body);
+            if (errorValidacion) return res.status(400).json({ error: errorValidacion });
+
             const actualizado = await Cliente.update(req.params.IDCliente, req.body);
             if (!actualizado) return res.status(404).json({ error: 'Cliente no encontrado' });
             res.json({ message: 'Cliente actualizado correctamente' });

@@ -1,5 +1,7 @@
 const db = require('../config/db');
 
+const bcrypt = require('bcryptjs');
+
 const getAll = async () => {
   try {
     const [results] = await db.query('SELECT * FROM usuarios');
@@ -12,9 +14,11 @@ const getAll = async () => {
 const create = async (data) => {
   try {
     const { NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, IDRol, Estado } = data;
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(Contrasena, salt);
     const [result] = await db.query(
       'INSERT INTO usuarios (NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, IDRol, Estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, IDRol || 1, Estado || 1]
+      [NombreUsuario, hashedPassword, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, IDRol || 1, Estado || 1]
     );
     return getById(result.insertId);
   } catch (error) {

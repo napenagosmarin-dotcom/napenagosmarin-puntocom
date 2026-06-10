@@ -31,10 +31,10 @@ const Cabana = {
     // Crear nueva cabaña
     async create(data) {
         // Cambiamos ImagenUrl por ImagenCabana para que coincida con la DB
-        const { NombreCabana, Descripcion, CapacidadPersonas, PrecioNoche, Estado, ImagenCabana } = data;
+        const { NombreCabana, Descripcion, CapacidadPersonas, PrecioNoche, Estado, ImagenCabana, NumeroHabitaciones } = data;
         const [result] = await pool.query(
-            'INSERT INTO cabanas (NombreCabana, Descripcion, CapacidadPersonas, PrecioNoche, Estado, ImagenCabana) VALUES (?, ?, ?, ?, ?, ?)',
-            [NombreCabana, Descripcion, CapacidadPersonas, PrecioNoche, Estado ?? 1, ImagenCabana ?? null]
+            'INSERT INTO cabanas (NombreCabana, Descripcion, CapacidadPersonas, PrecioNoche, Estado, ImagenCabana, NumeroHabitaciones) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [NombreCabana, Descripcion, CapacidadPersonas, PrecioNoche, Estado ?? 1, ImagenCabana ?? null, NumeroHabitaciones]
         );
         return { id: result.insertId, ...data };
     },
@@ -42,10 +42,10 @@ const Cabana = {
     // Actualizar cabaña
     async update(id, data) {
         // Cambiamos ImagenUrl por ImagenCabana
-        const { NombreCabana, Descripcion, CapacidadPersonas, PrecioNoche, Estado, ImagenCabana } = data;
+        const { NombreCabana, Descripcion, CapacidadPersonas, PrecioNoche, Estado, ImagenCabana, NumeroHabitaciones } = data;
         const [result] = await pool.query(
-            'UPDATE cabanas SET NombreCabana = ?, Descripcion = ?, CapacidadPersonas = ?, PrecioNoche = ?, Estado = ?, ImagenCabana = ? WHERE IDCabana = ?',
-            [NombreCabana, Descripcion, CapacidadPersonas, PrecioNoche, Estado, ImagenCabana ?? null, id]
+            'UPDATE cabanas SET NombreCabana = ?, Descripcion = ?, CapacidadPersonas = ?, PrecioNoche = ?, Estado = ?, ImagenCabana = ?, NumeroHabitaciones = ? WHERE IDCabana = ?',
+            [NombreCabana, Descripcion, CapacidadPersonas, PrecioNoche, Estado, ImagenCabana ?? null, NumeroHabitaciones, id]
         );
         return result.affectedRows > 0;
     },

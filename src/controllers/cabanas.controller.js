@@ -5,6 +5,19 @@
 
 const Cabana = require('../models/models.cabanas.js');
 
+
+const letrasEspaciosRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+const numerosRegex = /^\d+$/;
+
+function validarCabana(data) {
+    if (data.NombreCabana && !letrasEspaciosRegex.test(data.NombreCabana.toString())) return 'El nombre de la cabaña solo debe contener letras y espacios.';
+    if (data.Descripcion && !letrasEspaciosRegex.test(data.Descripcion.toString())) return 'La descripción solo debe contener letras y espacios.';
+    if (data.CapacidadPersonas && !numerosRegex.test(data.CapacidadPersonas.toString())) return 'La capacidad solo debe contener números.';
+    if (data.NumeroHabitaciones && !numerosRegex.test(data.NumeroHabitaciones.toString())) return 'El número de habitaciones solo debe contener números.';
+    if (data.PrecioNoche && !numerosRegex.test(data.PrecioNoche.toString())) return 'El precio solo debe contener números.';
+    return null;
+}
+
 const CabanasController = {
     
     async getAllCabanas(req, res) {
@@ -37,6 +50,9 @@ const CabanasController = {
 
     async createCabana(req, res) {
         try {
+            const errorValidacion = validarCabana(req.body);
+            if (errorValidacion) return res.status(400).json({ error: errorValidacion });
+
             const nuevaCabana = await Cabana.create(req.body);
             res.status(201).json(nuevaCabana);
         } catch (error) {
@@ -49,6 +65,9 @@ const CabanasController = {
 
     async updateCabana(req, res) {
         try {
+            const errorValidacion = validarCabana(req.body);
+            if (errorValidacion) return res.status(400).json({ error: errorValidacion });
+
             const actualizado = await Cabana.update(req.params.IDCabana, req.body);
             if (!actualizado) {
                 return res.status(404).json({ error: 'Cabaña no encontrada' });

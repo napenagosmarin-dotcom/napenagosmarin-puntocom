@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     Telefono VARCHAR(50),
     Pais VARCHAR(100),
     Direccion TEXT,
-    IDRol INT DEFAULT 1
+    IDRol INT DEFAULT 1,
+    Estado INT DEFAULT 1
 );
 
 -- Tabla estadosreserva
@@ -77,7 +78,12 @@ CREATE TABLE IF NOT EXISTS paquetes (
     Estado INT DEFAULT 1,
     imagen VARCHAR(255),
     IDHabitacion INT,
-    IDServicio INT,    FOREIGN KEY (IDHabitacion) REFERENCES habitacion(IDHabitacion)
+    IDCabana INT,
+    IDServicio VARCHAR(255),
+    Descuento DECIMAL(10,2) DEFAULT 0,
+    TipoDescuento VARCHAR(50) DEFAULT 'porcentaje',
+    FOREIGN KEY (IDHabitacion) REFERENCES habitacion(IDHabitacion),
+    FOREIGN KEY (IDCabana) REFERENCES cabanas(IDCabana)
 );
 
 -- Tabla reserva
@@ -113,7 +119,8 @@ CREATE TABLE IF NOT EXISTS detallereservapaquetes (
 -- Tabla servicios
 CREATE TABLE IF NOT EXISTS servicios (
     IDServicio INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL,    precio DECIMAL(10,2),
+    nombre VARCHAR(255) NOT NULL,
+    precio DECIMAL(10,2),
     Descripcion TEXT,
     Estado INT DEFAULT 1,
     imagen VARCHAR(255),
@@ -132,6 +139,30 @@ CREATE TABLE IF NOT EXISTS detallereservaservicio (
     PRIMARY KEY (IDReserva, IDServicio),
     FOREIGN KEY (IDReserva) REFERENCES reserva(IdReserva),
     FOREIGN KEY (IDServicio) REFERENCES servicios(IDServicio)
+);
+
+-- Tabla detallereservahabitacion
+CREATE TABLE IF NOT EXISTS detallereservahabitacion (
+    IDReserva INT,
+    IDHabitacion INT,
+    Cantidad INT DEFAULT 1,
+    precio DECIMAL(10,2),
+    Estado INT DEFAULT 1,
+    PRIMARY KEY (IDReserva, IDHabitacion),
+    FOREIGN KEY (IDReserva) REFERENCES reserva(IdReserva),
+    FOREIGN KEY (IDHabitacion) REFERENCES habitacion(IDHabitacion)
+);
+
+-- Tabla detallereservacabana
+CREATE TABLE IF NOT EXISTS detallereservacabana (
+    IDReserva INT,
+    IDCabana INT,
+    Cantidad INT DEFAULT 1,
+    Precio DECIMAL(10,2),
+    Estado INT DEFAULT 1,
+    PRIMARY KEY (IDReserva, IDCabana),
+    FOREIGN KEY (IDReserva) REFERENCES reserva(IdReserva),
+    FOREIGN KEY (IDCabana) REFERENCES cabanas(IDCabana)
 );
 
 -- Insertar datos de ejemplo

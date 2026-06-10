@@ -3,14 +3,43 @@ const db = require('../config/db');
 
 const verificationTokens = new Map();
 
+const bcrypt = require('bcryptjs');
+
 const login = async (Email, Contrasena) => {
   try {
-    const sql = `SELECT IDUsuario, NombreUsuario, Apellido, Email, 
+    const sql = `SELECT IDUsuario, NombreUsuario, Apellido, Email, Contrasena,
                         IDRol, Telefono, Pais 
                  FROM usuarios 
-                 WHERE Email = ? AND Contrasena = ?`;
-    const [results] = await db.query(sql, [Email, Contrasena]);
-    return results[0] || null;
+                 WHERE Email = ?`;
+    const [results] = await db.query(sql, [Email]);
+    const user = results[0];
+
+    if (!user) return null;
+
+    let match = false;
+    try {
+      match = await bcrypt.compare(Contrasena, user.Contrasena);
+    } catch (e) {
+      match = false;
+    }
+
+    // Fallback: si no coincide con bcrypt, verificamos texto plano
+    if (!match && (user.Contrasena === Contrasena)) {
+      match = true;
+      try {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(Contrasena, salt);
+        const updateSql = `UPDATE usuarios SET Contrasena = ? WHERE IDUsuario = ?`;
+        await db.query(updateSql, [hashedPassword, user.IDUsuario]);
+      } catch (updateErr) {
+        console.error('Error migrando contraseña a hash:', updateErr);
+      }
+    }
+
+    if (!match) return null;
+
+    delete user.Contrasena;
+    return user;
   } catch (error) {
     throw error;
   }
@@ -23,12 +52,15 @@ const register = async (data) => {
 
     await connection.beginTransaction();
 
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(Contrasena, salt);
+
     const sqlUsuario = `INSERT INTO usuarios 
       (NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, IDRol) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const [result] = await connection.query(sqlUsuario, [
-      NombreUsuario, Contrasena, Apellido, Email,
+      NombreUsuario, hashedPassword, Apellido, Email,
       TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion,
       1
     ]);
@@ -70,8 +102,10 @@ const verifyEmailToken = (token) => {
 
 const updatePassword = async (Email, newPassword) => {
   try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
     const sql = `UPDATE usuarios SET Contrasena = ? WHERE Email = ?`;
-    await db.query(sql, [newPassword, Email]);
+    await db.query(sql, [hashedPassword, Email]);
     return true;
   } catch (error) {
     throw error;

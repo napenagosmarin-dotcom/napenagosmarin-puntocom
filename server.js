@@ -4,6 +4,10 @@ const path = require('path');
 require('dotenv').config();
 
 console.log('ENV | RESEND_API_KEY:', !!process.env.RESEND_API_KEY);
+console.log('ENV | DB_HOST:', process.env.DB_HOST || '(no definido)');
+console.log('ENV | DB_PORT:', process.env.DB_PORT || '(no definido)');
+console.log('ENV | DB_USER:', process.env.DB_USER || '(no definido)');
+console.log('ENV | DB_PASS:', !!process.env.DB_PASS);
 console.log('ENV | FRONTEND_URL:', process.env.FRONTEND_URL || '(no definido)');
 console.log('ENV | BACKEND_URL:', process.env.BACKEND_URL || '(no definido)');
 

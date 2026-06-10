@@ -529,12 +529,33 @@ const getConfirmedReservationsByAccommodation = async (accommodationId, type = '
   }
 };
 
+// Actualizar solo el estado de una reserva
+const updateReservationStatus = async (id, newStatus) => {
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+    const [result] = await connection.query(
+      'UPDATE reserva SET IdEstadoReserva = ? WHERE IdReserva = ?',
+      [newStatus, id]
+    );
+    await connection.commit();
+    if (result.affectedRows === 0) return null;
+    return { id, IdEstadoReserva: newStatus };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
 module.exports = {
   getAllReservations,
   getReservationById,
   getReservationsByUser,
   createReservation,
   updateReservation,
+  updateReservationStatus,
   deleteReservation,
   getConfirmedReservations,
   getConfirmedReservationsByAccommodation
