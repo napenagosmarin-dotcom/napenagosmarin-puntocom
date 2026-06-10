@@ -1,0 +1,222 @@
+/* ===== ADMIN-DASHBOARD.CSS ===== */
+/* Estilos adaptados para el Dashboard dentro del panel Admin (Modo Oscuro / Glassmorphism) */
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.admin-stat-card {
+  background: rgba(13, 11, 46, 0.55);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: var(--transicion);
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.admin-stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 4px; height: 100%;
+  background: var(--color-acento);
+  opacity: 0.5;
+}
+
+.admin-stat-card--ingresos::after    { background: #10b981; }
+.admin-stat-card--reservas::after    { background: #00d4ff; }
+.admin-stat-card--ocupacion::after   { background: #7b2ff7; }
+.admin-stat-card--clientes::after    { background: #e040fb; }
+
+.admin-stat-card__icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-stat-card__val {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.admin-stat-card__label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.admin-stat-card__sub {
+  font-size: 0.75rem;
+  color: var(--color-acento);
+  opacity: 0.8;
+}
+
+/* Gráficas (Bento Grid) */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.admin-chart-card {
+  background: rgba(13, 11, 46, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.admin-chart-card:hover {
+  transform: translateY(-5px) scale(1.01);
+  background: rgba(20, 18, 55, 0.6);
+}
+
+/* Tamaños Bento */
+.admin-chart-card--wide { grid-column: span 6; }
+.admin-chart-card--med { grid-column: span 4; }
+.admin-chart-card--med-small { grid-column: span 2; }
+.admin-chart-card--small { grid-column: span 2; }
+
+/* Neon Glow Effects (Bordes luminosos superiores) */
+.admin-chart-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  opacity: 0.8;
+}
+.admin-chart-card:hover::before { opacity: 1; box-shadow: 0 0 15px currentColor; }
+
+.bento-neon-purple::before { background: linear-gradient(90deg, transparent, #7b2ff7, transparent); color: #7b2ff7; }
+.bento-neon-green::before { background: linear-gradient(90deg, transparent, #10b981, transparent); color: #10b981; }
+.bento-neon-cyan::before { background: linear-gradient(90deg, transparent, #00d4ff, transparent); color: #00d4ff; }
+.bento-neon-blue::before { background: linear-gradient(90deg, transparent, #3b82f6, transparent); color: #3b82f6; }
+.bento-neon-pink::before { background: linear-gradient(90deg, transparent, #ec4899, transparent); color: #ec4899; }
+.bento-neon-yellow::before { background: linear-gradient(90deg, transparent, #f59e0b, transparent); color: #f59e0b; }
+
+.admin-chart-card h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  letter-spacing: 0.5px;
+}
+
+.admin-chart-container {
+  position: relative;
+  height: 250px;
+  width: 100%;
+  flex-grow: 1;
+}
+
+@media (max-width: 1200px) {
+  .admin-chart-card--med, .admin-chart-card--med-small { grid-column: span 3; }
+  .admin-chart-card--small { grid-column: span 3; }
+}
+
+@media (max-width: 800px) {
+  .bento-grid { display: flex; flex-direction: column; }
+  .admin-chart-container { height: 220px !important; }
+}
+
+/* ===== TOP LISTS (Medallas y Porcentajes) ===== */
+.top-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding-top: 0.5rem;
+}
+
+.top-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.top-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.top-list-medal {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.top-list-medal-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.top-list-value {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+}
+
+.top-list-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.top-list-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.top-list-empty {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem 0;
+  font-style: italic;
+}
+
+/* Colores de barras para las listas */
+.bento-neon-blue .top-list-bar-fill { background: linear-gradient(90deg, rgba(0, 212, 255, 0.5), rgba(0, 212, 255, 1)); }
+.bento-neon-pink .top-list-bar-fill { background: linear-gradient(90deg, rgba(236, 72, 153, 0.5), rgba(236, 72, 153, 1)); }
+.bento-neon-yellow .top-list-bar-fill { background: linear-gradient(90deg, rgba(245, 158, 11, 0.5), rgba(245, 158, 11, 1)); }
+
+/* Animaciones de Carga */
+.loading-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}

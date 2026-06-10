@@ -1,0 +1,106 @@
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar__header-wrapper">
+    <div class="sidebar__logo">
+      <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar__logo-svg">
+        <defs>
+          <linearGradient id="ngcv" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#7b2ff7"/>
+            <stop offset="100%" stop-color="#00d4ff"/>
+          </linearGradient>
+          <linearGradient id="ngc" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00d4ff"/>
+            <stop offset="100%" stop-color="#7b2ff7"/>
+          </linearGradient>
+          <linearGradient id="ngring" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#00d4ff" stop-opacity="0.9"/>
+            <stop offset="50%"  stop-color="#9b59f5" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#7b2ff7" stop-opacity="0.8"/>
+          </linearGradient>
+          <linearGradient id="ngshine" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <circle cx="19" cy="19" r="19" fill="#0d0b2e"/>
+        <circle cx="19" cy="19" r="18.5" fill="none" stroke="url(#ngring)" stroke-width="0.8"/>
+        <circle cx="19" cy="19" r="15.5" fill="none" stroke="url(#ngc)" stroke-width="0.3" opacity="0.3"/>
+        <ellipse cx="19" cy="11" rx="8" ry="4" fill="url(#ngshine)"/>
+        <polygon points="5,31 9.5,31 19,6 16.5,6" fill="url(#ngcv)"/>
+        <polygon points="21.5,6 19,6 28.5,31 33,31" fill="url(#ngcv)"/>
+        <rect x="9.5" y="19.5" width="19" height="4" rx="1" fill="url(#ngc)"/>
+        <polygon points="14,19.5 24,19.5 19,14.5" fill="#0d0b2e"/>
+        <line x1="5.5"  y1="31" x2="18.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
+        <line x1="32.5" y1="31" x2="19.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
+        <circle cx="19" cy="6" r="1.4" fill="#e040fb"/>
+      </svg>
+      <span class="sidebar__logo-texto">Aura Travel</span>
+    </div>
+
+    <button class="sidebar__colapsar" id="sidebarColapsar" aria-label="Colapsar menú">
+      <i data-lucide="chevron-left"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar__nav">
+    <ul class="sidebar__menu">
+      <li>
+        <a href="/inicio.html" class="nav-link">
+          <i class="nav-link__icono" data-lucide="home"></i>
+          <span class="nav-link__texto">Inicio</span>
+        </a>
+      </li>
+      <li>
+        <a href="/src/pages/dashboard.html" class="nav-link">
+          <i class="nav-link__icono" data-lucide="layout-dashboard"></i>
+          <span class="nav-link__texto">Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="/src/pages/usuarios.html" class="nav-link">
+          <i class="nav-link__icono" data-lucide="users"></i>
+          <span class="nav-link__texto">Usuarios</span>
+        </a>
+      </li>
+      <li>
+        <a href="/src/pages/habitaciones.html" class="nav-link">
+          <i class="nav-link__icono" data-lucide="bed"></i>
+          <span class="nav-link__texto">Habitaciones</span>
+        </a>
+      </li>
+      <li>
+        <a href="/src/pages/cabanas.html" class="nav-link">
+          <i class="nav-link__icono" data-lucide="tent"></i>
+          <span class="nav-link__texto">Cabañas</span>
+        </a>
+      </li>
+      <li>
+        <a href="/src/pages/clientes.html" class="nav-link">
+          <i class="nav-link__icono" data-lucide="users"></i>
+          <span class="nav-link__texto">Clientes</span>
+        </a>
+      </li>
+      <li>
+        <a href="/src/pages/paquetes.html" class="nav-link">
+          <i class="nav-link__icono" data-lucide="map"></i>
+          <span class="nav-link__texto">Paquetes</span>
+        </a>
+      </li>
+      <li>
+        <a href="/src/pages/servicios.html" class="nav-link">
+          <i class="nav-link__icono" data-lucide="sparkles"></i>
+          <span class="nav-link__texto">Servicios</span>
+        </a>
+      </li>
+      <li>
+        <a href="/src/pages/reservas.html" class="nav-link">
+          <i class="nav-link__icono" data-lucide="calendar"></i>
+          <span class="nav-link__texto">Reservas</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar__footer">
+    <p class="sidebar__footer-texto">© 2026 Aura Travel</p>
+  </div>
+</aside>

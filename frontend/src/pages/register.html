@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro - Aura Travel</title>
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/styles.css?v=1.1" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <main class="main-content main-content--auth" id="mainContent">
+    <section class="auth-section">
+      <div class="auth-form-panel auth-form-panel--solo">
+        <form id="registerForm" class="form form-auth login-premium">
+          <div class="login-header">
+            <h2>Crear Cuenta</h2>
+            <p>Completa tus datos para unirte a nosotros.</p>
+          </div>
+
+          <h4 class="form-section-title">Información Personal</h4>
+          <div class="form-grid premium-grid">
+            <div class="form-group premium-group">
+              <label for="NombreUsuario">Nombre(s)</label>
+              <div class="input-icon-wrapper">
+                <i data-lucide="user" class="input-icon"></i>
+                <input type="text" id="NombreUsuario" placeholder="Ej. Juan" required>
+              </div>
+            </div>
+            <div class="form-group premium-group">
+              <label for="Apellido">Apellido(s)</label>
+              <div class="input-icon-wrapper">
+                <i data-lucide="user" class="input-icon"></i>
+                <input type="text" id="Apellido" placeholder="Ej. Pérez" required>
+              </div>
+            </div>
+            <div class="form-group premium-group">
+              <label for="TipoDocumento">Tipo de Doc.</label>
+              <div class="input-icon-wrapper">
+                <i data-lucide="file-text" class="input-icon"></i>
+                <select id="TipoDocumento" required class="premium-select">
+                  <option value="" disabled selected>Seleccione...</option>
+                  <option value="DNI">DNI</option>
+                  <option value="Pasaporte">Pasaporte</option>
+                  <option value="Cédula">Cédula</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group premium-group">
+              <label for="NumeroDocumento">Nº de Documento</label>
+              <div class="input-icon-wrapper">
+                <i data-lucide="hash" class="input-icon"></i>
+                <input type="text" id="NumeroDocumento" placeholder="123456789" required>
+              </div>
+            </div>
+          </div>
+
+          <h4 class="form-section-title">Datos de Contacto</h4>
+          <div class="form-grid premium-grid">
+            <div class="form-group premium-group">
+              <label for="Pais">País</label>
+              <div class="input-icon-wrapper">
+                <i data-lucide="map-pin" class="input-icon"></i>
+                <select id="Pais" required class="premium-select">
+                  <option value="" disabled selected>Selecciona país...</option>
+                  <option value="Alemania">Alemania</option>
+                  <option value="Argentina">Argentina</option>
+                  <option value="Australia">Australia</option>
+                  <option value="Bolivia">Bolivia</option>
+                  <option value="Brasil">Brasil</option>
+                  <option value="Canadá">Canadá</option>
+                  <option value="Chile">Chile</option>
+                  <option value="China">China</option>
+                  <option value="Colombia">Colombia</option>
+                  <option value="Costa Rica">Costa Rica</option>
+                  <option value="Cuba">Cuba</option>
+                  <option value="Ecuador">Ecuador</option>
+                  <option value="Egipto">Egipto</option>
+                  <option value="Emiratos Árabes Unidos">Emiratos Árabes Unidos</option>
+                  <option value="España">España</option>
+                  <option value="Estados Unidos">Estados Unidos</option>
+                  <option value="Finlandia">Finlandia</option>
+                  <option value="Francia">Francia</option>
+                  <option value="Guatemala">Guatemala</option>
+                  <option value="Honduras">Honduras</option>
+                  <option value="India">India</option>
+                  <option value="Italia">Italia</option>
+                  <option value="Japón">Japón</option>
+                  <option value="México">México</option>
+                  <option value="Marruecos">Marruecos</option>
+                  <option value="Nigeria">Nigeria</option>
+                  <option value="Noruega">Noruega</option>
+                  <option value="Nueva Zelanda">Nueva Zelanda</option>
+                  <option value="Países Bajos">Países Bajos</option>
+                  <option value="Panamá">Panamá</option>
+                  <option value="Paraguay">Paraguay</option>
+                  <option value="Perú">Perú</option>
+                  <option value="Portugal">Portugal</option>
+                  <option value="Reino Unido">Reino Unido</option>
+                  <option value="Rusia">Rusia</option>
+                  <option value="Sudáfrica">Sudáfrica</option>
+                  <option value="Suecia">Suecia</option>
+                  <option value="Suiza">Suiza</option>
+                  <option value="Turquía">Turquía</option>
+                  <option value="Uruguay">Uruguay</option>
+                  <option value="Venezuela">Venezuela</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group premium-group">
+              <label for="Telefono">Teléfono</label>
+              <div class="phone-input-wrapper">
+                <i data-lucide="phone" class="input-icon"></i>
+                <div class="country-prefix" id="countryPrefix">+57</div>
+                <input type="text" id="Telefono" placeholder="300 000 0000" required>
+              </div>
+            </div>
+            <div class="form-group premium-group" style="grid-column: 1 / -1;">
+              <label for="Direccion">Dirección Completa</label>
+              <div class="input-icon-wrapper">
+                <i data-lucide="map" class="input-icon"></i>
+                <input type="text" id="Direccion" placeholder="Calle 123 #45-67, Ciudad" required>
+              </div>
+            </div>
+          </div>
+
+          <h4 class="form-section-title">Credenciales de Acceso</h4>
+          <div class="form-group premium-group">
+            <label for="Email">Correo Electrónico</label>
+            <div class="input-icon-wrapper">
+              <i data-lucide="mail" class="input-icon"></i>
+              <input type="email" id="Email" placeholder="tu@correo.com" required>
+            </div>
+          </div>
+          <div class="form-grid premium-grid">
+            <div class="form-group premium-group">
+              <label for="Contrasena">Contraseña</label>
+              <div class="input-icon-wrapper password-field-wrapper">
+                <i data-lucide="lock" class="input-icon"></i>
+                <input type="password" id="Contrasena" placeholder="••••••••" required>
+                <button type="button" class="password-toggle" data-target="Contrasena" aria-label="Mostrar contraseña">
+                  <i data-lucide="eye" class="toggle-icon"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-group premium-group">
+              <label for="ConfirmarContrasena">Confirmar Contraseña</label>
+              <div class="input-icon-wrapper password-field-wrapper">
+                <i data-lucide="shield" class="input-icon"></i>
+                <input type="password" id="ConfirmarContrasena" placeholder="••••••••" required>
+                <button type="button" class="password-toggle" data-target="ConfirmarContrasena" aria-label="Mostrar contraseña">
+                  <i data-lucide="eye" class="toggle-icon"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group premium-group" style="grid-column: 1 / -1;">
+            <div class="password-requirements" id="passwordRequirements" aria-live="polite">
+              <p class="password-requirements-title">Tu contraseña debe contener:</p>
+              <ul>
+                <li class="requirement-item requirement-fail" data-requirement="length" data-label="Mínimo 8 caracteres">✖ Mínimo 8 caracteres</li>
+                <li class="requirement-item requirement-fail" data-requirement="uppercase" data-label="Una letra mayúscula">✖ Una letra mayúscula</li>
+                <li class="requirement-item requirement-fail" data-requirement="lowercase" data-label="Una letra minúscula">✖ Una letra minúscula</li>
+                <li class="requirement-item requirement-fail" data-requirement="number" data-label="Un número">✖ Un número</li>
+                <li class="requirement-item requirement-fail" data-requirement="special" data-label="Un carácter especial">✖ Un carácter especial</li>
+              </ul>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primario btn-login">
+            Completar Registro <i data-lucide="arrow-right" class="btn-icon"></i>
+          </button>
+
+          <p id="errorMessage" class="error-msg" role="alert" aria-live="assertive"></p>
+          <p id="successMessage" class="success-msg" role="status" aria-live="polite"></p>
+
+          <div class="login-divider">
+            <span>o</span>
+          </div>
+
+          <p class="login-register-text">
+            ¿Ya tienes una cuenta? <a href="/src/pages/login.html">Inicia sesión aquí</a>
+          </p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/register.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

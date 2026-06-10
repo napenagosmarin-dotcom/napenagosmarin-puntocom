@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aura Travel — Experiencias Exclusivas en Medellín</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --c-dark:    #0a0818;
+      --c-deep:    #0d0b2e;
+      --c-mid:     #4a1d96;
+      --c-purple:  #7b2ff7;
+      --c-cyan:    #00d4ff;
+      --c-magenta: #e040fb;
+      --c-white:   #ffffff;
+      --c-cream:   #f5f3ff;
+      --c-muted:   rgba(255,255,255,0.5);
+      --ff-serif:  'Cormorant Garamond', Georgia, serif;
+      --ff-sans:   'Outfit', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--ff-sans);
+      background: var(--c-dark);
+      color: var(--c-white);
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* ─── CURSOR ─── */
+    .cursor {
+      width: 10px; height: 10px;
+      background: var(--c-cyan);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transition: transform 0.15s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(0,212,255,0.5);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transition: transform 0.35s ease, width 0.3s, height 0.3s;
+    }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 24px 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.4s, padding 0.4s;
+      background: rgba(10,8,24,0.4);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    nav.scrolled {
+      background: rgba(10,8,24,0.92);
+      backdrop-filter: blur(16px);
+      padding: 16px 60px;
+      border-bottom: 1px solid rgba(0,212,255,0.08);
+    }
+
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo svg { width: 36px; height: 36px; }
+    .nav-logo-text {
+      font-family: var(--ff-serif);
+      font-size: 1.15rem; font-weight: 600;
+      color: var(--c-cyan); letter-spacing: 2px;
+    }
+
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: #ffffff;
+      transition: all 0.3s;
+      position: relative;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: var(--c-cyan);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover { color: var(--c-cyan); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      background: var(--c-cyan);
+      border: 1px solid var(--c-cyan);
+      color: var(--c-dark);
+      padding: 12px 32px;
+      font-family: var(--ff-sans);
+      font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; border-radius: 4px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0,212,255,0.4);
+    }
+    .nav-cta:hover { 
+      background: #ffffff; 
+      color: var(--c-dark); 
+      border-color: #ffffff;
+      box-shadow: 0 6px 20px rgba(255,255,255,0.6);
+      transform: translateY(-2px);
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      height: 100vh; min-height: 700px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(10,8,24,0.3) 0%, rgba(10,8,24,0.7) 100%),
+        url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;
+      transform: scale(1.08);
+      animation: heroZoom 18s ease-in-out infinite alternate;
+    }
+    @keyframes heroZoom {
+      from { transform: scale(1.08); }
+      to   { transform: scale(1.0);  }
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 60% 40%, rgba(123,47,247,0.18) 0%, transparent 65%),
+        radial-gradient(ellipse at 20% 80%, rgba(0,212,255,0.1)   0%, transparent 55%);
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      text-align: center; padding: 0 20px;
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem; font-weight: 400;
+      letter-spacing: 5px; text-transform: uppercase;
+      color: var(--c-cyan); margin-bottom: 28px;
+      opacity: 0; transform: translateY(20px);
+      animation: fadeUp 0.9s 0.3s forwards;
+    }
+    .hero-title {
+      font-family: var(--ff-serif);
+      font-size: clamp(3.5rem, 8vw, 7.5rem);
+      font-weight: 300; line-height: 1.0; letter-spacing: -1px;
+      margin-bottom: 10px;
+      opacity: 0; transform: translateY(30px);
+      animation: fadeUp 1s 0.5s forwards;
+    }
+    .hero-title em {
+      font-style: italic;
+      background: linear-gradient(135deg, var(--c-cyan), var(--c-magenta));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      font-size: 1rem; font-weight: 300;
+      color: rgba(255,255,255,0.65); letter-spacing: 1px;
+      margin-bottom: 52px;
+      opacity: 0; transform: translateY(20px);
+      animation: fadeUp 1s 0.75s forwards;
+    }
+    .hero-actions {
+      display: flex; gap: 16px; justify-content: center;
+      opacity: 0; transform: translateY(20px);
+      animation: fadeUp 1s 1s forwards;
+    }
+    .btn-hero-primary {
+      background: linear-gradient(135deg, var(--c-purple), var(--c-mid));
+      color: var(--c-white);
+      padding: 16px 44px;
+      font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      border: none; border-radius: 2px; cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 32px rgba(123,47,247,0.4);
+    }
+    .btn-hero-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(123,47,247,0.55);
+    }
+    .btn-hero-secondary {
+      background: transparent; color: var(--c-white);
+      padding: 16px 44px;
+      font-size: 0.75rem; font-weight: 400;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 2px; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-hero-secondary:hover {
+      border-color: var(--c-cyan); color: var(--c-cyan);
+      transform: translateY(-3px);
+    }
+    .hero-scroll {
+      position: absolute; bottom: 40px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      opacity: 0; animation: fadeUp 1s 1.4s forwards;
+    }
+    .hero-scroll span {
+      font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, rgba(0,212,255,0.6), transparent);
+      animation: scrollPulse 2s infinite;
+    }
+    @keyframes scrollPulse {
+      0%,100% { opacity: 0.3; transform: scaleY(1);   }
+      50%      { opacity: 1;   transform: scaleY(1.2); }
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── STATS BAR ─── */
+    .stats-bar {
+      background: linear-gradient(135deg, rgba(123,47,247,0.15), rgba(0,212,255,0.08));
+      border-top: 1px solid rgba(0,212,255,0.12);
+      border-bottom: 1px solid rgba(0,212,255,0.12);
+      padding: 40px 60px;
+      display: flex; justify-content: center; gap: 0;
+    }
+    .stat-item {
+      flex: 1; max-width: 220px;
+      text-align: center; padding: 0 40px;
+      position: relative;
+    }
+    .stat-item + .stat-item::before {
+      content: '';
+      position: absolute; left: 0; top: 10%; height: 80%;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(0,212,255,0.2), transparent);
+    }
+    .stat-number {
+      font-family: var(--ff-serif);
+      font-size: 3rem; font-weight: 300;
+      background: linear-gradient(135deg, var(--c-cyan), var(--c-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.7rem; font-weight: 400;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.45); margin-top: 6px;
+    }
+
+    /* ─── SECCIONES GENERALES ─── */
+    section { padding: 120px 60px; }
+
+    .section-tag {
+      font-size: 0.68rem; font-weight: 500;
+      letter-spacing: 4px; text-transform: uppercase;
+      color: var(--c-cyan); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-tag::before {
+      content: ''; width: 32px; height: 1px; background: var(--c-cyan);
+    }
+    .section-title {
+      font-family: var(--ff-serif);
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      font-weight: 300; line-height: 1.1; margin-bottom: 20px;
+    }
+    .section-title em { font-style: italic; color: var(--c-cyan); }
+    .section-body {
+      font-size: 0.95rem; font-weight: 300;
+      color: rgba(255,255,255,0.55); line-height: 1.9; max-width: 480px;
+    }
+
+    /* ─── ABOUT ─── */
+    .about {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .about-images { position: relative; height: 580px; }
+    .about-img-main {
+      position: absolute; top: 0; left: 0;
+      width: 75%; height: 80%; object-fit: cover;
+      border-radius: 2px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    }
+    .about-img-accent {
+      position: absolute; bottom: 0; right: 0;
+      width: 55%; height: 50%; object-fit: cover;
+      border-radius: 2px;
+      border: 3px solid var(--c-dark);
+      box-shadow: 0 20px 60px rgba(123,47,247,0.3);
+    }
+    .about-badge {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px; height: 100px;
+      background: rgba(10,8,24,0.9);
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(10px); z-index: 2;
+    }
+    .about-badge-num {
+      font-family: var(--ff-serif);
+      font-size: 1.8rem; font-weight: 300;
+      color: var(--c-cyan); line-height: 1;
+    }
+    .about-badge-text {
+      font-size: 0.55rem; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.5); text-align: center; margin-top: 2px;
+    }
+    .about-text { padding: 20px 0; }
+    .about-features { margin-top: 40px; display: flex; flex-direction: column; gap: 20px; }
+    .feature-item { display: flex; gap: 16px; align-items: flex-start; }
+    .feature-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(123,47,247,0.2), rgba(0,212,255,0.1));
+      border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      color: var(--c-cyan);
+      box-shadow: 0 8px 24px rgba(123,47,247,0.25);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+    }
+    .feature-item:hover .feature-icon {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 30px rgba(0,212,255,0.4);
+      border-color: var(--c-cyan);
+      color: #fff;
+    }
+    .feature-label { font-size: 0.88rem; font-weight: 600; color: var(--c-white); letter-spacing: 0.5px; transition: color 0.3s; }
+    .feature-item:hover .feature-label { color: var(--c-cyan); }
+    .feature-desc  { font-size: 0.8rem; font-weight: 300; color: rgba(255,255,255,0.5); margin-top: 4px; line-height: 1.5; }
+
+    /* ─── HABITACIONES ─── */
+    .rooms-section { background: #070614; }
+    .rooms-header {
+      max-width: 1200px; margin: 0 auto 60px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .rooms-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 2px;
+    }
+    .room-card { position: relative; overflow: hidden; cursor: pointer; }
+    .room-card:first-child { grid-row: span 2; }
+    .room-card img {
+      width: 100%; height: 100%; min-height: 260px;
+      object-fit: cover; transition: transform 0.7s ease; display: block;
+    }
+    .room-card:first-child img { min-height: 530px; }
+    .room-card:hover img { transform: scale(1.06); }
+    .room-card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,8,24,0.92) 0%, transparent 55%);
+      display: flex; flex-direction: column;
+      justify-content: flex-end; padding: 28px;
+      transition: background 0.4s;
+    }
+    .room-card:hover .room-card-overlay {
+      background: linear-gradient(to top, rgba(10,8,24,0.96) 0%, rgba(123,47,247,0.15) 100%);
+    }
+    .room-tag { font-size: 0.62rem; letter-spacing: 3px; text-transform: uppercase; color: var(--c-cyan); margin-bottom: 6px; }
+    .room-name { font-family: var(--ff-serif); font-size: 1.4rem; font-weight: 400; margin-bottom: 4px; }
+    .room-card:first-child .room-name { font-size: 2rem; }
+    .room-price { font-size: 0.8rem; font-weight: 300; color: rgba(255,255,255,0.5); }
+    .room-price span { color: var(--c-white); font-weight: 500; }
+    .room-arrow {
+      position: absolute; top: 24px; right: 24px;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      opacity: 0; transform: translateY(-6px);
+      transition: all 0.3s;
+    }
+    .room-card:hover .room-arrow { opacity: 1; transform: translateY(0); }
+
+
+ /* ─── SERVICIOS ─── */
+    .services-section { max-width: 1200px; margin: 0 auto; }
+    .services-header { margin-bottom: 60px; }
+    .services-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+    }
+    .service-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 44px 36px;
+      position: relative; overflow: hidden;
+      transition: all 0.4s; cursor: pointer;
+    }
+    .service-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(123,47,247,0.08), rgba(0,212,255,0.04));
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .service-card:hover::before { opacity: 1; }
+    .service-card:hover { border-color: rgba(0,212,255,0.2); transform: translateY(-4px); }
+    .service-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.service-icon i {
+  font-size: 26px;
+  color: #d4af37;
+}
+
+.service-card:hover .service-icon {
+  border-color: var(--c-cyan);
+  transform: scale(1.1);
+}
+    .service-name { font-family: var(--ff-serif); font-size: 1.3rem; font-weight: 400; margin-bottom: 12px; }
+    .service-desc { font-size: 0.82rem; font-weight: 300; color: rgba(255,255,255,0.45); line-height: 1.8; }
+    .service-line {
+      position: absolute; bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: linear-gradient(90deg, var(--c-purple), var(--c-cyan));
+      transition: width 0.4s;
+    }
+    .service-card:hover .service-line { width: 100%; }
+
+    /* ─── TESTIMONIOS ─── */
+    .testimonials-section { background: #070614; text-align: center; }
+    .testimonials-inner { max-width: 900px; margin: 0 auto; }
+    .testimonials-inner .section-tag { justify-content: center; }
+    .testimonials-inner .section-tag::before { display: none; }
+    .testimonials-slider { position: relative; margin-top: 60px; }
+    .testimonial { display: none; }
+    .testimonial.active { display: block; }
+    .testimonial-quote {
+      font-family: var(--ff-serif);
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      font-weight: 300; font-style: italic; line-height: 1.5;
+      color: rgba(255,255,255,0.85); margin-bottom: 36px;
+    }
+    .testimonial-quote::before {
+      content: '"'; font-size: 5rem; line-height: 0;
+      vertical-align: -0.5em; color: var(--c-purple); opacity: 0.4; margin-right: 8px;
+    }
+    .testimonial-author { display: flex; align-items: center; justify-content: center; gap: 14px; }
+    .testimonial-avatar { width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(0,212,255,0.3); object-fit: cover; }
+    .testimonial-name { font-size: 0.82rem; font-weight: 500; letter-spacing: 1px; }
+    .testimonial-origin { font-size: 0.72rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .testimonial-dots { display: flex; justify-content: center; gap: 8px; margin-top: 44px; }
+    .dot { width: 28px; height: 2px; background: rgba(255,255,255,0.15); cursor: pointer; transition: all 0.3s; border: none; }
+    .dot.active { background: var(--c-cyan); width: 44px; }
+
+    /* ─── CTA ─── */
+    .cta-section { position: relative; overflow: hidden; text-align: center; padding: 140px 60px; }
+    .cta-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(135deg, rgba(10,8,24,0.85), rgba(74,29,150,0.4), rgba(10,8,24,0.85)),
+        url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1800&q=80') center/cover;
+    }
+    .cta-glow {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(123,47,247,0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-content { position: relative; z-index: 1; }
+    .cta-content .section-tag { justify-content: center; }
+    .cta-content .section-tag::before { display: none; }
+    .cta-title { font-family: var(--ff-serif); font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 300; line-height: 1.1; margin-bottom: 20px; }
+    .cta-title em { font-style: italic; color: var(--c-cyan); }
+    .cta-sub { font-size: 0.95rem; font-weight: 300; color: rgba(255,255,255,0.55); margin-bottom: 52px; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .cta-actions { display: flex; gap: 16px; justify-content: center; }
+
+    /* ─── FOOTER ─── */
+    footer { background: #040310; border-top: 1px solid rgba(0,212,255,0.06); padding: 60px; }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 60px; margin-bottom: 60px;
+    }
+    .footer-brand .nav-logo { margin-bottom: 20px; }
+    .footer-brand p { font-size: 0.82rem; font-weight: 300; color: rgba(255,255,255,0.35); line-height: 1.8; max-width: 240px; }
+    .footer-col h4 { font-size: 0.68rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 20px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a { font-size: 0.82rem; font-weight: 300; color: rgba(255,255,255,0.45); transition: color 0.3s; }
+    .footer-col a:hover { color: var(--c-cyan); }
+    .footer-bottom {
+      max-width: 1200px; margin: 0 auto;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 28px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
+    .footer-socials { display: flex; gap: 16px; }
+    .social-btn {
+      width: 34px; height: 34px;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; color: rgba(255,255,255,0.35);
+      transition: all 0.3s; cursor: pointer;
+    }
+    .social-btn:hover { border-color: var(--c-cyan); color: var(--c-cyan); }
+
+    /* ─── SCROLL REVEAL ─── */
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 20px 24px; }
+      nav.scrolled { padding: 14px 24px; }
+      .nav-links, .nav-cta { display: none; }
+      section { padding: 80px 24px; }
+      .about { grid-template-columns: 1fr; gap: 40px; }
+      .about-images { height: 340px; }
+      .rooms-grid { grid-template-columns: 1fr; }
+      .room-card:first-child { grid-row: auto; }
+      .services-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 40px; }
+      .stats-bar { flex-wrap: wrap; gap: 32px; padding: 40px 24px; }
+      .rooms-header { flex-direction: column; gap: 20px; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- ── NAVBAR ── -->
+  <nav id="navbar">
+    <div class="nav-logo">
+      <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="ngcv" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#7b2ff7"/>
+            <stop offset="100%" stop-color="#00d4ff"/>
+          </linearGradient>
+          <linearGradient id="ngc" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00d4ff"/>
+            <stop offset="100%" stop-color="#7b2ff7"/>
+          </linearGradient>
+          <linearGradient id="ngring" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#00d4ff" stop-opacity="0.9"/>
+            <stop offset="50%"  stop-color="#9b59f5" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#7b2ff7" stop-opacity="0.8"/>
+          </linearGradient>
+          <linearGradient id="ngshine" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <circle cx="19" cy="19" r="19" fill="#0d0b2e"/>
+        <circle cx="19" cy="19" r="18.5" fill="none" stroke="url(#ngring)" stroke-width="0.8"/>
+        <circle cx="19" cy="19" r="15.5" fill="none" stroke="url(#ngc)" stroke-width="0.3" opacity="0.3"/>
+        <ellipse cx="19" cy="11" rx="8" ry="4" fill="url(#ngshine)"/>
+        <polygon points="5,31 9.5,31 19,6 16.5,6" fill="url(#ngcv)"/>
+        <polygon points="21.5,6 19,6 28.5,31 33,31" fill="url(#ngcv)"/>
+        <rect x="9.5" y="19.5" width="19" height="4" rx="1" fill="url(#ngc)"/>
+        <polygon points="14,19.5 24,19.5 19,14.5" fill="#0d0b2e"/>
+        <line x1="5.5"  y1="31" x2="18.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
+        <line x1="32.5" y1="31" x2="19.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
+        <circle cx="19" cy="6" r="1.4" fill="#e040fb"/>
+      </svg>
+      <span class="nav-logo-text">AURA TRAVEL</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#nosotros">Nosotros</a></li>
+      <li><a href="#habitaciones">Habitaciones</a></li>
+      <li><a href="#paquetes">Paquetes</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#experiencias">Experiencias</a></li>
+    </ul>
+    <button class="nav-cta" onclick="window.location.href='src/pages/login.html'">Iniciar Sesión</button>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Medellín · Colombia · 2026</p>
+      <h1 class="hero-title">Aura <em>Travel</em></h1>
+      <p class="hero-subtitle">Experiencias exclusivas donde el lujo se encuentra con la cultura</p>
+      <div class="hero-actions">
+        <button class="btn-hero-primary" onclick="document.getElementById('habitaciones').scrollIntoView({behavior:'smooth'})">Explorar Estancias</button>
+        <button class="btn-hero-secondary" onclick="document.getElementById('nosotros').scrollIntoView({behavior:'smooth'})">Nuestra Historia</button>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>Descubrir</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── STATS ── -->
+  <div class="stats-bar">
+    <div class="stat-item reveal">
+      <div class="stat-number">12+</div>
+      <div class="stat-label">Años de Excelencia</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-1">
+      <div class="stat-number">48</div>
+      <div class="stat-label">Suites de Lujo</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-2">
+      <div class="stat-number">98%</div>
+      <div class="stat-label">Satisfacción</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-3">
+      <div class="stat-number">5★</div>
+      <div class="stat-label">Categoría Premium</div>
+    </div>
+  </div>
+
+  <!-- ── ABOUT ── -->
+  <section id="nosotros">
+    <div class="about">
+      <div class="about-images reveal">
+        <img class="about-img-main"
+          src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=900&q=80"
+          alt="Lobby Aura Travel"/>
+        <img class="about-img-accent"
+          src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80"
+          alt="Piscina"/>
+        <div class="about-badge">
+          <span class="about-badge-num">No.1</span>
+          <span class="about-badge-text">Medellín<br>2026</span>
+        </div>
+      </div>
+      <div class="about-text">
+        <div class="section-tag reveal">Nuestra Historia</div>
+        <h2 class="section-title reveal reveal-delay-1">
+          Donde cada detalle<br>cuenta una <em>historia</em>
+        </h2>
+        <p class="section-body reveal reveal-delay-2">
+          Aura Travel nació de la visión de crear un refugio donde el lujo no es solo estética, sino una experiencia total. Cada rincón de nuestras instalaciones está diseñado para despertar los sentidos y conectarte con la esencia de Medellín.
+        </p>
+        <div class="about-features">
+          <div class="feature-item reveal reveal-delay-2">
+            <div class="feature-icon"><i class="fa-solid fa-leaf"></i></div>
+            <div>
+              <div class="feature-label">Arquitectura Biofílica</div>
+              <div class="feature-desc">Integración armoniosa con la naturaleza y el entorno montañoso</div>
+            </div>
+          </div>
+          <div class="feature-item reveal reveal-delay-3">
+            <div class="feature-icon"><i class="fa-solid fa-wine-glass"></i></div>
+            <div>
+              <div class="feature-label">Gastronomía de Autor</div>
+              <div class="feature-desc">Cocina de fusión con ingredientes locales de temporada</div>
+            </div>
+          </div>
+          <div class="feature-item reveal reveal-delay-4">
+            <div class="feature-icon"><i class="fa-solid fa-gem"></i></div>
+            <div>
+              <div class="feature-label">Servicio Personalizado 24/7</div>
+              <div class="feature-desc">Concierge dedicado para cada huésped durante toda su estadía</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HABITACIONES ── -->
+  <section id="habitaciones" class="rooms-section">
+    <div class="rooms-header">
+      <div>
+        <div class="section-tag reveal">Nuestras Estancias</div>
+        <h2 class="section-title reveal reveal-delay-1">Habitaciones &amp; <em>Suites</em></h2>
+      </div>
+
+    </div>
+    <div class="rooms-grid reveal">
+      <div class="room-card">
+        <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80" alt="Suite Presidencial"/>
+        <div class="room-card-overlay">
+          <span class="room-tag">Suite Exclusiva</span>
+          <div class="room-name">Suite Presidencial</div>
+          <div class="room-price">Desde <span>$850.000</span> / noche</div>
+        </div>
+        <div class="room-arrow">→</div>
+      </div>
+      <div class="room-card">
+        <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80" alt="Junior Suite"/>
+        <div class="room-card-overlay">
+          <span class="room-tag">Suite</span>
+          <div class="room-name">Junior Suite</div>
+          <div class="room-price">Desde <span>$420.000</span> / noche</div>
+        </div>
+        <div class="room-arrow">→</div>
+      </div>
+      <div class="room-card">
+        <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=600&q=80" alt="Habitación Deluxe"/>
+        <div class="room-card-overlay">
+          <span class="room-tag">Deluxe</span>
+          <div class="room-name">Habitación Deluxe</div>
+          <div class="room-price">Desde <span>$280.000</span> / noche</div>
+        </div>
+        <div class="room-arrow">→</div>
+      </div>
+      <div class="room-card">
+        <img src="https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=600&q=80" alt="Suite Vista Ciudad"/>
+        <div class="room-card-overlay">
+          <span class="room-tag">Vista Panorámica</span>
+          <div class="room-name">Suite Vista Ciudad</div>
+          <div class="room-price">Desde <span>$560.000</span> / noche</div>
+        </div>
+        <div class="room-arrow">→</div>
+      </div>
+    </div>
+  </section>
+  <!-- ── PAQUETES ── -->
+<section id="paquetes" class="rooms-section">
+  <div class="rooms-header">
+    <div>
+      <div class="section-tag reveal">Experiencias</div>
+      <h2 class="section-title reveal reveal-delay-1">Nuestros <em>Paquetes</em></h2>
+    </div>
+  </div>
+
+  <div class="rooms-grid reveal">
+
+    <div class="room-card">
+      <img src="https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&w=800&q=80"/>
+      <div class="room-card-overlay">
+        <span class="room-tag">Romántico</span>
+        <div class="room-name">Escapada en Pareja</div>
+        <div class="room-price">Desde <span>$1.200.000</span></div>
+      </div>
+    </div>
+
+    <div class="room-card">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"/>
+      <div class="room-card-overlay">
+        <span class="room-tag">Aventura</span>
+        <div class="room-name">Tour Medellín Extremo</div>
+        <div class="room-price">Desde <span>$950.000</span></div>
+      </div>
+    </div>
+
+    <div class="room-card">
+      <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80"/>
+      <div class="room-card-overlay">
+        <span class="room-tag">Relax</span>
+        <div class="room-name">Spa & Bienestar</div>
+        <div class="room-price">Desde <span>$780.000</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+  <!-- ── SERVICIOS (sin Concierge & Traslados) ── -->
+ <section id="servicios">
+  <div class="services-section">
+    <div class="services-header">
+      <div class="section-tag reveal">Lo que ofrecemos</div>
+      <h2 class="section-title reveal reveal-delay-1">Servicios <em>Premium</em></h2>
+    </div>
+
+    <div class="services-grid">
+
+      <div class="service-card reveal">
+        <div class="service-icon">
+          <i class="fas fa-utensils"></i>
+        </div>
+        <div class="service-name">Restaurante de Autor</div>
+        <p class="service-desc">Cocina de fusión colombiana con ingredientes de temporada y maridaje exclusivo.</p>
+        <div class="service-line"></div>
+      </div>
+
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-icon">
+          <i class="fas fa-spa"></i>
+        </div>
+        <div class="service-name">Spa &amp; Bienestar</div>
+        <p class="service-desc">Rituales ancestrales y tratamientos modernos para la renovación total del cuerpo y mente.</p>
+        <div class="service-line"></div>
+      </div>
+
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-icon">
+          <i class="fas fa-water"></i>
+        </div>
+        <div class="service-name">Piscina Infinita</div>
+        <p class="service-desc">Vista panorámica de Medellín desde nuestra piscina exterior con temperatura controlada.</p>
+        <div class="service-line"></div>
+      </div>
+
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-icon">
+          <i class="fas fa-landmark"></i>
+        </div>
+        <div class="service-name">Experiencias Culturales</div>
+        <p class="service-desc">Tours guiados, visitas a museos y experiencias auténticas de la cultura paisa.</p>
+        <div class="service-line"></div>
+      </div>
+
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-icon">
+          <i class="fas fa-dumbbell"></i>
+        </div>
+        <div class="service-name">Fitness &amp; Yoga</div>
+        <p class="service-desc">Gimnasio equipado y clases de yoga al amanecer con vista a la montaña.</p>
+        <div class="service-line"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+  <!-- ── TESTIMONIOS ── -->
+  <section id="experiencias" class="testimonials-section">
+    <div class="testimonials-inner">
+      <div class="section-tag reveal">Testimonios</div>
+      <h2 class="section-title reveal reveal-delay-1">Lo que dicen<br>nuestros <em>huéspedes</em></h2>
+      <div class="testimonials-slider reveal reveal-delay-2">
+        <div class="testimonial active">
+          <p class="testimonial-quote">Aura Travel redefinió mi concepto de lujo. Cada momento fue impecable, desde la bienvenida hasta el último desayuno con vista a las montañas.</p>
+          <div class="testimonial-author">
+            <img class="testimonial-avatar" src="https://i.pravatar.cc/100?img=47" alt="María González"/>
+            <div>
+              <div class="testimonial-name">María González</div>
+              <div class="testimonial-origin">Bogotá, Colombia</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial">
+          <p class="testimonial-quote">La Suite Presidencial superó todas mis expectativas. El servicio personalizado y la atención al detalle hacen de Aura Travel un lugar único en Latinoamérica.</p>
+          <div class="testimonial-author">
+            <img class="testimonial-avatar" src="https://i.pravatar.cc/100?img=12" alt="Carlos Restrepo"/>
+            <div>
+              <div class="testimonial-name">Carlos Restrepo</div>
+              <div class="testimonial-origin">Medellín, Colombia</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial">
+          <p class="testimonial-quote">El spa y el restaurante son simplemente extraordinarios. Volveré sin duda. Una experiencia que conecta perfectamente con la magia de Medellín.</p>
+          <div class="testimonial-author">
+            <img class="testimonial-avatar" src="https://i.pravatar.cc/100?img=32" alt="Ana Martínez"/>
+            <div>
+              <div class="testimonial-name">Ana Martínez</div>
+              <div class="testimonial-origin">Ciudad de México</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-dots">
+        <button class="dot active" onclick="goTo(0)"></button>
+        <button class="dot" onclick="goTo(1)"></button>
+        <button class="dot" onclick="goTo(2)"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="cta-section">
+    <div class="cta-bg"></div>
+    <div class="cta-glow"></div>
+    <div class="cta-content">
+      <div class="section-tag reveal">Reserve su estadía</div>
+      <h2 class="cta-title reveal reveal-delay-1">Su experiencia<br><em>comienza aquí</em></h2>
+      <p class="cta-sub reveal reveal-delay-2">Descubra por qué somos el destino preferido de viajeros que buscan lo extraordinario en el corazón de Medellín.</p>
+      <div class="cta-actions reveal reveal-delay-3">
+        <button class="btn-hero-primary"    onclick="window.location.href='src/pages/login.html'">Reservar Ahora</button>
+        <button class="btn-hero-secondary"  onclick="window.location.href='src/pages/login.html'">Explorar Catálogo</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="nav-logo">
+          <svg viewBox="0 0 38 38" fill="none" width="32" height="32">
+            <defs>
+              <linearGradient id="fgcv" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#7b2ff7"/>
+                <stop offset="100%" stop-color="#00d4ff"/>
+              </linearGradient>
+              <linearGradient id="fgc" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00d4ff"/>
+                <stop offset="100%" stop-color="#7b2ff7"/>
+              </linearGradient>
+            </defs>
+            <circle cx="19" cy="19" r="19" fill="#0d0b2e"/>
+            <circle cx="19" cy="19" r="18.5" fill="none" stroke="url(#fgc)" stroke-width="0.8" opacity="0.6"/>
+            <polygon points="5,31 9.5,31 19,6 16.5,6" fill="url(#fgcv)"/>
+            <polygon points="21.5,6 19,6 28.5,31 33,31" fill="url(#fgcv)"/>
+            <rect x="9.5" y="19.5" width="19" height="4" rx="1" fill="url(#fgc)"/>
+            <polygon points="14,19.5 24,19.5 19,14.5" fill="#0d0b2e"/>
+            <circle cx="19" cy="6" r="1.4" fill="#e040fb"/>
+          </svg>
+          <span class="nav-logo-text">AURA TRAVEL</span>
+        </div>
+        <p>Experiencias exclusivas de hospitalidad en el corazón de Medellín, donde el lujo se convierte en recuerdo.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Experiencias</h4>
+        <ul>
+          <li><a href="#">Habitaciones</a></li>
+          <li><a href="#">Suites</a></li>
+          <li><a href="#">Paquetes</a></li>
+          <li><a href="#">Eventos</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Servicios</h4>
+        <ul>
+          <li><a href="#">Restaurante</a></li>
+          <li><a href="#">Spa</a></li>
+          <li><a href="#">Piscina</a></li>
+          <li><a href="#">Fitness</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="#">Medellín, Antioquia</a></li>
+          <li><a href="#">info@auratravel.co</a></li>
+          <li><a href="#">+57 604 000 0000</a></li>
+          <li><a href="src/pages/login.html">Iniciar Sesión</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 Aura Travel — Todos los derechos reservados</p>
+      <div class="footer-socials">
+        <div class="social-btn">in</div>
+        <div class="social-btn">ig</div>
+        <div class="social-btn">fb</div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Cursor personalizado
+    const cursor = document.getElementById('cursor');
+    const ring   = document.getElementById('cursorRing');
+    document.addEventListener('mousemove', e => {
+      cursor.style.transform = `translate(${e.clientX - 5}px,  ${e.clientY - 5}px)`;
+      ring.style.transform   = `translate(${e.clientX - 18}px, ${e.clientY - 18}px)`;
+    });
+
+    // Navbar scroll
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Testimonials slider
+    let current = 0;
+    const testimonials = document.querySelectorAll('.testimonial');
+    const dots = document.querySelectorAll('.dot');
+    function goTo(n) {
+      testimonials[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      current = n;
+      testimonials[current].classList.add('active');
+      dots[current].classList.add('active');
+    }
+    setInterval(() => goTo((current + 1) % testimonials.length), 5000);
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+//Señorito/a porfavor organice un poquito su codigo que lo pueden regañar por tener 
+//el css en el html. que les vaya bien en su proyecto, guerreros y guerreras del codigo,
+// que el sol ilumine su camino y que los bugs sean pocos y faciles de encontrar. ¡Ánimo con ese proyecto!

@@ -1,0 +1,932 @@
+/* ================================================
+   NUEVA RESERVA — Layout profesional con flujo UX
+   ================================================ */
+
+.nr-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 2.5rem;
+}
+
+/* Encabezado */
+.nr-header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.nr-titulo {
+  font-family: var(--fuente-principal);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primario);
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.5px;
+}
+
+.nr-subtitulo {
+  color: var(--color-texto-claro);
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+/* -----------------------------------------------
+   LAYOUT
+   ----------------------------------------------- */
+.nr-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.nr-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* -----------------------------------------------
+   CARDS CON STEP BADGES
+   ----------------------------------------------- */
+.nr-card {
+  background: linear-gradient(135deg, rgba(10,8,35,0.98) 0%, rgba(35,15,80,0.95) 100%);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(0,212,255,0.1);
+  border-radius: 14px;
+  padding: 1.2rem 1.4rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+.nr-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.3), transparent);
+}
+
+.nr-card:hover {
+  border-color: rgba(0,212,255,0.25);
+  box-shadow: 0 15px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+  transform: translateY(-2px);
+}
+
+.nr-card--step4 { border-color: rgba(0,212,255,0.2); }
+.nr-card--step3 {
+  overflow: visible;
+  z-index: 2;
+}
+
+.nr-card__titulo {
+  font-family: var(--fuente-principal);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: rgba(255,255,255,0.95);
+  margin: 0 0 0.9rem 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(0,212,255,0.15);
+}
+
+/* -----------------------------------------------
+   GRIDS INTERNOS
+   ----------------------------------------------- */
+.nr-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  gap: 1rem;
+  align-items: start;
+  min-width: 0;
+}
+
+.nr-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+/* -----------------------------------------------
+   LABELS MEJORADOS
+   ----------------------------------------------- */
+.nr-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 0.35rem;
+}
+
+/* -----------------------------------------------
+   CAMPOS
+   ----------------------------------------------- */
+.nr-field {
+  min-width: 0;
+}
+
+.nr-field--mt {
+  margin-top: 0.75rem;
+}
+
+.nr-field select,
+.nr-field input[type="date"] {
+  width: 100%;
+  min-width: 0;
+  padding: 0.65rem 0.9rem;
+  height: 2.4rem;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.95);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.nr-field select:hover,
+.nr-field input[type="date"]:hover {
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+}
+
+.nr-field select:focus,
+.nr-field input[type="date"]:focus {
+  border-color: rgba(0,212,255,0.6);
+  box-shadow: 0 0 0 4px rgba(0,212,255,0.1);
+  background: rgba(255,255,255,0.08);
+}
+
+.nr-field select option {
+  background: #0d0b2a;
+  color: #fff;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  filter: invert(1);
+  transition: opacity 0.2s ease;
+}
+
+input[type="date"]:hover::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}
+
+/* -----------------------------------------------
+   FECHAS — grilla interna y contador de noches
+   ----------------------------------------------- */
+.nr-fechas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.nr-noches-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(76,220,182,0.1));
+  border: 1.5px solid rgba(0,212,255,0.3);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  margin-bottom: 0.7rem;
+  animation: nrFadeUp 0.3s ease forwards;
+  font-size: 0.8rem;
+}
+
+.nr-noches-badge__num {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #00d4ff;
+}
+
+.nr-noches-badge__label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+}
+
+/* -----------------------------------------------
+   DETALLE CARD
+   ----------------------------------------------- */
+.nr-detalle {
+  margin-top: 0.8rem;
+  background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(123,47,247,0.06));
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.9);
+  animation: nrFadeUp 0.3s ease forwards;
+}
+
+.nr-detalle h4 {
+  font-family: var(--fuente-principal);
+  font-size: 1.05rem;
+  color: var(--color-primario);
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+}
+
+.nr-detalle p {
+  color: var(--color-texto-claro);
+  font-size: 0.88rem;
+  margin-bottom: 0.3rem;
+  line-height: 1.5;
+}
+
+.nr-detalle .precio-tag {
+  display: inline-block;
+  margin-top: 0.7rem;
+  background: linear-gradient(135deg, #7b2ff7, #ff40fb);
+  color: var(--color-blanco);
+  padding: 0.35rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* -----------------------------------------------
+   PREVIEW CARD
+   ----------------------------------------------- */
+.nr-preview-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(12,8,40,0.96), rgba(50,20,100,0.92));
+  border: 1.5px solid rgba(0,212,255,0.2);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  overflow: hidden;
+  animation: nrFadeUp 0.3s ease forwards;
+  margin-top: 1rem;
+}
+
+.nr-preview-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nr-preview-close:hover {
+  background: rgba(255,255,255,0.18);
+  transform: scale(1.1);
+}
+
+.nr-preview-card__inner {
+  display: flex;
+  gap: 1.2rem;
+  align-items: stretch;
+  padding-right: 2.5rem;
+}
+
+.nr-preview-card__image {
+  width: 160px;
+  min-width: 160px;
+  height: 110px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: inset 0 -15px 40px rgba(0,0,0,0.4);
+}
+
+.nr-preview-card__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nr-preview-card__content h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #fff;
+  font-family: var(--fuente-principal);
+  font-weight: 700;
+}
+
+.nr-preview-desc {
+  margin: 0;
+  color: rgba(255,255,255,0.65);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.nr-preview-meta {
+  display: flex;
+  gap: 1rem;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.85rem;
+}
+
+.nr-preview-price {
+  font-weight: 800;
+  color: #ff40fb;
+  font-size: 1.2rem;
+  margin-top: auto;
+}
+
+/* -----------------------------------------------
+   SERVICIOS ADICIONALES
+   ----------------------------------------------- */
+#serviciosContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.servicio-item {
+  display: flex;
+  min-width: 0;
+}
+
+.servicio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 0;
+}
+
+.servicio-label:hover {
+  background: rgba(0,212,255,0.08);
+  border-color: rgba(0,212,255,0.3);
+}
+
+.servicio-check {
+  width: 18px;
+  height: 18px;
+  accent-color: #7b2ff7;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.servicio-item.active .servicio-check {
+  transform: scale(1.2);
+}
+
+.servicio-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.servicio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.servicio-extra {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  max-height: 0;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.servicio-item.active .servicio-extra {
+  max-height: 320px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.servicio-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 220px;
+  flex: 1;
+}
+
+.servicio-control-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.95);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.servicio-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.servicio-input-row input,
+.servicio-input-row .servicio-input-suffix,
+.servicio-control-label,
+.servicio-help,
+.servicio-total {
+  color: #ffffff !important;
+}
+
+.servicio-quantity-input::placeholder,
+.servicio-quantity-input:-ms-input-placeholder,
+.servicio-quantity-input::-ms-input-placeholder {
+  color: rgba(255,255,255,0.75) !important;
+}
+
+.servicio-quantity-input {
+  width: 4.5rem;
+  min-width: 4.5rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.12);
+  color: #ffffff;
+  font-size: 0.95rem;
+  text-align: center;
+  outline: none;
+}
+
+.servicio-quantity-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.servicio-input-suffix {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.servicio-help {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.8);
+  min-height: 1rem;
+}
+
+.servicio-total {
+  font-size: 0.86rem;
+  color: #b7f2ff;
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 8rem;
+  text-align: right;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.servicio-item.active .servicio-total {
+  opacity: 1;
+  visibility: visible;
+}
+
+.servicio-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.servicio-price {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #00d4ff;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Estado activo */
+.servicio-item.active .servicio-label {
+  background: linear-gradient(135deg, rgba(123,47,247,0.2), rgba(255,64,251,0.1));
+  border-color: rgba(123,47,247,0.6);
+  box-shadow: 0 0 20px rgba(123,47,247,0.25);
+}
+
+.servicio-item.active .servicio-name {
+  color: #fff;
+}
+
+/* Subtotal parcial de servicios */
+.nr-servicios-subtotal {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  text-align: right;
+}
+
+.nr-servicios-subtotal strong {
+  color: #00d4ff;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+/* -----------------------------------------------
+   MENSAJE DE DISPONIBILIDAD
+   ----------------------------------------------- */
+.nr-aviso {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+}
+
+/* -----------------------------------------------
+   ACCIONES — jerarquía clara
+   ----------------------------------------------- */
+.nr-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.8rem;
+}
+
+.nr-btn-confirmar {
+  padding: 0.75rem 2rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  border-radius: 10px;
+  letter-spacing: 0.4px;
+  box-shadow: 0 6px 25px rgba(123,47,247,0.4), 0 0 20px rgba(255,64,251,0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255,64,251,0.3);
+}
+
+.nr-btn-confirmar:hover {
+  box-shadow: 0 10px 40px rgba(123,47,247,0.6), 0 0 30px rgba(255,64,251,0.35);
+  transform: translateY(-3px);
+}
+
+.nr-btn-confirmar:active {
+  transform: translateY(-1px);
+}
+
+.nr-btn-cancelar {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  font-family: var(--fuente-secundaria);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  padding: 0.75rem 0;
+}
+
+.nr-btn-cancelar:hover {
+  color: rgba(255,255,255,0.8);
+  transform: translateX(-3px);
+}
+
+/* -----------------------------------------------
+   RESUMEN DE PAGO
+   ----------------------------------------------- */
+.nr-resumen {
+  position: sticky;
+  top: 1.5rem;
+  background: linear-gradient(135deg, rgba(10,8,35,0.98) 0%, rgba(50,20,100,0.95) 100%);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(0,212,255,0.15);
+  border-radius: 14px;
+  padding: 1.2rem 1.3rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.nr-resumen__titulo {
+  font-family: var(--fuente-principal);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #00d4ff;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1.5px solid rgba(0,212,255,0.15);
+}
+
+/* Desglose dinámico de ítems */
+.nr-resumen__desglose {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  min-height: 0;
+}
+
+.nr-resumen__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  animation: nrFadeUp 0.2s ease forwards;
+  margin-bottom: 0.4rem;
+}
+
+.nr-resumen__item.accommodation-item {
+  padding: 0.6rem 0;
+  border-left: 3px solid rgba(123, 47, 247, 0.5);
+  padding-left: 0.8rem;
+  margin-left: -0.8rem;
+}
+
+.nr-resumen__item.service-item {
+  padding: 0.4rem 0;
+  opacity: 0.9;
+}
+
+.nr-resumen__item-name {
+  color: rgba(255,255,255,0.6);
+  line-height: 1.3;
+  flex: 1;
+}
+
+.nr-resumen__item.accommodation-item .nr-resumen__item-name {
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+}
+
+.nr-resumen__item-details {
+  color: rgba(255,255,255,0.47);
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+
+.nr-resumen__item-val {
+  color: rgba(255,255,255,0.85);
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nr-resumen__item.accommodation-item .nr-resumen__item-val {
+  color: #7BFF4F;
+  font-size: 0.88rem;
+}
+
+.nr-resumen__separador {
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.2), transparent);
+  margin: 0.7rem 0 0.6rem;
+}
+
+.nr-resumen__fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+.nr-resumen__fila span:last-child {
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+}
+
+.nr-resumen__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 2px solid rgba(0,212,255,0.2);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.95);
+}
+
+.nr-resumen__total span:last-child {
+  color: #ff40fb;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.nr-resumen__helper {
+  margin-top: 0.8rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 8px;
+  font-size: 0.7rem;
+  color: rgba(0,212,255,0.8);
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* -----------------------------------------------
+   ANIMACIONES
+   ----------------------------------------------- */
+@keyframes nrFadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== RESERVATION CARD (Mis Reservas) ===== */
+.reservation-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(7,6,30,0.96) 0%, rgba(36,18,78,0.92) 100%);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 1.15rem 1.25rem;
+  border-radius: 14px;
+  margin-bottom: 1rem;
+}
+
+.reservation-card .reservation-info h3 { margin: 0 0 0.25rem 0; color: rgba(255,255,255,0.95); }
+.reservation-card .reservation-info p  { color: rgba(255,255,255,0.75); margin: 0.15rem 0; }
+.reservation-card .reservation-actions { display: flex; gap: 0.5rem; }
+.reservation-card .btn { padding: 0.55rem 0.9rem; }
+
+/* -----------------------------------------------
+   RESPONSIVE — Mobile First Approach
+   ----------------------------------------------- */
+@media (max-width: 1200px) {
+  .nr-wrapper {
+    padding: 2rem 1.5rem 3.5rem;
+  }
+  .nr-titulo {
+    font-size: 2.2rem;
+  }
+  .nr-card {
+    padding: 1.6rem 1.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .nr-layout {
+    grid-template-columns: 1fr;
+  }
+  .nr-resumen {
+    position: relative;
+    top: auto;
+    order: -1;
+    margin-bottom: 1.5rem;
+  }
+  .nr-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .nr-wrapper {
+    padding: 1.5rem 1rem 2.5rem;
+  }
+  .nr-titulo {
+    font-size: 1.8rem;
+  }
+  .nr-card {
+    padding: 1.3rem 1.2rem;
+  }
+  .nr-card__header {
+    gap: 0.75rem;
+  }
+  .nr-card__titulo {
+    font-size: 1rem;
+  }
+  .nr-card__step-badge {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+  }
+  .nr-grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .nr-fechas-grid {
+    grid-template-columns: 1fr;
+  }
+  #serviciosContainer {
+    grid-template-columns: 1fr;
+  }
+  .nr-preview-card__inner {
+    flex-direction: column;
+    padding-right: 2rem;
+  }
+  .nr-preview-card__image {
+    width: 100%;
+    height: 200px;
+  }
+  .nr-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.8rem;
+  }
+  .nr-btn-confirmar {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  .nr-btn-cancelar {
+    width: 100%;
+    justify-content: center;
+    padding: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nr-wrapper {
+    padding: 1rem 0.75rem 2rem;
+  }
+  .nr-header {
+    margin-bottom: 1.5rem;
+  }
+  .nr-titulo {
+    font-size: 1.5rem;
+  }
+  .nr-subtitulo {
+    font-size: 0.85rem;
+  }
+  .nr-card {
+    padding: 1rem 1rem;
+    border-radius: 14px;
+  }
+  .nr-card__step-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+  .nr-label {
+    font-size: 0.7rem;
+  }
+  .nr-field select,
+  .nr-field input[type="date"] {
+    height: 2.4rem;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+  }
+  .nr-resumen {
+    margin-bottom: 1rem;
+    padding: 1.2rem 1rem;
+  }
+  .nr-resumen__titulo {
+    font-size: 0.95rem;
+    margin-bottom: 0.9rem;
+  }
+  .nr-resumen__total span:last-child {
+    font-size: 1.3rem;
+  }
+  .servicio-label {
+    padding: 0.65rem 0.8rem;
+  }
+  .servicio-name {
+    font-size: 0.8rem;
+  }
+  .nr-preview-close {
+    width: 1.8rem;
+    height: 1.8rem;
+    font-size: 1rem;
+  }
+  .nr-btn-confirmar {
+    padding: 0.85rem 1.2rem;
+    font-size: 0.85rem;
+  }
+}

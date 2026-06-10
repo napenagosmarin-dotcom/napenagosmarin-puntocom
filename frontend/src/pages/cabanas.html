@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cabañas - Aura Travel</title>
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/styles.css?v=1.1" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="header-container"></div>
+  <button class="sidebar__toggle" id="sidebarToggle" aria-label="Abrir menú">☰</button>
+  <div class="sidebar__overlay" id="sidebarOverlay"></div>
+
+  <main class="main-content" id="mainContent">
+    <section id="seccion-cabanas" class="seccion">
+      <div class="container">
+        <div class="section-toolbar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="buscador-cabanas" placeholder="Buscar por nombre, descripción...">
+          </div>
+          <div class="toolbar-right">
+            <div class="paginacion-resumen" id="paginacion-info-cabanas">Cargando cabañas...</div>
+            <button class="btn-nuevo" id="btnNuevaCabana">➕ Nueva Cabaña</button>
+          </div>
+        </div>
+
+        <div id="lista-cabanas"></div>
+        <div class="paginacion" id="paginacion-cabanas"></div>
+      </div>
+    </section>
+
+    <div id="footer-container"></div>
+  </main>
+
+  <div class="modal-overlay" id="modal-cabanas">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="cabanas-form-title">➕ Nueva Cabaña</h3>
+        <button class="modal-close" id="btnCerrarModalCabana">✕</button>
+      </div>
+      <form id="form-cabanas" class="modal-form">
+        <input type="hidden" id="cabana-id">
+        <div class="form-group">
+          <label>🏕️ Nombre de la Cabaña</label>
+          <input type="text" id="nombreCabana" placeholder="Nombre de la cabaña" required>
+        </div>
+        <div class="form-group">
+          <label>📝 Descripción</label>
+          <textarea id="descripcionCabana" placeholder="Descripción de la cabaña"></textarea>
+        </div>
+        <div class="form-group">
+          <label>👥 Capacidad de Personas</label>
+          <input type="number" id="capacidadPersonas" placeholder="Capacidad" min="1">
+        </div>
+        <div class="form-group">
+          <label>💰 Precio por Noche</label>
+          <input type="number" id="precioNoche" placeholder="Precio por noche" step="0.01" required>
+        </div>
+        <input type="hidden" id="estadoCabana" value="1">
+        <div class="form-group">
+          <label>🖼️ URL de Imagen</label>
+          <input type="text" id="imagenCabana" placeholder="https://ejemplo.com/imagen.jpg">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancelar" id="btnLimpiarCabana">🔄 Cancelar</button>
+          <button type="submit" class="btn-guardar">💾 Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-ver-cabana">
+    <div class="modal-box modal-box-ver">
+      <div class="modal-header">
+        <h3 id="ver-cabana-titulo">🏕️ Cabaña</h3>
+        <button class="modal-close" id="btnCerrarVerCabana">✕</button>
+      </div>
+      <div class="modal-ver-body">
+        <img id="ver-cabana-imagen" src="" alt="Imagen de la cabaña" class="cabana-imagen-preview">
+        <div class="ver-cabana-info">
+          <p id="ver-cabana-descripcion"></p>
+          <div class="ver-cabana-datos">
+            <span id="ver-cabana-capacidad"></span>
+            <span id="ver-cabana-precio"></span>
+            <span id="ver-cabana-estado"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>
