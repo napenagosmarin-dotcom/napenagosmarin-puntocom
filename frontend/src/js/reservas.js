@@ -209,23 +209,37 @@ async function loadReservations() {
             return;
         }
 
-        list.innerHTML = reservations.map(r => `
+        // Estados que NO permiten cancelación: 3=Cancelada, 4=Completada
+        const estadosNoCancelables = [3, 4];
+
+        list.innerHTML = reservations.map(r => {
+            const esCancelable = !estadosNoCancelables.includes(r.IdEstadoReserva || r.Estado);
+            const estadoClass = (r.NombreEstadoReserva || '').toLowerCase().replace(/\s+/g, '-');
+
+            return `
             <div class="reservation-card">
                 <div class="reservation-info">
-                    <h3>Reserva #${r.IdReserva}</h3>
+                    <h3>Reserva #${r.IdReserva}
+                      <span class="status-badge status-${estadoClass}" style="font-size:0.7rem;margin-left:0.5rem;vertical-align:middle;">
+                        ${r.NombreEstadoReserva || ''}
+                      </span>
+                    </h3>
                     <p><strong>Habitación:</strong> ${r.NombreHabitacion || 'Sin asignar'}</p>
                     <p><strong>Paquete:</strong> ${r.NombrePaquete || 'Sin paquete'}</p>
-                    <p><strong>Fechas:</strong> ${r.FechaInicio ? new Date(r.FechaInicio).toLocaleDateString() : '-'} - ${r.FechaFinalizacion ? new Date(r.FechaFinalizacion).toLocaleDateString() : '-'}</p>
+                    <p><strong>Fechas:</strong> ${r.FechaInicio ? new Date(r.FechaInicio).toLocaleDateString() : '-'} – ${r.FechaFinalizacion ? new Date(r.FechaFinalizacion).toLocaleDateString() : '-'}</p>
                     <p><strong>Total:</strong> ${formatCurrency(r.MontoTotal || 0)}</p>
-                    <p><strong>Estado:</strong> ${r.NombreEstadoReserva}</p>
                 </div>
                 <div class="reservation-actions">
                     <button class="btn btn-outline-primario" onclick="loadReservationDetails(${r.IdReserva})">Ver detalles</button>
                     <button class="btn btn-outline-azul" onclick="abrirEdicion(${r.IdReserva})">Editar</button>
-                    <button class="btn btn-outline-peligro" onclick="deleteReservation(${r.IdReserva})">Eliminar</button>
+                    ${
+                      esCancelable
+                        ? `<button class="btn btn-outline-peligro" onclick="solicitarCancelacion(${r.IdReserva}, ${r.MontoTotal || 0})">Cancelar</button>`
+                        : `<button class="btn btn-outline-peligro" disabled style="opacity:0.35;cursor:not-allowed;">Cancelada</button>`
+                    }
                 </div>
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
     } catch (error) {
         console.error('Error cargando reservas', error);
     }
@@ -450,19 +464,172 @@ async function guardarEdicion() {
         alert('Error de conexión');    }
 }
 
-async function deleteReservation(id) {
-    if (!confirm('¿Estás seguro de eliminar esta reserva?')) return;
+// ─────────────────────────────────────────────────────────────────────────────
+// SISTEMA DE CANCELACIÓN — UX de 2 pasos
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Paso 1: Solicita la cancelación al backend para obtener la política aplicable.
+ * Si es gratuita → cancela directo y muestra resultado.
+ * Si tiene penalización → muestra el modal de confirmación.
+ */
+async function solicitarCancelacion(id, montoTotal) {
     try {
-        const response = await fetch(`/api/reservas/${id}`, { method: 'DELETE' });
-        if (response.ok) {
+        const response = await fetch(`/api/reservas/${id}/cancel`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})   // primer llamado sin confirmación
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.message || 'Error al procesar la cancelación.');
+            return;
+        }
+
+        // El backend requiere confirmación explícita (hay penalización)
+        if (data.requiresConfirmation) {
+            poblarModalCancelacion(id, montoTotal, data.politica, data.mensaje);
+            document.getElementById('cancelRequieresConfirmacion').value = 'true';
+            document.getElementById('cancelModal').style.display = 'flex';
+            return;
+        }
+
+        // Cancelación gratuita ejecutada directamente
+        if (data.cancelado) {
+            mostrarResultadoCancelacion(data.data || data, montoTotal);
             await loadReservations();
             ocultarDetalles();
-        } else {
-            alert('Error al eliminar la reserva');
         }
+
     } catch (error) {
-        alert('Error de conexión');
+        console.error('Error solicitando cancelación:', error);
+        alert('Error de conexión. Por favor intenta de nuevo.');
     }
+}
+
+/**
+ * Rellena el modal de cancelación con la información de la política.
+ */
+function poblarModalCancelacion(id, montoTotal, politica, mensajeExtra) {
+    document.getElementById('cancelReservaId').value = id;
+
+    const esGratuita = politica.tipoCancelacion === 'gratuita';
+
+    // Badge de tipo
+    const badge = document.getElementById('cancelTipoBadge');
+    badge.textContent = esGratuita ? '✅ Cancelación Gratuita' : `⚠️ Cancelación con Penalización (${politica.porcentajePenalizacion}%)`;
+    badge.style.background = esGratuita ? '#10b981' : '#ef4444';
+    badge.style.color = '#fff';
+
+    // Mensaje de política
+    const politicaBox = document.getElementById('cancelPoliticaBox');
+    politicaBox.style.borderLeftColor = esGratuita ? '#10b981' : '#f59e0b';
+    politicaBox.style.background = esGratuita ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)';
+    document.getElementById('cancelPoliticaMensaje').textContent = mensajeExtra || politica.mensaje || '';
+
+    // Resumen financiero
+    document.getElementById('cancelMontoTotal').textContent = formatCurrency(montoTotal);
+    document.getElementById('cancelPenalizacionLabel').textContent =
+        esGratuita ? 'Penalización aplicada' : `Penalización (${politica.porcentajePenalizacion}%)`;
+    document.getElementById('cancelPenalizacionValor').textContent =
+        esGratuita ? '$0 (sin cargo)' : formatCurrency(politica.valorPenalizacion);
+    document.getElementById('cancelPenalizacionValor').style.color = esGratuita ? '#10b981' : '#ef4444';
+    document.getElementById('cancelReembolsoValor').textContent = formatCurrency(politica.valorReembolso);
+
+    // Subtítulo del modal
+    document.getElementById('cancelModalSubtitle').textContent =
+        esGratuita ? 'Esta cancelación no generará ningún cargo.' : '⚠️ Esta cancelación generará un cargo de penalización.';
+}
+
+/**
+ * Paso 2: El usuario ya vio la política y confirma la cancelación.
+ * Envía confirmarConPenalizacion=true para ejecutar la cancelación en la BD.
+ */
+async function ejecutarCancelacion() {
+    const id = document.getElementById('cancelReservaId').value;
+    const montoEl = document.getElementById('cancelMontoTotal').textContent;
+    // Extraer el número del texto formateado
+    const montoTotal = parseFloat(montoEl.replace(/[^0-9,.]/g, '').replace(',', '.')) || 0;
+
+    const btn = document.getElementById('cancelConfirmBtn');
+    btn.disabled = true;
+    btn.textContent = 'Procesando...';
+
+    try {
+        const response = await fetch(`/api/reservas/${id}/cancel`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ confirmarConPenalizacion: true })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.message || 'Error al cancelar la reserva.');
+            btn.disabled = false;
+            btn.textContent = '❌ Confirmar cancelación';
+            return;
+        }
+
+        cerrarModalCancelacion();
+        mostrarResultadoCancelacion(data.data || data, montoTotal);
+        await loadReservations();
+        ocultarDetalles();
+
+    } catch (error) {
+        console.error('Error ejecutando cancelación:', error);
+        alert('Error de conexión. Por favor intenta de nuevo.');
+        btn.disabled = false;
+        btn.textContent = '❌ Confirmar cancelación';
+    }
+}
+
+/**
+ * Muestra el modal de resultado con el resumen financiero de la cancelación.
+ */
+function mostrarResultadoCancelacion(data, montoTotalFallback) {
+    const politica = data.politica || {};
+    const esGratuita = (politica.tipoCancelacion || '') === 'gratuita';
+    const montoTotal = montoTotalFallback || 0;
+
+    // Ícono y badge
+    document.getElementById('cancelResultIcon').textContent = esGratuita ? '✅' : '⚠️';
+    const badge = document.getElementById('cancelResultBadge');
+    badge.textContent = esGratuita ? '✅ Cancelación Gratuita' : `⚠️ Penalización del ${politica.porcentajePenalizacion || 40}%`;
+    badge.style.background = esGratuita ? '#10b981' : '#ef4444';
+    badge.style.color = '#fff';
+
+    // Subtítulo
+    document.getElementById('cancelResultSubtitle').textContent =
+        esGratuita
+            ? 'Tu reserva fue cancelada sin ningún cargo. Recibirás el reembolso completo.'
+            : 'Tu reserva fue cancelada. Revisa los valores a continuación.';
+
+    // Resumen financiero
+    document.getElementById('cancelResultTotal').textContent = formatCurrency(montoTotal);
+    document.getElementById('cancelResultPenLabel').textContent =
+        esGratuita ? 'Penalización aplicada' : `Penalización retenida (${politica.porcentajePenalizacion || 0}%)`;
+    document.getElementById('cancelResultPenValor').textContent =
+        esGratuita ? '$0 (sin cargo)' : formatCurrency(politica.valorPenalizacion || 0);
+    document.getElementById('cancelResultPenValor').style.color = esGratuita ? '#10b981' : '#ef4444';
+    document.getElementById('cancelResultReembolso').textContent = formatCurrency(politica.valorReembolso || montoTotal);
+
+    // Mensaje
+    document.getElementById('cancelResultMensaje').textContent = data.mensaje || politica.mensaje || '';
+
+    document.getElementById('cancelResultModal').style.display = 'flex';
+}
+
+function cerrarModalCancelacion() {
+    document.getElementById('cancelModal').style.display = 'none';
+    const btn = document.getElementById('cancelConfirmBtn');
+    if (btn) { btn.disabled = false; btn.textContent = '❌ Confirmar cancelación'; }
+}
+
+function cerrarResultadoCancelacion() {
+    document.getElementById('cancelResultModal').style.display = 'none';
 }
 
 function cerrarModal() {

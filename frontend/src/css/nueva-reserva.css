@@ -95,6 +95,23 @@
   border-bottom: 1px solid rgba(0,212,255,0.15);
 }
 
+.nr-card__titulo--flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nr-card__aclaracion {
+  font-family: var(--fuente-secundaria);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fbbf24;
+  letter-spacing: 0.2px;
+  text-transform: none;
+}
+
 /* -----------------------------------------------
    GRIDS INTERNOS
    ----------------------------------------------- */

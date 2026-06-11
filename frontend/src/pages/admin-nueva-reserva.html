@@ -266,7 +266,10 @@
 
               <!-- PASO 2: ALOJAMIENTO -->
               <div class="nr-card nr-card--step2">
-                <div class="nr-card__titulo">Elige tu Alojamiento</div>
+                <div class="nr-card__titulo nr-card__titulo--flex">
+                  <span>Elige tu Alojamiento</span>
+                  <span class="nr-card__aclaracion">Solo se puede elegir una habitación o cabaña por reserva</span>
+                </div>
 
                 <div class="nr-grid-3">
                   <div class="nr-field">
@@ -328,6 +331,12 @@
             <!-- COLUMNA DERECHA: resumen de pago -->
             <div class="nr-resumen">
               <div class="nr-resumen__titulo">💰 Resumen de Pago</div>
+
+              <!-- Detalles de Check-in y Check-out -->
+              <div id="resumenFechas" style="display:none; font-size: 0.85rem; color: rgba(255,255,255,0.8); margin-bottom: 1rem; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                <div style="margin-bottom: 5px;">🕒 <strong>Check-in:</strong> <span id="resumenCheckin"></span> (3:00 PM)</div>
+                <div>🕒 <strong>Check-out:</strong> <span id="resumenCheckout"></span> (12:00 PM)</div>
+              </div>
 
               <div id="resumenDesglose" class="nr-resumen__desglose"></div>
 

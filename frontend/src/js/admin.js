@@ -341,7 +341,20 @@ function renderReservas(reservas, kpis) {
                             </div>
                         </div>
                     </div>
-                    <div class="reserva-card__footer">${diasTxt}</div>
+                    <div class="reserva-card__footer">
+                        <span class="reserva-card__footer-left">${diasTxt}</span>
+                        <div class="reserva-card__acciones">
+                            <button onclick="verDetalleReserva(${r.IdReserva})" class="btn-icon-admin btn-view" title="Ver Detalle">
+                                <i data-lucide="eye" style="width:15px;"></i>
+                            </button>
+                            <button onclick="editarReserva(${r.IdReserva})" class="btn-icon-admin btn-edit" title="Editar Reserva">
+                                <i data-lucide="edit-2" style="width:15px;"></i>
+                            </button>
+                            <button onclick="eliminarReserva(${r.IdReserva})" class="btn-icon-admin btn-delete" title="Eliminar Reserva">
+                                <i data-lucide="trash-2" style="width:15px;"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>`;
             }).join('')}
         </div>
@@ -399,6 +412,222 @@ async function cambiarEstado(idReserva, idEstado) {
         mostrarNotificacion('Error de conexión al servidor.', 'error');
     }
 }
+
+// ===== CRUD DE RESERVAS =====
+window.verDetalleReserva = async (id) => {
+    try {
+        const res = await fetch(`/api/reservas/${id}`);
+        if (!res.ok) throw new Error('No se pudo cargar la reserva');
+        const r = await res.json();
+
+        const estadoConfig = {
+            pendiente:   { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)',  icon: 'clock' },
+            confirmada:  { color: '#10b981', bg: 'rgba(16,185,129,0.15)',  icon: 'check-circle-2' },
+            cancelada:   { color: '#ef4444', bg: 'rgba(239,68,68,0.15)',   icon: 'x-circle' },
+            completada:  { color: '#00d4ff', bg: 'rgba(0,212,255,0.15)',   icon: 'check-circle' },
+            procesando:  { color: '#7b2ff7', bg: 'rgba(123,47,247,0.15)', icon: 'loader' },
+        };
+        const key = (r.NombreEstadoReserva || '').toLowerCase();
+        const cfg = estadoConfig[key] || { color: '#6b7280', bg: 'rgba(107,114,128,0.15)', icon: 'help-circle' };
+        const fmt = f => f ? new Date(f).toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+
+        document.getElementById('detalleTitulo').textContent = `Detalle de Reserva #${r.IdReserva}`;
+        document.getElementById('detalleContent').style.padding = '0';
+        const modalBox = document.querySelector('#detalleModalOverlay .modal-box-ver');
+        if (modalBox) modalBox.classList.add('modal-box--wide');
+
+        document.getElementById('detalleContent').innerHTML = `
+            <div class="reserva-detalle" style="padding: 1rem;">
+                <!-- Encabezado de la Reserva -->
+                <div style="background: linear-gradient(135deg, ${cfg.color}15, rgba(13,11,46,0.8)); border: 1px solid ${cfg.color}44; border-radius: 16px; padding: 2.5rem; display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 2rem; position: relative; overflow: hidden;">
+                    
+                    <!-- Elemento decorativo de fondo -->
+                    <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at center, ${cfg.color}11 0%, transparent 50%); pointer-events: none;"></div>
+
+                    <div style="position: relative; z-index: 1;">
+                        <div style="margin-bottom: 1rem;">
+                             <span style="font-size: 0.85rem; font-weight: 600; color: ${cfg.color}; background: ${cfg.bg}; border: 1px solid ${cfg.color}44; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px ${cfg.color}22;">
+                                 <i data-lucide="${cfg.icon}" style="width: 15px; height: 15px;"></i> ${r.NombreEstadoReserva || '—'}
+                             </span>
+                        </div>
+                        <div style="margin-bottom: 0.5rem; color: rgba(255,255,255,0.5); font-size: 0.8rem; font-weight: 700; letter-spacing: 2px;">TOTAL A PAGAR</div>
+                        <div style="font-size: 3.2rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; text-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+                            <span style="color: #10b981;">$</span>${Number(r.MontoTotal || 0).toLocaleString('es-CO')}
+                        </div>
+                        <div style="font-size: 1rem; color: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                             <i data-lucide="hash" style="width: 16px; color: ${cfg.color};"></i> Reserva <strong style="color: #fff; font-size: 1.1rem; font-family: monospace;">#${r.IdReserva}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de Información Centrada -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; padding: 0 0.5rem;">
+                    
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.8rem 1rem; border-radius: 16px; transition: all 0.3s; cursor: default;">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(123,47,247,0.15); border: 1px solid rgba(123,47,247,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #9b59f5; box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+                            <i data-lucide="user" style="width: 22px; height: 22px;"></i>
+                        </div>
+                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem;">CLIENTE</div>
+                        <div style="font-size: 1.1rem; font-weight: 600; color: #fff;">${r.NombreUsuario || '—'}</div>
+                        <div style="font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-top: 0.4rem; font-family: monospace;">${r.NroDocumentoCliente || '—'}</div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.8rem 1rem; border-radius: 16px;">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #10b981; box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+                            <i data-lucide="calendar-range" style="width: 22px; height: 22px;"></i>
+                        </div>
+                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem;">ESTADÍA</div>
+                        <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%; align-items: center;">
+                            <div style="font-size: 0.95rem; font-weight: 500; color: rgba(255,255,255,0.8); display: flex; justify-content: space-between; width: 140px;">
+                                <span>In:</span> <span style="font-weight:600; color: #10b981;">${fmt(r.FechaInicio)}</span>
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: 500; color: rgba(255,255,255,0.8); display: flex; justify-content: space-between; width: 140px;">
+                                <span>Out:</span> <span style="font-weight:600; color: #ef4444;">${fmt(r.FechaFinalizacion)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.8rem 1rem; border-radius: 16px;">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #f59e0b; box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+                            <i data-lucide="credit-card" style="width: 22px; height: 22px;"></i>
+                        </div>
+                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem;">MÉTODO DE PAGO</div>
+                        <div style="font-size: 1.1rem; font-weight: 600; color: #fff;">${r.NomMetodoPago || '—'}</div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.8rem 1rem; border-radius: 16px;">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(0,212,255,0.15); border: 1px solid rgba(0,212,255,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #00d4ff; box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+                            <i data-lucide="home" style="width: 22px; height: 22px;"></i>
+                        </div>
+                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem;">ALOJAMIENTO</div>
+                        <div style="font-size: 1.1rem; font-weight: 600; color: #fff;">${r.NombreHabitacion || r.NombreCabana || r.NombrePaquete || '—'}</div>
+                    </div>
+                </div>
+            </div>`;
+        if (window.lucide) lucide.createIcons({ parent: document.getElementById('detalleContent') });
+        document.getElementById('detalleModalOverlay').classList.add('activo');
+    } catch(e) {
+        console.error(e);
+        mostrarNotificacion('Error al cargar el detalle de la reserva.', 'error');
+    }
+};
+
+window.editarReserva = async (id) => {
+    try {
+        const [resR, resEstados, resMetodos] = await Promise.all([
+            fetch(`/api/reservas/${id}`),
+            fetch('/api/estadosreserva'),
+            fetch('/api/metodopago')
+        ]);
+        if (!resR.ok) throw new Error('No se pudo cargar la reserva');
+        const r = await resR.json();
+        const estados = await resEstados.json();
+        const metodos = await resMetodos.json();
+
+        const fmt = f => f ? new Date(f).toISOString().split('T')[0] : '';
+
+        document.getElementById('modalTitle').textContent = `✏️ Editar Reserva #${r.IdReserva}`;
+        document.getElementById('modalContent').innerHTML = `
+            <form id="formEditarReserva" style="display:flex; flex-direction:column; gap:1.2rem;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label>Fecha Check-In</label>
+                        <input type="date" id="er_fechaInicio" value="${fmt(r.FechaInicio)}" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Check-Out</label>
+                        <input type="date" id="er_fechaFin" value="${fmt(r.FechaFinalizacion)}" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Estado de la Reserva</label>
+                    <select id="er_estado" class="form-input">
+                        ${estados.map(e => `<option value="${e.IdEstadoReserva}" ${e.IdEstadoReserva === r.IdEstadoReserva ? 'selected' : ''}>${e.NombreEstadoReserva}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Método de Pago</label>
+                    <select id="er_metodoPago" class="form-input">
+                        ${metodos.map(m => `<option value="${m.IdMetodoPago || m.IDMetodoPago}" ${(m.IdMetodoPago || m.IDMetodoPago) === r.IdMetodoPago ? 'selected' : ''}>${m.NomMetodoPago || m.Nombre || '—'}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Monto Total ($)</label>
+                    <input type="number" id="er_monto" value="${r.MontoTotal || 0}" min="0" class="form-input">
+                </div>
+                <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:0.5rem;">
+                    <button type="button" onclick="cerrarModal()" class="btn btn-secundario">Cancelar</button>
+                    <button type="button" onclick="guardarReserva(${r.IdReserva})" class="btn btn-primario">💾 Guardar Cambios</button>
+                </div>
+            </form>`;
+        document.getElementById('modalOverlay').classList.add('activo');
+    } catch(e) {
+        console.error(e);
+        mostrarNotificacion('Error al cargar datos de la reserva.', 'error');
+    }
+};
+
+window.guardarReserva = async (id) => {
+    const fechaInicio = document.getElementById('er_fechaInicio')?.value;
+    const fechaFin    = document.getElementById('er_fechaFin')?.value;
+    const idEstado    = document.getElementById('er_estado')?.value;
+    const idMetodo    = document.getElementById('er_metodoPago')?.value;
+    const monto       = document.getElementById('er_monto')?.value;
+
+    if (!fechaInicio || !fechaFin) {
+        mostrarNotificacion('Las fechas de check-in y check-out son obligatorias.', 'warning');
+        return;
+    }
+    if (new Date(fechaFin) <= new Date(fechaInicio)) {
+        mostrarNotificacion('La fecha de check-out debe ser posterior al check-in.', 'warning');
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/reservas/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                FechaInicio:       fechaInicio,
+                FechaFinalizacion: fechaFin,
+                IdEstadoReserva:   Number(idEstado),
+                IdMetodoPago:      Number(idMetodo),
+                MontoTotal:        Number(monto)
+            })
+        });
+        if (res.ok) {
+            cerrarModal();
+            cargarReservas(reservasCurrentPage);
+            mostrarNotificacion('✅ Reserva actualizada correctamente.', 'success');
+        } else {
+            const err = await res.json().catch(() => ({}));
+            mostrarNotificacion(`Error: ${err.message || 'No se pudo actualizar la reserva.'}`, 'error');
+        }
+    } catch(e) {
+        mostrarNotificacion('Error de conexión al servidor.', 'error');
+    }
+};
+
+window.eliminarReserva = (id) => {
+    mostrarConfirmacion(
+        '¿Eliminar Reserva?',
+        `¿Está seguro de que desea eliminar la reserva #${id}? Esta acción no se puede deshacer.`,
+        async () => {
+            try {
+                const res = await fetch(`/api/reservas/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    cargarReservas(reservasCurrentPage);
+                    mostrarNotificacion('Reserva eliminada correctamente.', 'success');
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    mostrarNotificacion(`No se pudo eliminar: ${err.message || ''}`, 'error');
+                }
+            } catch(e) {
+                mostrarNotificacion('Error de conexión al servidor.', 'error');
+            }
+        }
+    );
+};
 
 // ===== HABITACIONES =====
 async function cargarHabitaciones() {

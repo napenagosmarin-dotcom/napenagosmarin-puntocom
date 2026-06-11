@@ -279,9 +279,9 @@ const calculateTotals = async (IDPaquete, IDHabitacion, IDCabana, servicioRows, 
       })
     : [];
   const totalServicios = servicios.reduce((sum, servicio) => sum + (servicio.Costo * servicio.Cantidad), 0);
-  const subtotal = paquetePrecio + habitacionPrecio + cabanaPrecio + totalServicios;
-  const iva = parseFloat((subtotal * 0.19).toFixed(2));
-  const total = parseFloat((subtotal + iva).toFixed(2));
+  const total = paquetePrecio + habitacionPrecio + cabanaPrecio + totalServicios;
+  const subtotal = parseFloat((total / 1.19).toFixed(2));
+  const iva = parseFloat((total - subtotal).toFixed(2));
   return {
     paquetePrecio,
     habitacionPrecio,
@@ -294,6 +294,50 @@ const calculateTotals = async (IDPaquete, IDHabitacion, IDCabana, servicioRows, 
   };
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// VERIFICACIÓN DE TRASLAPE DE FECHAS
+// ─────────────────────────────────────────────────────────────────────────────
+// Retorna true si el rango [fechaInicio, fechaFin) se traslapa con una reserva
+// existente en estado Pendiente(1) o Confirmada(2) para la unidad indicada.
+// excludeReservaId: excluir una reserva al actualizar (evitar auto-conflicto).
+// Lógica de traslape: A solapa B si A.inicio < B.fin AND A.fin > B.inicio
+// ─────────────────────────────────────────────────────────────────────────────
+const checkDateOverlap = async (type, id, fechaInicio, fechaFin, excludeReservaId = null) => {
+  if (!fechaInicio || !fechaFin || !id) return false;
+
+  // Seleccionar la tabla de detalle y columna según el tipo de alojamiento
+  const tableMap = {
+    habitacion: { table: 'detallereservahabitacion', col: 'IDHabitacion' },
+    cabana:     { table: 'detallereservacabana',     col: 'IDCabana'     },
+    paquete:    { table: 'detallereservapaquetes',   col: 'IDPaquete'    }
+  };
+  const mapping = tableMap[type];
+  if (!mapping) return false;
+
+  // Traslape: la reserva existente empieza antes de que termine la nueva
+  // Y termina después de que empieza la nueva
+  let sql = `
+    SELECT COUNT(*) AS cnt
+    FROM reserva r
+    JOIN ${mapping.table} d ON r.IdReserva = d.IDReserva
+    WHERE d.${mapping.col} = ?
+      AND r.IdEstadoReserva IN (1, 2)
+      AND r.FechaInicio IS NOT NULL
+      AND r.FechaFinalizacion IS NOT NULL
+      AND r.FechaInicio < ?
+      AND r.FechaFinalizacion > ?
+  `;
+  const params = [id, fechaFin, fechaInicio];
+
+  if (excludeReservaId) {
+    sql += ' AND r.IdReserva != ?';
+    params.push(excludeReservaId);
+  }
+
+  const [rows] = await db.query(sql, params);
+  return rows[0].cnt > 0;
+};
+
 // Crear nueva reserva
 const createReservation = async (data) => {
   const connection = await db.getConnection();
@@ -302,6 +346,38 @@ const createReservation = async (data) => {
 
     const servicioIds = Array.isArray(data.serviciosAdicionales) ? data.serviciosAdicionales : [];
     const totals = await calculateTotals(data.IDPaquete, data.IDHabitacion, data.IDCabana, servicioIds, data.FechaInicio, data.FechaFinalizacion);
+
+    // ── VALIDACIÓN DE TRASLAPE DE FECHAS (backend) ──────────────────────────
+    // Se verifica antes de insertar para evitar doble reserva.
+    // Los errores se lanzan con statusCode 409 para que el controller
+    // los devuelva como HTTP 409 Conflict sin pasar por next(error).
+    if (data.FechaInicio && data.FechaFinalizacion) {
+      if (data.IDHabitacion) {
+        const overlap = await checkDateOverlap('habitacion', data.IDHabitacion, data.FechaInicio, data.FechaFinalizacion);
+        if (overlap) {
+          const err = new Error('La habitación ya está reservada en las fechas seleccionadas. Por favor elige otras fechas.');
+          err.statusCode = 409;
+          throw err;
+        }
+      }
+      if (data.IDCabana) {
+        const overlap = await checkDateOverlap('cabana', data.IDCabana, data.FechaInicio, data.FechaFinalizacion);
+        if (overlap) {
+          const err = new Error('La cabaña ya está reservada en las fechas seleccionadas. Por favor elige otras fechas.');
+          err.statusCode = 409;
+          throw err;
+        }
+      }
+      if (data.IDPaquete) {
+        const overlap = await checkDateOverlap('paquete', data.IDPaquete, data.FechaInicio, data.FechaFinalizacion);
+        if (overlap) {
+          const err = new Error('El paquete ya está reservado en las fechas seleccionadas. Por favor elige otras fechas.');
+          err.statusCode = 409;
+          throw err;
+        }
+      }
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     // reservaData NO incluye IDPaquete ni IDHabitacion — se guardan en tablas de detalle
     const reservaData = {
@@ -332,20 +408,22 @@ const createReservation = async (data) => {
     await insertServiceDetails(connection, reservaId, totals.servicios);
 
     await connection.commit();
-    // Intentar obtener la reserva completa para enviar el correo de confirmación
+
+    // ── PASO 1 del agente: enviar correo PENDIENTE DE PAGO al crear la reserva ──
     try {
       const fullReservation = await getReservationById(reservaId);
       const user = reservaData.UsuarioIdusuario ? await usuariosService.getById(reservaData.UsuarioIdusuario) : null;
       if (user && user.Email) {
         // No hacemos que falle la creación si el envío de correo falla; solo registramos el error
         try {
-          await emailService.sendReservationConfirmationEmail(user.Email, fullReservation || {});
+          await emailService.sendReservationPendingEmail(user.Email, fullReservation || {});
+          console.log(`[reservas] Correo PENDIENTE enviado a ${user.Email} para reserva #${reservaId}`);
         } catch (err) {
-          console.error('Error enviando email de confirmación de reserva:', err.message);
+          console.error('[reservas] Error enviando correo PENDIENTE:', err.message);
         }
       }
     } catch (err) {
-      console.error('Error preparando/obteniendo datos para envío de email:', err.message);
+      console.error('[reservas] Error preparando email post-creación:', err.message);
     }
 
     return { id: reservaId, ...reservaData };
@@ -430,6 +508,7 @@ const deleteReservation = async (id) => {
     await connection.query('DELETE FROM detallereservaservicio WHERE IDReserva = ?', [id]);
     await connection.query('DELETE FROM detallereservapaquetes WHERE IDReserva = ?', [id]);
     await connection.query('DELETE FROM detallereservahabitacion WHERE IDReserva = ?', [id]);
+    await connection.query('DELETE FROM detallereservacabana WHERE IDReserva = ?', [id]);
     await connection.query('DELETE FROM reserva WHERE IdReserva = ?', [id]);
 
     await connection.commit();
@@ -440,6 +519,81 @@ const deleteReservation = async (id) => {
   } finally {
     connection.release();
   }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AGENTE DE GESTIÓN DE RESERVAS — Cambio de estado con lógica de negocio
+// ─────────────────────────────────────────────────────────────────────────────
+// ID de estados según schema.sql:
+//   1 = Pendiente   2 = Confirmada   3 = Cancelada   4 = Completada
+// Reglas:
+//   - CANCELADO → CONFIRMADO no permitido directamente (debe crear nueva reserva)
+//   - Al confirmar (→2) se envía correo de reserva confirmada al cliente
+//   - Se registra timestamp del cambio en log de consola
+// ─────────────────────────────────────────────────────────────────────────────
+const ESTADO_PENDIENTE  = 1;
+const ESTADO_CANCELADO  = 3;
+const ESTADO_CONFIRMADO = 2;
+const ESTADO_COMPLETADO = 4;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POLÍTICA DE CANCELACIÓN — Constantes configurables centralizadas
+// Modificar aquí afecta toda la lógica sin tocar el código de negocio.
+// ─────────────────────────────────────────────────────────────────────────────
+/** Días mínimos de anticipación para que la cancelación sea gratuita */
+const DIAS_CANCELACION_GRATIS  = 7;
+/** Fracción del MontoTotal que se retiene si se cancela dentro del plazo de penalización (0.40 = 40%) */
+const PORCENTAJE_PENALIZACION  = 0.40;
+
+const updateReservationStatus = async (id, nuevoEstadoId) => {
+  // 1. Obtener estado actual
+  const [rows] = await db.query(
+    'SELECT r.IdEstadoReserva, r.UsuarioIdusuario FROM reserva r WHERE r.IdReserva = ?',
+    [id]
+  );
+  if (!rows.length) return null;
+
+  const estadoActual = rows[0].IdEstadoReserva;
+  const nuevoId      = Number(nuevoEstadoId);
+
+  // 2. Validar transición prohibida: CANCELADO → CONFIRMADO
+  if (estadoActual === ESTADO_CANCELADO && nuevoId === ESTADO_CONFIRMADO) {
+    const err = new Error(
+      'No se puede confirmar una reserva cancelada. Debe crearse una nueva reserva.'
+    );
+    err.statusCode = 409;
+    throw err;
+  }
+
+  // 3. Ejecutar cambio de estado con timestamp
+  const timestamp = new Date().toISOString();
+  await db.query('UPDATE reserva SET IdEstadoReserva = ? WHERE IdReserva = ?', [nuevoId, id]);
+
+  console.log(
+    `[reservas] #${id} estado ${estadoActual} → ${nuevoId} | ${timestamp}`
+  );
+
+  // 4. Si el nuevo estado es CONFIRMADO, enviar correo al cliente
+  if (nuevoId === ESTADO_CONFIRMADO) {
+    try {
+      const fullReservation = await getReservationById(id);
+      const userId = rows[0].UsuarioIdusuario;
+      const user   = userId ? await usuariosService.getById(userId) : null;
+      const email  = user?.Email || fullReservation?.Email;
+
+      if (email) {
+        await emailService.sendReservationConfirmedEmail(email, fullReservation || {});
+        console.log(`[reservas] Correo CONFIRMADO enviado a ${email} para reserva #${id}`);
+      } else {
+        console.warn(`[reservas] No se encontró email para reserva #${id}. Correo no enviado.`);
+      }
+    } catch (emailErr) {
+      // El error de email no debe revertir el cambio de estado
+      console.error(`[reservas] Error enviando correo de confirmación para #${id}:`, emailErr.message);
+    }
+  }
+
+  return { id, IdEstadoReserva: nuevoId, timestamp };
 };
 
 // Obtener reservas confirmadas para cálculo de disponibilidad
@@ -472,6 +626,10 @@ const getConfirmedReservations = async () => {
 };
 
 // Obtener reservas confirmadas para una habitación/cabaña/paquete específico
+// ─────────────────────────────────────────────────────────────────────────────
+// FIX: ahora incluye IdEstadoReserva IN (1, 2) = Pendiente + Confirmada
+// para que fechas con reservas PENDIENTES también aparezcan bloqueadas.
+// ─────────────────────────────────────────────────────────────────────────────
 const getConfirmedReservationsByAccommodation = async (accommodationId, type = 'habitacion') => {
   try {
     let sql = '';
@@ -487,7 +645,7 @@ const getConfirmedReservationsByAccommodation = async (accommodationId, type = '
              JOIN detallereservapaquetes drp ON r.IdReserva = drp.IDReserva
              JOIN paquetes p ON drp.IDPaquete = p.IDPaquete
              WHERE p.IDPaquete = ? 
-             AND r.IdEstadoReserva = 2
+             AND r.IdEstadoReserva IN (1, 2)
              AND r.FechaInicio IS NOT NULL 
              AND r.FechaFinalizacion IS NOT NULL
              ORDER BY r.FechaInicio ASC`;
@@ -501,7 +659,7 @@ const getConfirmedReservationsByAccommodation = async (accommodationId, type = '
              JOIN detallereservacabana drc ON r.IdReserva = drc.IDReserva
              JOIN cabanas c ON drc.IDCabana = c.IDCabana
              WHERE c.IDCabana = ? 
-             AND r.IdEstadoReserva = 2
+             AND r.IdEstadoReserva IN (1, 2)
              AND r.FechaInicio IS NOT NULL 
              AND r.FechaFinalizacion IS NOT NULL
              ORDER BY r.FechaInicio ASC`;
@@ -516,7 +674,7 @@ const getConfirmedReservationsByAccommodation = async (accommodationId, type = '
              JOIN detallereservahabitacion drh ON r.IdReserva = drh.IDReserva
              JOIN habitacion h ON drh.IDHabitacion = h.IDHabitacion
              WHERE h.IDHabitacion = ? 
-             AND r.IdEstadoReserva = 2
+             AND r.IdEstadoReserva IN (1, 2)
              AND r.FechaInicio IS NOT NULL 
              AND r.FechaFinalizacion IS NOT NULL
              ORDER BY r.FechaInicio ASC`;
@@ -529,18 +687,233 @@ const getConfirmedReservationsByAccommodation = async (accommodationId, type = '
   }
 };
 
-// Actualizar solo el estado de una reserva
-const updateReservationStatus = async (id, newStatus) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// OBTENER FECHAS BLOQUEADAS (para el date picker del formulario de reservas)
+// ─────────────────────────────────────────────────────────────────────────────
+// Retorna un arreglo de objetos { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' }
+// que el frontend puede usar directamente para deshabilitar rangos en el
+// calendario. Incluye reservas Pendiente(1) + Confirmada(2).
+// Uso: GET /api/reservations/availability/:type/:id
+//   type: 'habitacion' | 'cabana' | 'paquete'
+//   id  : ID de la unidad de alojamiento
+// ─────────────────────────────────────────────────────────────────────────────
+const getBlockedDates = async (type, id) => {
+  try {
+    const reservas = await getConfirmedReservationsByAccommodation(id, type);
+    // Formateamos a ISO date string para evitar problemas de zona horaria
+    return reservas.map(r => ({
+      start: r.FechaInicio instanceof Date
+        ? r.FechaInicio.toISOString().split('T')[0]
+        : r.FechaInicio,
+      end: r.FechaFinalizacion instanceof Date
+        ? r.FechaFinalizacion.toISOString().split('T')[0]
+        : r.FechaFinalizacion
+    }));
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EVALUADOR DE POLÍTICA DE CANCELACIÓN
+// ─────────────────────────────────────────────────────────────────────────────
+// Función pura: recibe la reserva y retorna el resumen de la política aplicable.
+// No modifica la BD — solo calcula. Se puede llamar para mostrar info al usuario
+// antes de confirmar la cancelación.
+//
+// Retorna:
+//   {
+//     tipoCancelacion:        'gratuita' | 'penalizada',
+//     porcentajePenalizacion: number,   // 0 o 40 (para mostrar como %)
+//     valorPenalizacion:      number,   // valor en COP a retener
+//     valorReembolso:         number,   // valor en COP a devolver al cliente
+//     diasRestantes:          number,   // días entre hoy y FechaInicio
+//     mensaje:                string,   // texto explicativo para el usuario
+//   }
+// ─────────────────────────────────────────────────────────────────────────────
+const evaluarPoliticaCancelacion = (reservation) => {
+  const montoTotal = Number(reservation.MontoTotal) || 0;
+
+  // Calcular días entre hoy y la fecha de check-in
+  const hoy       = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const fechaInicio = reservation.FechaInicio
+    ? new Date(reservation.FechaInicio)
+    : null;
+
+  // Si no hay fecha de inicio, aplicar penalización por seguridad
+  if (!fechaInicio) {
+    const valorPenalizacion = parseFloat((montoTotal * PORCENTAJE_PENALIZACION).toFixed(2));
+    return {
+      tipoCancelacion:        'penalizada',
+      porcentajePenalizacion: PORCENTAJE_PENALIZACION * 100,
+      valorPenalizacion,
+      valorReembolso:         parseFloat((montoTotal - valorPenalizacion).toFixed(2)),
+      diasRestantes:          0,
+      mensaje: `La reserva no tiene fecha de inicio registrada. Se aplica una penalización del ${PORCENTAJE_PENALIZACION * 100}%.`
+    };
+  }
+
+  fechaInicio.setHours(0, 0, 0, 0);
+  const diffMs        = fechaInicio - hoy;
+  const diasRestantes = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  // ── Cancelación GRATUITA ─────────────────────────────────────────────────
+  if (diasRestantes >= DIAS_CANCELACION_GRATIS) {
+    return {
+      tipoCancelacion:        'gratuita',
+      porcentajePenalizacion: 0,
+      valorPenalizacion:      0,
+      valorReembolso:         montoTotal,
+      diasRestantes,
+      mensaje: `Cancelación gratuita. Faltan ${diasRestantes} días para tu llegada (mínimo requerido: ${DIAS_CANCELACION_GRATIS} días). Se reembolsará el 100% del valor pagado.`
+    };
+  }
+
+  // ── Cancelación CON PENALIZACIÓN ────────────────────────────────────────
+  const valorPenalizacion = parseFloat((montoTotal * PORCENTAJE_PENALIZACION).toFixed(2));
+  const valorReembolso    = parseFloat((montoTotal - valorPenalizacion).toFixed(2));
+
+  let mensaje;
+  if (diasRestantes < 0) {
+    mensaje = `La fecha de llegada ya pasó hace ${Math.abs(diasRestantes)} día(s). Se aplica una penalización del ${PORCENTAJE_PENALIZACION * 100}% sobre el total de la reserva.`;
+  } else {
+    mensaje = `Faltan solo ${diasRestantes} día(s) para tu llegada. La cancelación con menos de ${DIAS_CANCELACION_GRATIS} días de anticipación genera una penalización del ${PORCENTAJE_PENALIZACION * 100}% sobre el total de la reserva.`;
+  }
+
+  return {
+    tipoCancelacion:        'penalizada',
+    porcentajePenalizacion: PORCENTAJE_PENALIZACION * 100,
+    valorPenalizacion,
+    valorReembolso,
+    diasRestantes,
+    mensaje
+  };
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CANCELAR RESERVA — Función principal con flujo de 2 pasos
+// ─────────────────────────────────────────────────────────────────────────────
+// Flujo:
+//   1er llamado (confirmarConPenalizacion=false):
+//     - Si hay penalización → retorna { requiresConfirmation: true, politica }
+//       para que el frontend muestre el modal de advertencia.
+//     - Si es gratuita → cancela directamente.
+//   2do llamado (confirmarConPenalizacion=true):
+//     - El usuario ya vio y aceptó la penalización → cancela.
+//
+// Siempre:
+//   - Actualiza IdEstadoReserva=3 y los campos de trazabilidad.
+//   - Envía correo de cancelación al cliente (no bloquea si falla).
+//   - NO elimina físicamente ningún registro (historial contable).
+// ─────────────────────────────────────────────────────────────────────────────
+const cancelReservation = async (id, { confirmarConPenalizacion = false } = {}) => {
+  // 1. Obtener datos completos de la reserva
+  const [rows] = await db.query(
+    `SELECT r.IdReserva, r.IdEstadoReserva, r.MontoTotal, r.FechaInicio,
+            r.FechaReserva, r.FechaFinalizacion, r.UsuarioIdusuario
+     FROM reserva r WHERE r.IdReserva = ?`,
+    [id]
+  );
+
+  if (!rows.length) {
+    const err = new Error('Reserva no encontrada.');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  const reserva = rows[0];
+
+  // 2. Validar que el estado actual permita cancelación
+  if (reserva.IdEstadoReserva === ESTADO_CANCELADO) {
+    const err = new Error('Esta reserva ya fue cancelada anteriormente.');
+    err.statusCode = 409;
+    throw err;
+  }
+  if (reserva.IdEstadoReserva === ESTADO_COMPLETADO) {
+    const err = new Error('No se puede cancelar una reserva que ya fue completada.');
+    err.statusCode = 422;
+    throw err;
+  }
+
+  // 3. Evaluar política de cancelación
+  const politica = evaluarPoliticaCancelacion(reserva);
+
+  // 4. Si hay penalización y el usuario aún no confirmó → solicitar confirmación
+  if (politica.tipoCancelacion === 'penalizada' && !confirmarConPenalizacion) {
+    return {
+      requiresConfirmation: true,
+      politica,
+      reservaId: id,
+      mensaje: politica.mensaje
+    };
+  }
+
+  // 5. Ejecutar la cancelación en la BD (transacción para garantizar atomicidad)
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
-    const [result] = await connection.query(
-      'UPDATE reserva SET IdEstadoReserva = ? WHERE IdReserva = ?',
-      [newStatus, id]
+
+    const fechaCancelacion = new Date();
+
+    await connection.query(
+      `UPDATE reserva SET
+         IdEstadoReserva       = ?,
+         FechaCancelacion      = ?,
+         TipoCancelacion       = ?,
+         PorcentajePenalizacion = ?,
+         ValorPenalizacion     = ?,
+         ValorReembolso        = ?
+       WHERE IdReserva = ?`,
+      [
+        ESTADO_CANCELADO,
+        fechaCancelacion,
+        politica.tipoCancelacion,
+        politica.porcentajePenalizacion,
+        politica.valorPenalizacion,
+        politica.valorReembolso,
+        id
+      ]
     );
+
     await connection.commit();
-    if (result.affectedRows === 0) return null;
-    return { id, IdEstadoReserva: newStatus };
+
+    console.log(
+      `[reservas] #${id} CANCELADA | tipo=${politica.tipoCancelacion} | penalización=$${politica.valorPenalizacion} | reembolso=$${politica.valorReembolso} | ${fechaCancelacion.toISOString()}`
+    );
+
+    // 6. Enviar correo de cancelación (no bloquea si falla)
+    try {
+      const fullReservation = await getReservationById(id);
+      const user = reserva.UsuarioIdusuario
+        ? await usuariosService.getById(reserva.UsuarioIdusuario)
+        : null;
+      const email = user?.Email || fullReservation?.Email;
+
+      if (email) {
+        await emailService.sendReservationCancelledEmail(email, fullReservation || reserva, {
+          ...politica,
+          fechaCancelacion
+        });
+        console.log(`[reservas] Correo CANCELACIÓN enviado a ${email} para reserva #${id}`);
+      } else {
+        console.warn(`[reservas] No se encontró email para reserva #${id}. Correo de cancelación no enviado.`);
+      }
+    } catch (emailErr) {
+      // El error de email NO revierte la cancelación
+      console.error(`[reservas] Error enviando correo de cancelación para #${id}:`, emailErr.message);
+    }
+
+    // 7. Retornar resumen completo
+    return {
+      cancelado:     true,
+      reservaId:     id,
+      politica,
+      fechaCancelacion,
+      mensaje:       politica.mensaje
+    };
+
   } catch (error) {
     await connection.rollback();
     throw error;
@@ -558,5 +931,13 @@ module.exports = {
   updateReservationStatus,
   deleteReservation,
   getConfirmedReservations,
-  getConfirmedReservationsByAccommodation
+  getConfirmedReservationsByAccommodation,
+  // Disponibilidad y validación de fechas
+  getBlockedDates,
+  checkDateOverlap,
+  // Sistema de cancelación con política de penalización
+  cancelReservation,
+  evaluarPoliticaCancelacion,
+  DIAS_CANCELACION_GRATIS,
+  PORCENTAJE_PENALIZACION
 };

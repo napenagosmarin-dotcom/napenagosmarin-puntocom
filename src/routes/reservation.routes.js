@@ -14,4 +14,18 @@ router.post('/', reservationController.createReservation);
 router.put('/:id', reservationController.updateReservation);
 router.delete('/:id', reservationController.deleteReservation);
 
+// ── Agente de gestión de reservas ──
+// PATCH /:id/status — Cambio de estado con lógica de negocio y envío de correos
+router.patch('/:id/status', reservationController.updateReservationStatus);
+
+// ── Disponibilidad de fechas ──
+// GET /availability/:type/:id — Retorna rangos bloqueados
+router.get('/availability/:type/:id', reservationController.getAvailability);
+
+// ── Sistema de cancelación con política de penalización ──
+// POST /:id/cancel — Cancelar reserva (flujo de 2 pasos si hay penalización)
+// Paso 1: POST sin body  → si hay penalización, retorna requiresConfirmation=true
+// Paso 2: POST { confirmarConPenalizacion: true } → ejecuta la cancelación
+router.post('/:id/cancel', reservationController.cancelReservation);
+
 module.exports = router;

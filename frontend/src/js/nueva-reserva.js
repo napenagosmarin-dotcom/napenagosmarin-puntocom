@@ -57,7 +57,7 @@ function formatCurrency(value) {
 
 function getServicioControlInfo(servicio) {
     const nombre = String(servicio.NombreServicio || servicio.nombre || '').toLowerCase();
-    const maxPersonas = servicio.CantidadMaximaPersonas || servicio.cantidadMaximaPersonas || null;
+    const maxPersonas = servicio.CantidadMaximaPersonas || servicio.cantidadMaximaPersonas || 0;
     const control = {
         label: 'Cantidad',
         min: 1,
@@ -71,35 +71,35 @@ function getServicioControlInfo(servicio) {
         control.label = 'Personas';
         control.unit = 'personas';
         control.isPersonas = true;
-        control.max = maxPersonas || 6;
+        control.max = Math.max(maxPersonas, 10);
     } else if (nombre.includes('botella')) {
         control.label = 'Cantidad';
         control.unit = 'botellas';
-        control.max = maxPersonas || 4;
+        control.max = Math.max(maxPersonas, 10);
     } else if (nombre.includes('decoración') || nombre.includes('decoracion') || nombre.includes('romántica') || nombre.includes('romantica')) {
         control.label = 'Paquetes';
         control.unit = 'paquetes';
-        control.max = maxPersonas || 4;
+        control.max = Math.max(maxPersonas, 5);
     } else if (nombre.includes('desayuno')) {
         control.label = 'Cantidad';
         control.unit = 'desayunos';
-        control.max = maxPersonas || 8;
+        control.max = Math.max(maxPersonas, 10);
     } else if (nombre.includes('lavander')) {
         control.label = 'Cantidad';
         control.unit = 'servicios';
-        control.max = maxPersonas || 6;
+        control.max = Math.max(maxPersonas, 10);
     } else if (nombre.includes('traslado') || nombre.includes('transporte')) {
         control.label = 'Cantidad';
         control.unit = 'traslados';
-        control.max = maxPersonas || 2;
+        control.max = Math.max(maxPersonas, 10);
     } else if (nombre.includes('wifi')) {
         control.label = 'Cantidad';
         control.unit = 'paquetes';
-        control.max = maxPersonas || 1;
+        control.max = Math.max(maxPersonas, 1);
     } else if (nombre.includes('descuento') || nombre.includes('adicional')) {
-        control.max = maxPersonas || 5;
+        control.max = Math.max(maxPersonas, 5);
     } else {
-        control.max = maxPersonas || 10;
+        control.max = Math.max(maxPersonas, 10);
     }
 
     return control;
@@ -208,9 +208,13 @@ function actualizarContadorNoches() {
     const fin = document.getElementById('FechaFinalizacion').value;
     const badge = document.getElementById('contadorNoches');
     const numEl = document.getElementById('numNoches');
+    const resumenFechas = document.getElementById('resumenFechas');
+    const resumenCheckin = document.getElementById('resumenCheckin');
+    const resumenCheckout = document.getElementById('resumenCheckout');
 
     if (!inicio || !fin || fin <= inicio) {
         if (badge) badge.style.display = 'none';
+        if (resumenFechas) resumenFechas.style.display = 'none';
         return 0;
     }
 
@@ -220,8 +224,14 @@ function actualizarContadorNoches() {
     if (noches >= 1 && badge && numEl) {
         numEl.textContent = noches;
         badge.style.display = 'inline-flex';
-    } else if (badge) {
-        badge.style.display = 'none';
+        if (resumenFechas && resumenCheckin && resumenCheckout) {
+            resumenCheckin.textContent = inicio;
+            resumenCheckout.textContent = fin;
+            resumenFechas.style.display = 'block';
+        }
+    } else {
+        if (badge) badge.style.display = 'none';
+        if (resumenFechas) resumenFechas.style.display = 'none';
     }
 
     return noches >= 1 ? noches : 0;
@@ -721,8 +731,8 @@ function validateDateSelection() {
         endError = 'La fecha de finalización no puede ser anterior a hoy.';
     }
 
-    // Validación 2: Fecha final debe ser igual o posterior a la inicial
-    if (startValue && endValue && endValue < startValue) {
+    // Validación 2: Fecha final debe ser posterior a la inicial
+    if (startValue && endValue && endValue <= startValue) {
         endError = 'La fecha de finalización debe ser posterior a la fecha de inicio.';
     }
 
@@ -986,9 +996,9 @@ function calcularTotal() {
         .reduce((sum, s) => sum + (parseFloat(s.dataset.costo) * getServicioQuantity(s.value)), 0);
 
     // Cálculo final
-    const subtotalSinIVA = precioAlojamiento + totalServicios;
-    const ivaCalculado = Math.round(subtotalSinIVA * 0.19 * 100) / 100;
-    const totalConIVA = Math.round((subtotalSinIVA + ivaCalculado) * 100) / 100;
+    const totalConIVA = precioAlojamiento + totalServicios;
+    const subtotalSinIVA = Math.round((totalConIVA / 1.19) * 100) / 100;
+    const ivaCalculado = Math.round((totalConIVA - subtotalSinIVA) * 100) / 100;
 
     // Transición suave en los valores
     const animateValue = (elId, newVal) => {
@@ -1057,14 +1067,14 @@ paqueteInput.addEventListener('change', async (e) => {
 fechaInicioInput.addEventListener('change', () => {
     fechaFinalizacionInput.min = fechaInicioInput.value || getTodayInputValue();
     actualizarContadorNoches();
-    actualizarDesglose();
+    calcularTotal();
     updateAvailabilityMessage();
     validateDateSelection();
 });
 
 fechaFinalizacionInput.addEventListener('change', () => {
     actualizarContadorNoches();
-    actualizarDesglose();
+    calcularTotal();
     validateDateSelection();
 });
 
@@ -1130,6 +1140,16 @@ document.getElementById('reservationForm').addEventListener('submit', async (e) 
     const cabanaVal = document.getElementById('IDCabana').value;
     const paqueteVal = document.getElementById('IDPaquete').value;
     const metodoPagoVal = document.getElementById('MetodoPago').value;
+
+    if (!habitacionVal && !cabanaVal && !paqueteVal) {
+        alert('Debes seleccionar un alojamiento (Habitación, Cabaña o Paquete).');
+        return;
+    }
+    if (!metodoPagoVal) {
+        alert('Debes seleccionar un método de pago.');
+        return;
+    }
+
     const serviciosSeleccionados = Array.from(document.querySelectorAll('.servicio-check:checked')).map(s => ({
         IDServicio: parseInt(s.value),
         Cantidad: getServicioQuantity(s.value)
@@ -1203,10 +1223,11 @@ document.getElementById('reservationForm').addEventListener('submit', async (e) 
         defaultDate: today,
         onChange: function (selectedDates) {
             if (selectedDates.length > 0) {
-                const startDateStr = formatDateForInput(selectedDates[0].toISOString());
+                const nextDay = new Date(selectedDates[0].getTime() + 86400000);
+                const startDateStr = formatDateForInput(nextDay.toISOString());
                 if (fpEnd) fpEnd.set('minDate', startDateStr);
                 actualizarContadorNoches();
-                actualizarDesglose();
+                calcularTotal();
                 validateDateSelection();
             }
         }
@@ -1219,7 +1240,7 @@ document.getElementById('reservationForm').addEventListener('submit', async (e) 
         defaultDate: tomorrow,
         onChange: function () {
             actualizarContadorNoches();
-            actualizarDesglose();
+            calcularTotal();
             validateDateSelection();
         }
     });

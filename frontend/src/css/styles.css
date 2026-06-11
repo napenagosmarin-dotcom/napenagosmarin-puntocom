@@ -1608,12 +1608,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   max-width: 320px;
   max-height: 360px;
   overflow: auto;
-  background: #ffffff;
-  color: #111111;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, rgba(12,8,40,0.98), rgba(50,20,100,0.96));
+  backdrop-filter: blur(12px);
+  color: #ffffff;
+  border: 1.5px solid rgba(0,212,255,0.2);
   border-radius: 18px;
   padding: 1rem;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
@@ -1646,14 +1647,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-bottom: 8px solid #ffffff;
-  filter: drop-shadow(0 -1px 1px rgba(123, 47, 247, 0.1));
+  border-bottom: 8px solid rgba(12,8,40,0.98);
+  filter: drop-shadow(0 -1px 1px rgba(0, 212, 255, 0.3));
 }
 
 .servicio-desc {
   font-size: 0.9rem;
   line-height: 1.5;
-  color: var(--color-texto);
+  color: rgba(255, 255, 255, 0.85);
   margin-bottom: 0.9rem;
 }
 
@@ -1662,18 +1663,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.65rem;
   margin-bottom: 0.85rem;
-  color: rgba(0, 0, 0, 0.75);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.87rem;
 }
 
 .meta-label {
   font-weight: 700;
-  color: rgba(0, 0, 0, 0.85);
+  color: #00d4ff;
 }
 
 .servicio-meta-section {
   margin-bottom: 0.75rem;
-  color: rgba(0, 0, 0, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 0.9rem;
 }
 
@@ -1681,7 +1682,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin: 0.55rem 0 0 1rem;
   padding: 0;
   list-style: disc inside;
-  color: rgba(0, 0, 0, 0.76);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .servicio-includes li {
@@ -1691,7 +1692,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .servicio-conditions {
   font-size: 0.87rem;
-  color: rgba(0, 0, 0, 0.8);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 @media (max-width: 900px) {
@@ -2460,7 +2461,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .toggle-icon {
   width: 20px;
   height: 20px;
-}
 }
 
 /* Tarjetas Glassmorphism en Mis Reservas */

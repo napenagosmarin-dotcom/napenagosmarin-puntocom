@@ -123,6 +123,82 @@ const getConfirmedReservationsByAccommodation = async (req, res, next) => {
   }
 };
 
+// GET /reservations/availability/:type/:id
+// Retorna arreglo de rangos de fechas bloqueadas para deshabilitar en el date picker
+// Ejemplo respuesta: [{ start: '2025-12-24', end: '2025-12-27' }, ...]
+const getAvailability = async (req, res, next) => {
+  try {
+    const { type, id } = req.params;
+    const tiposValidos = ['habitacion', 'cabana', 'paquete'];
+
+    if (!tiposValidos.includes(type)) {
+      return res.status(400).json({
+        message: `Tipo inválido. Usa uno de: ${tiposValidos.join(', ')}`
+      });
+    }
+    if (!id) {
+      return res.status(400).json({ message: 'id es requerido' });
+    }
+
+    const blockedDates = await reservationService.getBlockedDates(type, id);
+    res.json(blockedDates);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// POST /reservations/:id/cancel
+// ── Cancelar reserva con política de penalización ──
+// Flujo de 2 pasos:
+//   1er llamado sin body o confirmarConPenalizacion=false:
+//     - Si es gratuita → cancela directamente.
+//     - Si tiene penalización → responde 200 con { requiresConfirmation: true }
+//       para que el cliente confirme explícitamente.
+//   2do llamado con { confirmarConPenalizacion: true }:
+//     - Cancela con la penalización ya aceptada por el usuario.
+// ─────────────────────────────────────────────────────────────────────────────
+const cancelReservation = async (req, res, next) => {
+  try {
+    const { confirmarConPenalizacion } = req.body || {};
+    const result = await reservationService.cancelReservation(
+      req.params.id,
+      { confirmarConPenalizacion: confirmarConPenalizacion === true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: 'Reserva no encontrada' });
+    }
+
+    // El servicio solicitó confirmación al frontend antes de proceder
+    if (result.requiresConfirmation) {
+      return res.status(200).json({
+        requiresConfirmation: true,
+        reservaId:  result.reservaId,
+        mensaje:    result.mensaje,
+        politica:   result.politica
+      });
+    }
+
+    // Cancelación ejecutada exitosamente
+    return res.status(200).json({
+      message:  'Reserva cancelada correctamente.',
+      cancelado: true,
+      data: {
+        reservaId:       result.reservaId,
+        fechaCancelacion: result.fechaCancelacion,
+        politica:        result.politica,
+        mensaje:         result.mensaje
+      }
+    });
+  } catch (error) {
+    // Propagar errores de negocio con código HTTP explícito
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   getReservations,
   getReservation,
@@ -131,6 +207,8 @@ module.exports = {
   updateReservation,
   deleteReservation,
   updateReservationStatus,
+  cancelReservation,
   getConfirmedReservations,
-  getConfirmedReservationsByAccommodation
+  getConfirmedReservationsByAccommodation,
+  getAvailability
 };

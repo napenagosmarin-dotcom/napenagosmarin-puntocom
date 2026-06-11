@@ -81,17 +81,17 @@ function formatCurrency(value) {
 ────────────────────────────────────────────────── */
 function getServicioControlInfo(servicio) {
     const nombre = String(servicio.NombreServicio||servicio.nombre||'').toLowerCase();
-    const maxP = servicio.CantidadMaximaPersonas||servicio.cantidadMaximaPersonas||null;
+    const maxP = servicio.CantidadMaximaPersonas||servicio.cantidadMaximaPersonas||0;
     const c = {label:'Cantidad',min:1,max:10,step:1,unit:'unidades',isPersonas:false};
     if (nombre.includes('cabalgata')||nombre.includes('tour')||nombre.includes('masaje')||nombre.includes('guía')||nombre.includes('guia')||nombre.includes('spa')) {
-        c.label='Personas';c.unit='personas';c.isPersonas=true;c.max=maxP||6;
-    } else if (nombre.includes('botella'))  { c.unit='botellas';c.max=maxP||4; }
-    else if (nombre.includes('decoración')||nombre.includes('decoracion')||nombre.includes('romántica')||nombre.includes('romantica')) { c.unit='paquetes';c.max=maxP||4; }
-    else if (nombre.includes('desayuno'))   { c.unit='desayunos';c.max=maxP||8; }
-    else if (nombre.includes('lavander'))   { c.unit='servicios';c.max=maxP||6; }
-    else if (nombre.includes('traslado')||nombre.includes('transporte')) { c.unit='traslados';c.max=maxP||2; }
-    else if (nombre.includes('wifi'))       { c.unit='paquetes';c.max=maxP||1; }
-    else                                    { c.max=maxP||10; }
+        c.label='Personas';c.unit='personas';c.isPersonas=true;c.max=Math.max(maxP, 10);
+    } else if (nombre.includes('botella'))  { c.unit='botellas';c.max=Math.max(maxP, 10); }
+    else if (nombre.includes('decoración')||nombre.includes('decoracion')||nombre.includes('romántica')||nombre.includes('romantica')) { c.unit='paquetes';c.max=Math.max(maxP, 5); }
+    else if (nombre.includes('desayuno'))   { c.unit='desayunos';c.max=Math.max(maxP, 10); }
+    else if (nombre.includes('lavander'))   { c.unit='servicios';c.max=Math.max(maxP, 10); }
+    else if (nombre.includes('traslado')||nombre.includes('transporte')) { c.unit='traslados';c.max=Math.max(maxP, 10); }
+    else if (nombre.includes('wifi'))       { c.unit='paquetes';c.max=Math.max(maxP, 1); }
+    else                                    { c.max=Math.max(maxP, 10); }
     return c;
 }
 
@@ -149,10 +149,27 @@ function actualizarContadorNoches() {
     const fin    = document.getElementById('FechaFinalizacion').value;
     const badge  = document.getElementById('contadorNoches');
     const numEl  = document.getElementById('numNoches');
-    if (!inicio||!fin||fin<=inicio) { if (badge) badge.style.display='none'; return 0; }
+    const resumenFechas = document.getElementById('resumenFechas');
+    const resumenCheckin = document.getElementById('resumenCheckin');
+    const resumenCheckout = document.getElementById('resumenCheckout');
+
+    if (!inicio||!fin||fin<=inicio) { 
+        if (badge) badge.style.display='none'; 
+        if (resumenFechas) resumenFechas.style.display='none';
+        return 0; 
+    }
     const noches = Math.round((new Date(fin)-new Date(inicio))/(1000*60*60*24));
-    if (noches>=1&&badge&&numEl) { numEl.textContent=noches; badge.style.display='inline-flex'; }
-    else if (badge)               { badge.style.display='none'; }
+    if (noches>=1&&badge&&numEl) { 
+        numEl.textContent=noches; badge.style.display='inline-flex'; 
+        if (resumenFechas && resumenCheckin && resumenCheckout) {
+            resumenCheckin.textContent = inicio;
+            resumenCheckout.textContent = fin;
+            resumenFechas.style.display = 'block';
+        }
+    } else {
+        if (badge) badge.style.display='none'; 
+        if (resumenFechas) resumenFechas.style.display='none';
+    }
     return noches>=1?noches:0;
 }
 
@@ -459,7 +476,7 @@ function validateDateSelection() {
     let se='',ee='';
     if (sv&&sv<today) se='La fecha de inicio no puede ser anterior a hoy.';
     if (ev&&ev<today) ee='La fecha de finalización no puede ser anterior a hoy.';
-    if (sv&&ev&&ev<sv) ee='La fecha de finalización debe ser posterior a la fecha de inicio.';
+    if (sv&&ev&&ev<=sv) ee='La fecha de finalización debe ser posterior a la fecha de inicio.';
     if (roomId&&sv&&ev&&blocked.some(r=>isRangeOverlapping(sv,ev,r))) { se=ee='El rango se superpone con una reserva confirmada.'; }
     sIn.setCustomValidity(se); eIn.setCustomValidity(ee);
     return !sIn.validationMessage&&!eIn.validationMessage;
@@ -560,9 +577,10 @@ function calcularTotal() {
     const cSel=document.getElementById('IDCabana');
     if (cSel.value){ const c=cabanasData.find(c=>String(c.IDCabana)===String(cSel.value)); if(c) precioAloj=parseFloat(c.PrecioNoche||0)*noches; }
     const totalServ=Array.from(document.querySelectorAll('.servicio-check:checked')).reduce((sum,s)=>sum+(parseFloat(s.dataset.costo)*getServicioQuantity(s.value)),0);
-    const sub=precioAloj+totalServ;
-    const iva=Math.round(sub*0.19*100)/100;
-    const total=Math.round((sub+iva)*100)/100;
+    const sub_total=precioAloj+totalServ;
+    const sub=Math.round((sub_total / 1.19)*100)/100;
+    const iva=Math.round((sub_total - sub)*100)/100;
+    const total=sub_total;
     animate('subtotal',sub); animate('iva',iva); animate('total',total);
     actualizarDesglose(); actualizarSubtotalServicios();
 }
@@ -629,10 +647,10 @@ paqueteInput.addEventListener('change', async(e)=>{
 });
 fechaInicioInput.addEventListener('change',()=>{
     fechaFinalizacionInput.min=fechaInicioInput.value||getTodayInputValue();
-    actualizarContadorNoches(); actualizarDesglose(); updateAvailabilityMessage(); validateDateSelection();
+    actualizarContadorNoches(); calcularTotal(); updateAvailabilityMessage(); validateDateSelection();
 });
 fechaFinalizacionInput.addEventListener('change',()=>{
-    actualizarContadorNoches(); actualizarDesglose(); validateDateSelection();
+    actualizarContadorNoches(); calcularTotal(); validateDateSelection();
 });
 document.addEventListener('change',(e)=>{
     if (e.target.classList.contains('servicio-check')) { toggleServicioDetails(e.target.value,e.target.checked); calcularTotal(); return; }
@@ -745,16 +763,16 @@ document.getElementById('reservationForm').addEventListener('submit', async(e)=>
     fpStart = flatpickr('#FechaInicio',{
         minDate:today, disable:[], dateFormat:'Y-m-d', defaultDate:today,
         onChange(selectedDates){
-            if (selectedDates.length>0){
-                const s=formatDateForInput(selectedDates[0].toISOString());
-                if (fpEnd) fpEnd.set('minDate',s);
-                actualizarContadorNoches(); actualizarDesglose(); validateDateSelection();
+            if (selectedDates.length>0) {
+                const nextDay = new Date(selectedDates[0].getTime() + 86400000);
+                if(fpEnd)fpEnd.set('minDate',formatDateForInput(nextDay.toISOString()));
+                actualizarContadorNoches(); calcularTotal(); validateDateSelection();
             }
         }
     });
     fpEnd = flatpickr('#FechaFinalizacion',{
         minDate:today, disable:[], dateFormat:'Y-m-d', defaultDate:tomorrow,
-        onChange(){ actualizarContadorNoches(); actualizarDesglose(); validateDateSelection(); }
+        onChange(){ actualizarContadorNoches(); calcularTotal(); validateDateSelection(); }
     });
 
     actualizarContadorNoches();
