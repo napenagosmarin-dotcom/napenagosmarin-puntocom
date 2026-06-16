@@ -352,6 +352,12 @@ const createReservation = async (data) => {
     // Los errores se lanzan con statusCode 409 para que el controller
     // los devuelva como HTTP 409 Conflict sin pasar por next(error).
     if (data.FechaInicio && data.FechaFinalizacion) {
+      if (new Date(data.FechaFinalizacion) <= new Date(data.FechaInicio)) {
+        const err = new Error('La fecha de finalización debe ser al menos el día siguiente al de inicio.');
+        err.statusCode = 400;
+        throw err;
+      }
+
       if (data.IDHabitacion) {
         const overlap = await checkDateOverlap('habitacion', data.IDHabitacion, data.FechaInicio, data.FechaFinalizacion);
         if (overlap) {
@@ -450,6 +456,13 @@ const updateReservation = async (id, data) => {
     }
 
     // 2. Si es un update completo (desde formulario)
+    if (data.FechaInicio && data.FechaFinalizacion) {
+      if (new Date(data.FechaFinalizacion) <= new Date(data.FechaInicio)) {
+        const err = new Error('La fecha de finalización debe ser al menos el día siguiente al de inicio.');
+        err.statusCode = 400;
+        throw err;
+      }
+    }
     const servicioIds = Array.isArray(data.serviciosAdicionales) ? data.serviciosAdicionales : [];
     const totals = await calculateTotals(data.IDPaquete, data.IDHabitacion, data.IDCabana, servicioIds, data.FechaInicio, data.FechaFinalizacion);
 

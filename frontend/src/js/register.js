@@ -3,7 +3,7 @@ const passwordInput = document.getElementById('Contrasena');
 const confirmPasswordInput = document.getElementById('ConfirmarContrasena');
 const errorMessage = document.getElementById('errorMessage');
 const successMessage = document.getElementById('successMessage');
-const requirementItems = document.querySelectorAll('.requirement-item');
+const passwordHint = document.getElementById('passwordHint');
 
 // Country phone prefixes mapping
 const countryPrefixes = {
@@ -108,14 +108,17 @@ const getPasswordValidation = (value) => {
 
 const updatePasswordRequirements = (value) => {
     const validation = getPasswordValidation(value);
-
-    requirementItems.forEach((item) => {
-        const ruleKey = item.dataset.requirement;
-        const passed = validation[ruleKey];
-        item.classList.toggle('requirement-ok', passed);
-        item.classList.toggle('requirement-fail', !passed);
-        item.textContent = `${passed ? '✔' : '✖'} ${item.dataset.label}`;
-    });
+    const isValid = Object.values(validation).every(Boolean);
+    
+    if (value.length > 0 && !isValid) {
+        passwordHint.style.display = 'block';
+        passwordHint.style.color = '#ef4444';
+    } else if (isValid) {
+        passwordHint.style.display = 'block';
+        passwordHint.style.color = '#10b981';
+    } else {
+        passwordHint.style.display = 'none';
+    }
 };
 
 const clearFeedback = () => {

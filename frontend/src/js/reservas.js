@@ -116,7 +116,7 @@ function validateEditDateSelection() {
     let startError = '';
     let endError = '';
     
-    if (startValue && endValue && endValue < startValue) endError = 'La fecha de finalización debe ser posterior a la de inicio.';
+    if (startValue && endValue && endValue <= startValue) endError = 'La fecha de finalización debe ser al menos el día siguiente al de inicio.';
     if (roomId && startValue && blockedRanges.some(r => isRangeOverlapping(startValue, startValue, r))) startError = 'La fecha de inicio está ocupada.';
     if (roomId && endValue && blockedRanges.some(r => isRangeOverlapping(endValue, endValue, r))) endError = 'La fecha de finalización está ocupada.';
     if (roomId && startValue && endValue && blockedRanges.some(r => isRangeOverlapping(startValue, endValue, r))) {

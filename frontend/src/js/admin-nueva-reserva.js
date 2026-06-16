@@ -256,12 +256,14 @@ async function cargarHabitaciones() {
         const sel = document.getElementById('IDHabitacion');
         sel.innerHTML = '<option value="">Seleccione una habitación</option>';
         habitacionesData.forEach(h => {
-            const opt = document.createElement('option');
-            opt.value = h.IDHabitacion;
-            const costo = h.Costo||h.precio||0;
-            opt.textContent = `${h.NombreHabitacion||h.nombre} - $${Number(costo).toLocaleString()}`;
-            opt.dataset.costo = costo;
-            sel.appendChild(opt);
+            if (h.Estado === 1) {
+                const opt = document.createElement('option');
+                opt.value = h.IDHabitacion;
+                const costo = h.Costo||h.precio||0;
+                opt.textContent = `${h.NombreHabitacion||h.nombre} - $${Number(costo).toLocaleString()}`;
+                opt.dataset.costo = costo;
+                sel.appendChild(opt);
+            }
         });
     } catch(e){ console.error('Error cargando habitaciones:',e); }
 }
@@ -272,12 +274,14 @@ async function cargarCabanas() {
         cabanasData = await r.json();
         const sel = document.getElementById('IDCabana');
         cabanasData.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.IDCabana;
-            const precio = c.PrecioNoche||0;
-            opt.textContent = `${c.NombreCabana} - $${Number(precio).toLocaleString()}`;
-            opt.dataset.costo = precio;
-            sel.appendChild(opt);
+            if (c.Estado === 1) {
+                const opt = document.createElement('option');
+                opt.value = c.IDCabana;
+                const precio = c.PrecioNoche||0;
+                opt.textContent = `${c.NombreCabana} - $${Number(precio).toLocaleString()}`;
+                opt.dataset.costo = precio;
+                sel.appendChild(opt);
+            }
         });
     } catch(e){ console.error('Error cargando cabañas:',e); }
 }
@@ -294,8 +298,8 @@ function populatePaquetes(selectedRoomId=null, isDisabled=false) {
     const sel = document.getElementById('IDPaquete');
     sel.innerHTML = '<option value="">Seleccione un paquete</option>';
     const filtered = selectedRoomId
-        ? paquetesData.filter(p=>String(p.IDHabitacion)===String(selectedRoomId))
-        : paquetesData;
+        ? paquetesData.filter(p=>String(p.IDHabitacion)===String(selectedRoomId) && p.Estado === 1)
+        : paquetesData.filter(p=>p.Estado === 1);
     filtered.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.IDPaquete;
@@ -335,7 +339,7 @@ async function cargarServicios() {
         const r = await fetch('/api/servicios');
         if (!r.ok) throw new Error(`${r.status}`);
         const servicios = await r.json();
-        serviciosData = servicios.map(s=>({...s,NombreServicio:s.NombreServicio||s.nombre||'Servicio',Costo:Number(s.Costo||s.precio||0),Cantidad:1}));
+        serviciosData = servicios.filter(s => s.Estado === 1).map(s=>({...s,NombreServicio:s.NombreServicio||s.nombre||'Servicio',Costo:Number(s.Costo||s.precio||0),Cantidad:1}));
         container.innerHTML='';
         if (!serviciosData.length) { container.innerHTML='<p class="nr-empty">No hay servicios adicionales disponibles.</p>'; return; }
         serviciosData.forEach(s=>{
@@ -476,7 +480,7 @@ function validateDateSelection() {
     let se='',ee='';
     if (sv&&sv<today) se='La fecha de inicio no puede ser anterior a hoy.';
     if (ev&&ev<today) ee='La fecha de finalización no puede ser anterior a hoy.';
-    if (sv&&ev&&ev<=sv) ee='La fecha de finalización debe ser posterior a la fecha de inicio.';
+    if (sv&&ev&&ev<=sv) ee='La fecha de finalización debe ser al menos el día siguiente al de inicio.';
     if (roomId&&sv&&ev&&blocked.some(r=>isRangeOverlapping(sv,ev,r))) { se=ee='El rango se superpone con una reserva confirmada.'; }
     sIn.setCustomValidity(se); eIn.setCustomValidity(ee);
     return !sIn.validationMessage&&!eIn.validationMessage;
@@ -646,7 +650,17 @@ paqueteInput.addEventListener('change', async(e)=>{
     await updateDatePickerRestrictions();
 });
 fechaInicioInput.addEventListener('change',()=>{
-    fechaFinalizacionInput.min=fechaInicioInput.value||getTodayInputValue();
+    let minDate = getTodayInputValue();
+    if (fechaInicioInput.value) {
+        const d = new Date(fechaInicioInput.value);
+        d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+        d.setDate(d.getDate() + 1);
+        minDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    fechaFinalizacionInput.min = minDate;
+    if (fechaFinalizacionInput.value && fechaFinalizacionInput.value <= fechaInicioInput.value) {
+        fechaFinalizacionInput.value = '';
+    }
     actualizarContadorNoches(); calcularTotal(); updateAvailabilityMessage(); validateDateSelection();
 });
 fechaFinalizacionInput.addEventListener('change',()=>{

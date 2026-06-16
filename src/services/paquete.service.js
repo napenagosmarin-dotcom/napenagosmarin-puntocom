@@ -2,13 +2,11 @@ const db = require('../config/db.js');
 
 const getAll = async () => {
     const sql = `
-        SELECT p.*,
-            p.nombre AS NombrePaquete,
-            COALESCE(p.Precio, p.precio, 0) AS Precio,
-            h.NombreHabitacion,
+        SELECT p.*, p.nombre AS NombrePaquete, h.NombreHabitacion, c.NombreCabana,
             (SELECT GROUP_CONCAT(s.nombre SEPARATOR ', ') FROM servicios s WHERE FIND_IN_SET(s.IDServicio, p.IDServicio)) AS NombreServicio
         FROM paquetes p
         LEFT JOIN habitacion h ON p.IDHabitacion = h.IDHabitacion
+        LEFT JOIN cabanas c ON p.IDCabana = c.IDCabana
     `;
     const [rows] = await db.query(sql);
     return rows;
@@ -16,13 +14,13 @@ const getAll = async () => {
 
 const getById = async (id) => {
     const [rows] = await db.query(
-        `SELECT p.*,
-                p.nombre AS NombrePaquete,
-                COALESCE(p.Precio, p.precio, 0) AS Precio,
-                h.NombreHabitacion,
+        `SELECT p.*, 
+                h.NombreHabitacion, 
+                c.NombreCabana,
                 (SELECT GROUP_CONCAT(s.nombre SEPARATOR ', ') FROM servicios s WHERE FIND_IN_SET(s.IDServicio, p.IDServicio)) AS NombreServicio
          FROM paquetes p
          LEFT JOIN habitacion h ON p.IDHabitacion = h.IDHabitacion
+         LEFT JOIN cabanas c ON p.IDCabana = c.IDCabana
          WHERE p.IDPaquete = ?`, [id]
     );
     const row = rows[0];
@@ -89,3 +87,5 @@ module.exports = {
     remove,
     updateStatus
 };
+
+
