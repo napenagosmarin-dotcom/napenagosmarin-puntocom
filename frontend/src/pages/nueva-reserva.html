@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nueva Reserva - Aura Travel</title>
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/styles.css?v=1.1" />
+  <link rel="stylesheet" href="../css/nueva-reserva.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="../css/calendar-customization.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    if (!localStorage.getItem('user')) {
+      window.location.href = '/src/pages/login.html';
+    }
+  </script>
+</head>
+<body class="main-content--premium">
+
+  <div id="header-container"></div>
+  <button class="sidebar__toggle" id="sidebarToggle" aria-label="Abrir menú">☰</button>
+  <div class="sidebar__overlay" id="sidebarOverlay"></div>
+
+  <main class="main-content" id="mainContent">
+    <div class="nr-wrapper">
+
+      <!-- Encabezado de página -->
+      <div class="nr-header">
+        <h1 class="nr-titulo">Nueva Reserva</h1>
+        <p class="nr-subtitulo">Crea una nueva reserva para tu próxima experiencia</p>
+      </div>
+
+      <!-- Layout principal -->
+      <div class="nr-layout">
+
+        <!-- COLUMNA IZQUIERDA: formulario -->
+        <form id="reservationForm" class="nr-form">
+
+          <!-- PASO 1: FECHAS DE ESTADÍA (PRIMERO) -->
+          <div class="nr-card nr-card--step1">
+            <div class="nr-card__titulo">Selecciona tus Fechas</div>
+
+            <!-- Contador de noches -->
+            <div id="contadorNoches" class="nr-noches-badge" style="display:none;">
+              <span class="nr-noches-badge__num" id="numNoches">1</span>
+              <span class="nr-noches-badge__label">noche(s)</span>
+            </div>
+
+            <div class="nr-fechas-grid">
+              <div class="nr-field">
+                <label class="nr-label" for="FechaInicio">📅 Entrada</label>
+                <input type="date" id="FechaInicio" required>
+              </div>
+              <div class="nr-field">
+                <label class="nr-label" for="FechaFinalizacion">📅 Salida</label>
+                <input type="date" id="FechaFinalizacion" required>
+              </div>
+            </div>
+
+            <p id="dateAvailabilityMessage" class="nr-aviso"></p>
+          </div>
+
+          <!-- PASO 2: SELECCIÓN DE ALOJAMIENTO -->
+          <div class="nr-card nr-card--step2">
+            <div class="nr-card__titulo nr-card__titulo--flex">
+              <span>Elige tu Alojamiento</span>
+              <span class="nr-card__aclaracion">Solo se puede elegir una habitación o cabaña por reserva</span>
+            </div>
+            
+            <div class="nr-grid-3">
+              <div class="nr-field">
+                <label class="nr-label" for="IDHabitacion">🛏️ Habitación</label>
+                <select id="IDHabitacion">
+                  <option value="">Seleccione una habitación</option>
+                </select>
+                <div id="detalleHabitacion" class="nr-detalle" style="display:none;"></div>
+              </div>
+              <div class="nr-field">
+                <label class="nr-label" for="IDCabana">🏡 Cabaña</label>
+                <select id="IDCabana">
+                  <option value="">Seleccione una cabaña</option>
+                </select>
+                <div id="detalleCabana" class="nr-detalle" style="display:none;"></div>
+              </div>
+              <div class="nr-field">
+                <label class="nr-label" for="IDPaquete">📦 Paquete</label>
+                <select id="IDPaquete">
+                  <option value="">Seleccione un paquete</option>
+                </select>
+                <div id="detallePaquete" class="nr-detalle" style="display:none;"></div>
+              </div>
+            </div>
+
+            <!-- Preview card: imagen y resumen profesional al seleccionar -->
+            <div id="previewCard" class="nr-preview-card" style="display:none;"></div>
+          </div>
+
+          <!-- PASO 3: SERVICIOS ADICIONALES -->
+          <div class="nr-card nr-card--step3">
+            <div class="nr-card__titulo">Servicios Adicionales</div>
+            <div id="serviciosContainer"></div>
+            <!-- Subtotal parcial de servicios -->
+            <div id="serviciosSubtotal" class="nr-servicios-subtotal" style="display:none;">
+              Servicios: <strong id="serviciosSubtotalVal">$0</strong>
+            </div>
+          </div>
+
+          <!-- PASO 4: MÉTODO DE PAGO -->
+          <div class="nr-card nr-card--step4">
+            <div class="nr-card__titulo">Método de Pago</div>
+            <div class="nr-field">
+              <label class="nr-label" for="MetodoPago">💳 Selecciona tu Método</label>
+              <select id="MetodoPago" required>
+                <option value="">Seleccione un método</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="nr-actions">
+            <button type="submit" class="btn btn-primario nr-btn-confirmar">
+              ✓ Confirmar Reserva
+            </button>
+            <a href="/src/pages/reservas.html" class="nr-btn-cancelar">← Cancelar</a>
+          </div>
+
+        </form>
+
+        <!-- COLUMNA DERECHA: resumen de pago -->
+        <div class="nr-resumen">
+          <div class="nr-resumen__titulo">💰 Resumen de Pago</div>
+
+          <!-- Detalles de Check-in y Check-out -->
+          <div id="resumenFechas" style="display:none; font-size: 0.85rem; color: rgba(255,255,255,0.8); margin-bottom: 1rem; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="margin-bottom: 5px;">🕒 <strong>Check-in:</strong> <span id="resumenCheckin"></span> (3:00 PM)</div>
+            <div>🕒 <strong>Check-out:</strong> <span id="resumenCheckout"></span> (12:00 PM)</div>
+          </div>
+
+          <!-- Desglose dinámico de ítems -->
+          <div id="resumenDesglose" class="nr-resumen__desglose"></div>
+
+          <div class="nr-resumen__separador"></div>
+
+          <div class="nr-resumen__fila">
+            <span>Subtotal</span>
+            <span id="subtotal">$0</span>
+          </div>
+          <div class="nr-resumen__fila">
+            <span>IVA (19%)</span>
+            <span id="iva">$0</span>
+          </div>
+          <div class="nr-resumen__total">
+            <span>Total a Pagar</span>
+            <span id="total">$0</span>
+          </div>
+
+          <div class="nr-resumen__helper">
+            ✓ Reserva confirmada después de completar los 4 pasos
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div id="footer-container"></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/nueva-reserva.js?v=20260525-03"></script>
+</body>
+</html>

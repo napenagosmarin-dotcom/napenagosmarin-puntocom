@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nueva Reserva - Panel Admin | Aura Travel</title>
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/styles.css?v=1.1" />
+  <link rel="stylesheet" href="../css/admin.css?v=1.1" />
+  <link rel="stylesheet" href="../css/nueva-reserva.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="../css/calendar-customization.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    const __userData = localStorage.getItem('user');
+    if (!__userData) window.location.href = '/src/pages/login.html';
+    const __user = JSON.parse(__userData);
+    if (__user.IDRol !== 2) window.location.href = '/src/pages/reservas.html';
+  </script>
+  <style>
+    /* ── Layout admin con sidebar ── */
+    body { margin: 0; background: var(--color-fondo, #0d0b2e); }
+
+    .admin-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* El sidebar viene del admin.css — solo aseguramos que esté fijo */
+    .admin-sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      flex-shrink: 0;
+    }
+
+    /* Contenido principal */
+    .anr-main {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Background igual al de nueva-reserva */
+    .anr-bg {
+      position: fixed;
+      inset: 0;
+      left: var(--admin-sidebar-width, 240px);
+      background:
+        linear-gradient(135deg, rgba(13,11,46,0.93) 0%, rgba(20,10,60,0.88) 50%, rgba(10,25,60,0.92) 100%),
+        url('https://images.unsplash.com/photo-1564078516393-cf04bd966897?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Breadcrumb / header superior del área principal */
+    .anr-topbar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.25rem 2rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(13,11,46,0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    .anr-topbar__back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.7);
+      font-size: 0.82rem;
+      font-family: var(--fuente-secundaria, 'Inter', sans-serif);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .anr-topbar__back:hover {
+      background: rgba(123,47,247,0.2);
+      border-color: rgba(123,47,247,0.4);
+      color: #fff;
+    }
+
+    .anr-topbar__breadcrumb {
+      color: rgba(255,255,255,0.4);
+      font-size: 0.8rem;
+      font-family: var(--fuente-secundaria, 'Inter', sans-serif);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .anr-topbar__breadcrumb span { color: rgba(255,255,255,0.7); }
+
+    /* Contenido de la reserva (reutiliza estilos nr-*) */
+    .anr-content {
+      position: relative;
+      z-index: 2;
+      padding: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-layout">
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR DEL ADMIN (idéntico al de admin.html)
+    ══════════════════════════════════════════ -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__logo">
+        <div class="admin-sidebar__logo-icon">
+          <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" class="admin-sidebar__logo-svg">
+            <defs>
+              <linearGradient id="ngcv2" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#7b2ff7"/>
+                <stop offset="100%" stop-color="#00d4ff"/>
+              </linearGradient>
+              <linearGradient id="ngc2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00d4ff"/>
+                <stop offset="100%" stop-color="#7b2ff7"/>
+              </linearGradient>
+              <linearGradient id="ngring2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.9"/>
+                <stop offset="50%" stop-color="#9b59f5" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#7b2ff7" stop-opacity="0.8"/>
+              </linearGradient>
+              <linearGradient id="ngshine2" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <circle cx="19" cy="19" r="19" fill="#0d0b2e"/>
+            <circle cx="19" cy="19" r="18.5" fill="none" stroke="url(#ngring2)" stroke-width="0.8"/>
+            <circle cx="19" cy="19" r="15.5" fill="none" stroke="url(#ngc2)" stroke-width="0.3" opacity="0.3"/>
+            <ellipse cx="19" cy="11" rx="8" ry="4" fill="url(#ngshine2)"/>
+            <polygon points="5,31 9.5,31 19,6 16.5,6" fill="url(#ngcv2)"/>
+            <polygon points="21.5,6 19,6 28.5,31 33,31" fill="url(#ngcv2)"/>
+            <rect x="9.5" y="19.5" width="19" height="4" rx="1" fill="url(#ngc2)"/>
+            <polygon points="14,19.5 24,19.5 19,14.5" fill="#0d0b2e"/>
+            <line x1="5.5" y1="31" x2="18.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
+            <line x1="32.5" y1="31" x2="19.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
+            <circle cx="19" cy="6" r="1.4" fill="#e040fb"/>
+          </svg>
+        </div>
+        <div>
+          <span class="admin-sidebar__logo-nombre">Aura Travel</span>
+          <span class="admin-sidebar__logo-rol">Panel Admin</span>
+        </div>
+      </div>
+
+      <nav class="admin-sidebar__nav">
+        <a href="/src/pages/admin.html#dashboard" class="admin-nav-item">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/src/pages/admin.html#reservas" class="admin-nav-item active">
+          <i data-lucide="calendar-check"></i>
+          <span>Reservas</span>
+        </a>
+        <a href="/src/pages/admin.html#habitaciones" class="admin-nav-item">
+          <i data-lucide="bed"></i>
+          <span>Habitaciones</span>
+        </a>
+        <a href="/src/pages/admin.html#usuarios" class="admin-nav-item">
+          <i data-lucide="users"></i>
+          <span>Usuarios</span>
+        </a>
+        <a href="/src/pages/admin.html#clientes" class="admin-nav-item">
+          <i data-lucide="user-check"></i>
+          <span>Clientes</span>
+        </a>
+        <a href="/src/pages/admin.html#cabanas" class="admin-nav-item">
+          <i data-lucide="tent"></i>
+          <span>Cabañas</span>
+        </a>
+        <a href="/src/pages/admin.html#paquetes" class="admin-nav-item">
+          <i data-lucide="package"></i>
+          <span>Paquetes</span>
+        </a>
+        <a href="/src/pages/admin.html#servicios" class="admin-nav-item">
+          <i data-lucide="star"></i>
+          <span>Servicios</span>
+        </a>
+      </nav>
+
+      <div class="admin-sidebar__footer">
+        <p class="admin-sidebar__welcome" id="adminName"></p>
+        <button id="logoutBtn" class="admin-sidebar__logout">
+          <i data-lucide="log-out"></i>
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════════
+         ÁREA PRINCIPAL
+    ══════════════════════════════════════════ -->
+    <main class="anr-main main-content--premium">
+
+      <!-- Fondo decorativo -->
+      <div class="anr-bg"></div>
+
+      <!-- Barra superior con breadcrumb -->
+      <div class="anr-topbar">
+        <a href="/src/pages/admin.html#reservas" class="anr-topbar__back" id="btnVolver">
+          <i data-lucide="arrow-left" style="width:14px;height:14px;"></i>
+          Volver a Reservas
+        </a>
+        <div class="anr-topbar__breadcrumb">
+          <i data-lucide="layout-dashboard" style="width:12px;height:12px;"></i>
+          Panel Admin
+          <i data-lucide="chevron-right" style="width:12px;height:12px;opacity:0.4;"></i>
+          <i data-lucide="calendar-check" style="width:12px;height:12px;"></i>
+          Reservas
+          <i data-lucide="chevron-right" style="width:12px;height:12px;opacity:0.4;"></i>
+          <span>Nueva Reserva</span>
+        </div>
+      </div>
+
+      <!-- ── FORMULARIO (mismo contenido que nueva-reserva.html) ── -->
+      <div class="anr-content">
+        <div class="nr-wrapper">
+
+          <!-- Encabezado -->
+          <div class="nr-header">
+            <h1 class="nr-titulo">Nueva Reserva</h1>
+            <p class="nr-subtitulo">Crea una nueva reserva desde el panel de administración</p>
+          </div>
+
+          <!-- Layout principal -->
+          <div class="nr-layout">
+
+            <!-- COLUMNA IZQUIERDA: formulario -->
+            <form id="reservationForm" class="nr-form">
+
+              <!-- PASO 1: FECHAS -->
+              <div class="nr-card nr-card--step1">
+                <div class="nr-card__titulo">Selecciona tus Fechas</div>
+
+                <div id="contadorNoches" class="nr-noches-badge" style="display:none;">
+                  <span class="nr-noches-badge__num" id="numNoches">1</span>
+                  <span class="nr-noches-badge__label">noche(s)</span>
+                </div>
+
+                <div class="nr-fechas-grid">
+                  <div class="nr-field">
+                    <label class="nr-label" for="FechaInicio">📅 Entrada</label>
+                    <input type="date" id="FechaInicio" required>
+                  </div>
+                  <div class="nr-field">
+                    <label class="nr-label" for="FechaFinalizacion">📅 Salida</label>
+                    <input type="date" id="FechaFinalizacion" required>
+                  </div>
+                </div>
+
+                <p id="dateAvailabilityMessage" class="nr-aviso"></p>
+              </div>
+
+              <!-- PASO 2: ALOJAMIENTO -->
+              <div class="nr-card nr-card--step2">
+                <div class="nr-card__titulo nr-card__titulo--flex">
+                  <span>Elige tu Alojamiento</span>
+                  <span class="nr-card__aclaracion">Solo se puede elegir una habitación o cabaña por reserva</span>
+                </div>
+
+                <div class="nr-grid-3">
+                  <div class="nr-field">
+                    <label class="nr-label" for="IDHabitacion">🛏️ Habitación</label>
+                    <select id="IDHabitacion">
+                      <option value="">Seleccione una habitación</option>
+                    </select>
+                    <div id="detalleHabitacion" class="nr-detalle" style="display:none;"></div>
+                  </div>
+                  <div class="nr-field">
+                    <label class="nr-label" for="IDCabana">🏡 Cabaña</label>
+                    <select id="IDCabana">
+                      <option value="">Seleccione una cabaña</option>
+                    </select>
+                    <div id="detalleCabana" class="nr-detalle" style="display:none;"></div>
+                  </div>
+                  <div class="nr-field">
+                    <label class="nr-label" for="IDPaquete">📦 Paquete</label>
+                    <select id="IDPaquete">
+                      <option value="">Seleccione un paquete</option>
+                    </select>
+                    <div id="detallePaquete" class="nr-detalle" style="display:none;"></div>
+                  </div>
+                </div>
+
+                <div id="previewCard" class="nr-preview-card" style="display:none;"></div>
+              </div>
+
+              <!-- PASO 3: SERVICIOS ADICIONALES -->
+              <div class="nr-card nr-card--step3">
+                <div class="nr-card__titulo">Servicios Adicionales</div>
+                <div id="serviciosContainer"></div>
+                <div id="serviciosSubtotal" class="nr-servicios-subtotal" style="display:none;">
+                  Servicios: <strong id="serviciosSubtotalVal">$0</strong>
+                </div>
+              </div>
+
+              <!-- PASO 4: MÉTODO DE PAGO -->
+              <div class="nr-card nr-card--step4">
+                <div class="nr-card__titulo">Método de Pago</div>
+                <div class="nr-field">
+                  <label class="nr-label" for="MetodoPago">💳 Selecciona tu Método</label>
+                  <select id="MetodoPago" required>
+                    <option value="">Seleccione un método</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Acciones -->
+              <div class="nr-actions">
+                <button type="submit" class="btn btn-primario nr-btn-confirmar">
+                  ✓ Confirmar Reserva
+                </button>
+                <a href="/src/pages/admin.html#reservas" class="nr-btn-cancelar" id="btnCancelar">← Cancelar</a>
+              </div>
+
+            </form>
+
+            <!-- COLUMNA DERECHA: resumen de pago -->
+            <div class="nr-resumen">
+              <div class="nr-resumen__titulo">💰 Resumen de Pago</div>
+
+              <!-- Detalles de Check-in y Check-out -->
+              <div id="resumenFechas" style="display:none; font-size: 0.85rem; color: rgba(255,255,255,0.8); margin-bottom: 1rem; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                <div style="margin-bottom: 5px;">🕒 <strong>Check-in:</strong> <span id="resumenCheckin"></span> (3:00 PM)</div>
+                <div>🕒 <strong>Check-out:</strong> <span id="resumenCheckout"></span> (12:00 PM)</div>
+              </div>
+
+              <div id="resumenDesglose" class="nr-resumen__desglose"></div>
+
+              <div class="nr-resumen__separador"></div>
+
+              <div class="nr-resumen__fila">
+                <span>Subtotal</span>
+                <span id="subtotal">$0</span>
+              </div>
+              <div class="nr-resumen__fila">
+                <span>IVA (19%)</span>
+                <span id="iva">$0</span>
+              </div>
+              <div class="nr-resumen__total">
+                <span>Total a Pagar</span>
+                <span id="total">$0</span>
+              </div>
+
+              <div class="nr-resumen__helper">
+                ✓ Reserva confirmada después de completar los 4 pasos
+              </div>
+            </div>
+
+          </div><!-- /.nr-layout -->
+        </div><!-- /.nr-wrapper -->
+      </div><!-- /.anr-content -->
+
+    </main>
+  </div><!-- /.admin-layout -->
+
+  <!-- Notificaciones -->
+  <div id="notificationContainer" class="notification-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/admin-nueva-reserva.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

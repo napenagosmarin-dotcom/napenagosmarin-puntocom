@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuenta verificada - Aura Travel</title>
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/styles.css?v=1.1" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <main class="main-content main-content--auth" id="mainContent">
+    <section class="auth-section">
+      <div class="auth-form-panel auth-form-panel--solo auth-form-panel--centered">
+        <div class="verification-box">
+          <div class="verification-icon">
+            <i data-lucide="check-circle"></i>
+          </div>
+          <h2 id="pageTitle">Cuenta verificada</h2>
+          <p id="pageMessage">Tu correo ha sido validado correctamente. Ya puedes iniciar sesión en Aura Travel.</p>
+          <button id="loginButton" class="btn btn-primario btn-login">Ir a iniciar sesión</button>
+          <p id="errorInfo" class="error-msg" style="display:none; margin-top: 1rem;"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageMessage = document.getElementById('pageMessage');
+    const errorInfo = document.getElementById('errorInfo');
+    const loginButton = document.getElementById('loginButton');
+
+    if (status === 'failed') {
+      pageTitle.textContent = 'Verificación fallida';
+      pageMessage.textContent = 'No se pudo verificar tu cuenta. El enlace puede haber expirado o ser inválido.';
+      errorInfo.style.display = 'block';
+      errorInfo.textContent = 'Por favor intenta reenviar el correo de verificación desde la página de inicio de sesión.';
+      loginButton.textContent = 'Ir a iniciar sesión';
+    } else {
+      pageTitle.textContent = 'Cuenta verificada';
+      pageMessage.textContent = 'Tu correo ha sido validado correctamente. Ya puedes iniciar sesión en Aura Travel.';
+    }
+
+    loginButton.addEventListener('click', () => {
+      window.location.href = '/src/pages/login.html';
+    });
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
