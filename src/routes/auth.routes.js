@@ -26,7 +26,7 @@ router.post('/forgot-password', async (req, res) => {
     res.json({ message: 'Si el correo existe, recibirás un enlace en breve.' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al procesar la solicitud.' });
+    res.status(500).json({ error: 'Error al procesar la solicitud.', details: error.message });
   }
 });
 
