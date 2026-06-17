@@ -54,6 +54,7 @@ const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
         localStorage.removeItem('user');
+        sessionStorage.clear();
         window.location.href = '/src/pages/login.html';
     });
 }

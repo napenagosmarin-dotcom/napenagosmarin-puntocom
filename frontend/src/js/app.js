@@ -23,6 +23,15 @@ async function cargarComponentes() {
       const headerRes = await fetch(`${base}components/${headerFile}?v=` + Date.now());
       const headerHTML = await headerRes.text();
       headerContainer.innerHTML = headerHTML;
+      
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+          localStorage.removeItem('user');
+          sessionStorage.clear();
+          window.location.href = '/src/pages/login.html';
+        });
+      }
     }
 
     if (window.lucide) lucide.createIcons();

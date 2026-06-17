@@ -13,14 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     const userNameEl = document.getElementById('userName');
     if (userNameEl) userNameEl.textContent = `Hola, ${user.NombreUsuario}`;
-
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('user');
-        window.location.href = '/src/pages/login.html';
-      });
-    }
   }, 100);
 });
 

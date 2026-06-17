@@ -19,7 +19,8 @@ async function migrate() {
   const files = [
     'schema.sql',
     'migration_cancel_columns.sql',
-    'migration_paquetes_columns.sql'
+    'migration_paquetes_columns.sql',
+    'seed.sql'
   ];
 
   for (const file of files) {
