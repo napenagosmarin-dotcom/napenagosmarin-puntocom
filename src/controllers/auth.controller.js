@@ -19,7 +19,7 @@ const login = async (req, res, next) => {
 
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Error al procesar el login' });
+    res.status(500).json({ message: 'Error al procesar el login', details: error.message, stack: error.stack });
   }
 };
 
