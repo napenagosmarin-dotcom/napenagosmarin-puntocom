@@ -7,25 +7,34 @@ if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder('ipv4first');
 }
 
-let transporter;
-try {
+let transporter = null;
+
+const getTransporter = async () => {
+  if (transporter) return transporter;
+
+  // Resolver explícitamente a IPv4
+  const address = await new Promise((resolve, reject) => {
+    dns.lookup('smtp.gmail.com', 4, (err, address) => {
+      if (err) reject(err);
+      else resolve(address);
+    });
+  });
+
   transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: address,
     port: 465,
-    secure: true, // true para puerto 465
+    secure: true,
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASS
     },
     tls: {
+      servername: 'smtp.gmail.com', // Requerido al conectar por IP
       rejectUnauthorized: false
-    },
-    family: 4 // Fuerza a Nodemailer a usar IPv4 (ignora IPv6 ENETUNREACH)
+    }
   });
-} catch (error) {
-  console.error('Error inicializando Nodemailer:', error.message);
-  transporter = null;
-}
+  return transporter;
+};
 
 const senderEmail = process.env.GMAIL_USER || 'noreply@auraglamping.com';
 
@@ -73,8 +82,11 @@ function formatMoney(n) {
 // PASO 1 — CORREO: RESERVA PENDIENTE DE PAGO
 // ─────────────────────────────────────────────────────────────────────────────
 const sendReservationPendingEmail = async (toEmail, reservation) => {
-  if (!transporter) {
-    console.warn('[email] Nodemailer no configurado. No se envió correo PENDIENTE a:', toEmail);
+  let t;
+  try {
+    t = await getTransporter();
+  } catch (error) {
+    console.warn('[email] Nodemailer falló al inicializar. No se envió correo PENDIENTE a:', toEmail, error.message);
     return null;
   }
 
@@ -232,8 +244,11 @@ const sendReservationPendingEmail = async (toEmail, reservation) => {
 // PASO 2 — CORREO: RESERVA CONFIRMADA
 // ─────────────────────────────────────────────────────────────────────────────
 const sendReservationConfirmedEmail = async (toEmail, reservation) => {
-  if (!transporter) {
-    console.warn('[email] Nodemailer no configurado. No se envió correo CONFIRMADO a:', toEmail);
+  let t;
+  try {
+    t = await getTransporter();
+  } catch (error) {
+    console.warn('[email] Nodemailer falló al inicializar. No se envió correo CONFIRMADO a:', toEmail);
     return null;
   }
 
@@ -350,8 +365,11 @@ const sendReservationConfirmedEmail = async (toEmail, reservation) => {
 //                      valorReembolso, diasRestantes, mensaje, fechaCancelacion }
 // ─────────────────────────────────────────────────────────────────────────────
 const sendReservationCancelledEmail = async (toEmail, reservation, cancellationInfo) => {
-  if (!transporter) {
-    console.warn('[email] Nodemailer no configurado. No se envió correo CANCELACIÓN a:', toEmail);
+  let t;
+  try {
+    t = await getTransporter();
+  } catch (error) {
+    console.warn('[email] Nodemailer falló al inicializar. No se envió correo CANCELACIÓN a:', toEmail);
     return null;
   }
 
@@ -556,8 +574,11 @@ const sendReservationCancelledEmail = async (toEmail, reservation, cancellationI
 // MANTENIDOS — emails de auth
 // ─────────────────────────────────────────────────────────────────────────────
 const sendPasswordResetEmail = async (toEmail, resetToken) => {
-  if (!transporter) {
-    throw new Error('Servicio de email no configurado (faltan credenciales de Gmail). No se envió el correo a: ' + toEmail);
+  let t;
+  try {
+    t = await getTransporter();
+  } catch (err) {
+    throw new Error('Servicio de email no configurado: ' + err.message);
   }
   const resetUrl = `${process.env.FRONTEND_URL || process.env.BACKEND_URL || 'http://localhost:3001'}/reset-password?token=${resetToken}`;
 
@@ -587,8 +608,11 @@ const sendPasswordResetEmail = async (toEmail, resetToken) => {
 };
 
 const sendVerificationEmail = async (toEmail, verificationToken) => {
-  if (!transporter) {
-    throw new Error('Servicio de email no configurado (faltan credenciales de Gmail). No se envió el correo a: ' + toEmail);
+  let t;
+  try {
+    t = await getTransporter();
+  } catch (err) {
+    throw new Error('Servicio de email no configurado: ' + err.message);
   }
   const verificationUrl = `${process.env.BACKEND_URL || process.env.FRONTEND_URL || 'http://localhost:3001'}/api/auth/verify-email?token=${verificationToken}`;
 
