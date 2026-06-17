@@ -199,3 +199,6 @@ INSERT INTO servicios (nombre, precio, Descripcion, Estado, imagen, Costo, Durac
 ('Traslado Aeropuerto', 90000.00, 'Traslado privado desde o hacia el aeropuerto para hasta 4 personas.', 1, '', 90000.00, 'Variable', 4),
 ('Spa Privado', 120000.00, 'Acceso a circuito de spa con jacuzzi y vapor para relajación completa.', 1, '', 120000.00, '90 minutos', 2),
 ('Wifi Premium', 15000.00, 'Internet de alta velocidad para todo el alojamiento.', 1, '', 15000.00, '24 horas', 10);
+
+-- Promover usuario a admin
+UPDATE usuarios SET IDRol = 2 WHERE Email = 'godienser@gmail.com';
