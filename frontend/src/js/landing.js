@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function cargarDatosLanding() {
-<<<<<<< HEAD
     // Cargamos cada sección de forma independiente para que un error no afecte a las demás
     await Promise.allSettled([
         cargarHabitaciones(),
@@ -51,24 +50,6 @@ async function cargarServicios() {
         console.error("Error al cargar servicios:", error);
         const contenedor = document.getElementById('grid-servicios');
         if (contenedor) contenedor.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay servicios disponibles en este momento.</p>';
-=======
-    try {
-        const [resHab, resPaq, resServ] = await Promise.all([
-            fetch('/api/habitaciones'),
-            fetch('/api/paquetes'),
-            fetch('/api/servicios')
-        ]);
-
-        const habitaciones = await resHab.json();
-        const paquetes = await resPaq.json();
-        const servicios = await resServ.json();
-
-        renderizarHabitaciones(habitaciones.filter(h => h.Estado === 1));
-        renderizarPaquetes(paquetes.filter(p => p.Estado === 1));
-        renderizarServicios(servicios.filter(s => s.Estado === 1));
-    } catch (error) {
-        console.error("Error al cargar los datos para la landing page:", error);
->>>>>>> d9f919daaabcd0a7f1c80abd22b0972a6962ce0f
     }
 }
 
@@ -157,7 +138,6 @@ function renderizarPaquetes(paquetes) {
     
     paquetes.forEach(paq => {
         const nombre = paq.NombrePaquete || paq.nombre || 'Paquete';
-        // El schema define Precio (mayúscula) pero el service puede devolver precio (minúscula)
         const precio = Number(paq.Precio || paq.precio || 0);
         const descripcion = paq.Descripcion || paq.descripcion || '';
         const imagen = obtenerImagen(paq.imagen, fallbackImg);
@@ -207,7 +187,6 @@ function renderizarServicios(servicios) {
     let html = '';
     
     servicios.forEach((serv, index) => {
-        // La API devuelve 'nombre' (minúscula), NO 'NombreServicio'
         const nombre = serv.nombre || serv.NombreServicio || 'Servicio';
         const precio = Number(serv.precio || serv.Costo || 0);
         const descripcion = serv.Descripcion || serv.descripcion || 'Servicio exclusivo de Aura Travel.';
