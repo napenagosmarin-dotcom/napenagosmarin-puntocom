@@ -38,7 +38,6 @@
   </main>
 
   <div id="modal-overlay" class="modal-overlay">
-<<<<<<< HEAD
     <div class="modal auth-form-panel--solo" style="padding: 1.5rem; max-width: 600px;">
       <div class="modal-header" style="border-bottom: 1px solid rgba(0, 212, 255, 0.15); margin-bottom: 1rem; padding-bottom: 0.8rem;">
         <h3 class="modal__titulo" id="modal-titulo" style="color: #fff; margin-bottom: 0; font-size: 1.3rem;">Nuevo Servicio</h3>
@@ -93,45 +92,6 @@
           <button type="button" class="btn btn-cancelar" id="btn-cancelar" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 0.6rem 1rem; font-size: 0.85rem;">Cancelar</button>
           <button type="submit" class="btn btn-guardar" style="background: linear-gradient(135deg, var(--color-secundario), var(--color-acento)); padding: 0.6rem 1rem; font-size: 0.85rem;">Guardar</button>
         </div>
-=======
-    <div class="modal">
-      <div class="modal-header">
-        <h3 class="modal__titulo" id="modal-titulo">Nuevo Servicio</h3>
-        <button type="button" class="btn-close" id="btn-cerrar-modal" aria-label="Cerrar">&times;</button>
-      </div>
-      <form id="form-servicio" class="modal-form" novalidate>
-        <input type="hidden" id="servicio-id" />
-
-        <div class="form-grupo">
-          <label>Nombre del Servicio <span class="campo-requerido">*</span></label>          <input type="text" id="servicio-nombre" placeholder="Ej: Spa Premium" />
-          <span class="error-msg" id="error-servicio-nombre"></span>
-        </div>
-
-        <div class="form-grupo">
-          <label>Precio <span class="campo-requerido">*</span></label>
-          <input type="number" id="servicio-precio" placeholder="Ej: 80000" min="1" />
-          <span class="error-msg" id="error-servicio-precio"></span>
-        </div>
-
-        <div class="form-grupo">
-          <label>Descripción <span class="campo-requerido">*</span></label>
-          <textarea id="servicio-descripcion" rows="4" placeholder="Describe el servicio..."></textarea>          <span class="error-msg" id="error-servicio-descripcion"></span>
-        </div>
-
-        <div class="form-grupo">
-          <label>URL de imagen <span class="campo-opcional">(opcional)</span></label>
-          <input type="text" id="servicio-imagen" placeholder="https://ejemplo.com/imagen.jpg" />
-          <span class="error-msg" id="error-servicio-imagen"></span>
-        </div>
-
-        <div id="preview-container" style="display: none; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;">
-          <img id="preview-imagen" src="" style="width: 100%; height: 150px; object-fit: cover;">
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="btn btn-cancelar" id="btn-cancelar">Cancelar</button>
-          <button type="submit" class="btn btn-guardar">Guardar Servicio</button>        </div>
->>>>>>> d9f919daaabcd0a7f1c80abd22b0972a6962ce0f
       </form>
     </div>
   </div>
@@ -154,7 +114,8 @@
                     <span style="display: block; color: #059669; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">Precio del Servicio</span>
                     <span id="detalle-precio" style="color: #111827; font-size: 1.4rem; font-weight: 800;">$0</span>
                 </div>
-                <div id="detalle-extra" style="flex: 1;"></div>            </div>
+                <div id="detalle-extra" style="flex: 1;"></div>
+            </div>
             <button type="button" id="btn-entendido" class="btn btn-primario" style="width: 100%; margin-top: 20px; padding: 12px; border-radius: 10px; background: #059669;">Cerrar Vista</button>
         </div>
     </div>
@@ -164,4 +125,3 @@
   <script src="../js/app.js"></script>
 </body>
 </html>
-
