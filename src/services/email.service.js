@@ -1,4 +1,11 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// Solución al "Connection timeout" en Railway: Gmail bloquea algunas IPs IPv6. 
+// Forzamos a Node.js a usar IPv4 para conectarse a smtp.gmail.com.
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 let transporter;
 try {
