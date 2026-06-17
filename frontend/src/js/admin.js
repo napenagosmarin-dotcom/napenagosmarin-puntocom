@@ -144,6 +144,11 @@ function updateHeader(section) {
     if (!newItemBtn) return;
     newItemBtn.style.display = 'inline-flex';
     
+    const searchContainer = document.querySelector('.admin-search');
+    if (searchContainer) {
+        searchContainer.style.display = (section === 'dashboard') ? 'none' : 'flex';
+    }
+    
     switch(section) {
         case 'reservas':     newItemBtn.textContent = '+ Nueva reserva';     break;
         case 'habitaciones': newItemBtn.textContent = '+ Nueva habitación'; break;
@@ -430,80 +435,112 @@ window.verDetalleReserva = async (id) => {
         const key = (r.NombreEstadoReserva || '').toLowerCase();
         const cfg = estadoConfig[key] || { color: '#6b7280', bg: 'rgba(107,114,128,0.15)', icon: 'help-circle' };
         const fmt = f => f ? new Date(f).toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+        const montoFmt = (v) => '$' + Number(v || 0).toLocaleString('es-CO');
+        const alojamiento = r.NombreHabitacion || r.NombreCabana || r.NombrePaquete || '—';
+        const serviciosHtml = (r.servicios && r.servicios.length > 0)
+            ? r.servicios.map(s => `<span class="rd-tag">${s.NombreServicio} x${s.Cantidad}</span>`).join('')
+            : '<span style="color:rgba(255,255,255,0.35); font-size:0.8rem;">Sin servicios adicionales</span>';
 
         document.getElementById('detalleTitulo').textContent = `Detalle de Reserva #${r.IdReserva}`;
         document.getElementById('detalleContent').style.padding = '0';
         const modalBox = document.querySelector('#detalleModalOverlay .modal-box-ver');
-        if (modalBox) modalBox.classList.add('modal-box--wide');
+        if (modalBox) modalBox.classList.remove('modal-box--wide');
 
         document.getElementById('detalleContent').innerHTML = `
-            <div class="reserva-detalle" style="padding: 1rem;">
-                <!-- Encabezado de la Reserva -->
-                <div style="background: linear-gradient(135deg, ${cfg.color}15, rgba(13,11,46,0.8)); border: 1px solid ${cfg.color}44; border-radius: 16px; padding: 2.5rem; display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 2rem; position: relative; overflow: hidden;">
-                    
-                    <!-- Elemento decorativo de fondo -->
-                    <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at center, ${cfg.color}11 0%, transparent 50%); pointer-events: none;"></div>
+        <div class="rd-wrap">
 
-                    <div style="position: relative; z-index: 1;">
-                        <div style="margin-bottom: 1rem;">
-                             <span style="font-size: 0.85rem; font-weight: 600; color: ${cfg.color}; background: ${cfg.bg}; border: 1px solid ${cfg.color}44; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px ${cfg.color}22;">
-                                 <i data-lucide="${cfg.icon}" style="width: 15px; height: 15px;"></i> ${r.NombreEstadoReserva || '—'}
-                             </span>
-                        </div>
-                        <div style="margin-bottom: 0.5rem; color: rgba(255,255,255,0.5); font-size: 0.8rem; font-weight: 700; letter-spacing: 2px;">TOTAL A PAGAR</div>
-                        <div style="font-size: 3.2rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; text-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-                            <span style="color: #10b981;">$</span>${Number(r.MontoTotal || 0).toLocaleString('es-CO')}
-                        </div>
-                        <div style="font-size: 1rem; color: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                             <i data-lucide="hash" style="width: 16px; color: ${cfg.color};"></i> Reserva <strong style="color: #fff; font-size: 1.1rem; font-family: monospace;">#${r.IdReserva}</strong>
-                        </div>
-                    </div>
+          <!-- FRANJA DE RESUMEN HORIZONTAL -->
+          <div class="rd-hero" style="border-top: 3px solid ${cfg.color};">
+            <div class="rd-hero__left">
+              <span class="rd-badge" style="color:${cfg.color}; background:${cfg.bg}; border-color:${cfg.color}44;">
+                <i data-lucide="${cfg.icon}" style="width:12px;height:12px;"></i>
+                ${r.NombreEstadoReserva || '—'}
+              </span>
+              <div class="rd-hero__id"># ${r.IdReserva}</div>
+            </div>
+            <div class="rd-hero__center">
+              <span class="rd-hero__label">Total a pagar</span>
+              <span class="rd-hero__amount" style="color:#fff;">
+                <span style="color:#10b981;">$</span>${Number(r.MontoTotal || 0).toLocaleString('es-CO')}
+              </span>
+            </div>
+            <div class="rd-hero__right">
+              <span class="rd-hero__label">Reservado el</span>
+              <span class="rd-hero__date">${fmt(r.FechaReserva || null)}</span>
+            </div>
+          </div>
+
+          <!-- GRID DE DATOS 2x2 -->
+          <div class="rd-grid">
+
+            <!-- CLIENTE -->
+            <div class="rd-card">
+              <div class="rd-card__icon" style="background:rgba(123,47,247,0.15); border-color:rgba(123,47,247,0.3); color:#9b59f5;">
+                <i data-lucide="user" style="width:16px;height:16px;"></i>
+              </div>
+              <div class="rd-card__content">
+                <span class="rd-card__label">Cliente</span>
+                <span class="rd-card__value">${r.NombreUsuario || '—'}</span>
+                <span class="rd-card__sub">${r.NroDocumentoCliente ? 'Doc: ' + r.NroDocumentoCliente : ''}</span>
+              </div>
+            </div>
+
+            <!-- ALOJAMIENTO -->
+            <div class="rd-card">
+              <div class="rd-card__icon" style="background:rgba(0,212,255,0.12); border-color:rgba(0,212,255,0.3); color:#00d4ff;">
+                <i data-lucide="home" style="width:16px;height:16px;"></i>
+              </div>
+              <div class="rd-card__content">
+                <span class="rd-card__label">Alojamiento</span>
+                <span class="rd-card__value">${alojamiento}</span>
+                <span class="rd-card__sub">${r.NombrePaquete ? 'Paquete' : r.NombreCabana ? 'Cabaña' : 'Habitación'}</span>
+              </div>
+            </div>
+
+            <!-- ESTADIA -->
+            <div class="rd-card">
+              <div class="rd-card__icon" style="background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3); color:#10b981;">
+                <i data-lucide="calendar-range" style="width:16px;height:16px;"></i>
+              </div>
+              <div class="rd-card__content">
+                <span class="rd-card__label">Estadía</span>
+                <div class="rd-dates">
+                  <span><i data-lucide="log-in" style="width:11px;color:#10b981;"></i> ${fmt(r.FechaInicio)}</span>
+                  <span style="color:rgba(255,255,255,0.3);">→</span>
+                  <span><i data-lucide="log-out" style="width:11px;color:#ef4444;"></i> ${fmt(r.FechaFinalizacion)}</span>
                 </div>
+              </div>
+            </div>
 
-                <!-- Grid de Información Centrada -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; padding: 0 0.5rem;">
-                    
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.8rem 1rem; border-radius: 16px; transition: all 0.3s; cursor: default;">
-                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(123,47,247,0.15); border: 1px solid rgba(123,47,247,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #9b59f5; box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-                            <i data-lucide="user" style="width: 22px; height: 22px;"></i>
-                        </div>
-                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem;">CLIENTE</div>
-                        <div style="font-size: 1.1rem; font-weight: 600; color: #fff;">${r.NombreUsuario || '—'}</div>
-                        <div style="font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-top: 0.4rem; font-family: monospace;">${r.NroDocumentoCliente || '—'}</div>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.8rem 1rem; border-radius: 16px;">
-                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #10b981; box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-                            <i data-lucide="calendar-range" style="width: 22px; height: 22px;"></i>
-                        </div>
-                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem;">ESTADÍA</div>
-                        <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%; align-items: center;">
-                            <div style="font-size: 0.95rem; font-weight: 500; color: rgba(255,255,255,0.8); display: flex; justify-content: space-between; width: 140px;">
-                                <span>In:</span> <span style="font-weight:600; color: #10b981;">${fmt(r.FechaInicio)}</span>
-                            </div>
-                            <div style="font-size: 0.95rem; font-weight: 500; color: rgba(255,255,255,0.8); display: flex; justify-content: space-between; width: 140px;">
-                                <span>Out:</span> <span style="font-weight:600; color: #ef4444;">${fmt(r.FechaFinalizacion)}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.8rem 1rem; border-radius: 16px;">
-                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #f59e0b; box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-                            <i data-lucide="credit-card" style="width: 22px; height: 22px;"></i>
-                        </div>
-                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem;">MÉTODO DE PAGO</div>
-                        <div style="font-size: 1.1rem; font-weight: 600; color: #fff;">${r.NomMetodoPago || '—'}</div>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.8rem 1rem; border-radius: 16px;">
-                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(0,212,255,0.15); border: 1px solid rgba(0,212,255,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #00d4ff; box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-                            <i data-lucide="home" style="width: 22px; height: 22px;"></i>
-                        </div>
-                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem;">ALOJAMIENTO</div>
-                        <div style="font-size: 1.1rem; font-weight: 600; color: #fff;">${r.NombreHabitacion || r.NombreCabana || r.NombrePaquete || '—'}</div>
-                    </div>
+            <!-- PAGO -->
+            <div class="rd-card">
+              <div class="rd-card__icon" style="background:rgba(245,158,11,0.12); border-color:rgba(245,158,11,0.3); color:#f59e0b;">
+                <i data-lucide="credit-card" style="width:16px;height:16px;"></i>
+              </div>
+              <div class="rd-card__content">
+                <span class="rd-card__label">Método de pago</span>
+                <span class="rd-card__value">${r.NomMetodoPago || '—'}</span>
+                <div class="rd-amounts">
+                  <span>Subtotal: <b>${montoFmt(r.SubTotal)}</b></span>
+                  ${r.Descuento ? `<span>Dto: <b>${r.Descuento}%</b></span>` : ''}
+                  ${r.IVA ? `<span>IVA: <b>${r.IVA}%</b></span>` : ''}
                 </div>
-            </div>`;
+              </div>
+            </div>
+
+          </div><!-- /rd-grid -->
+
+          <!-- SERVICIOS ADICIONALES -->
+          <div class="rd-section">
+            <span class="rd-section__label">
+              <i data-lucide="sparkles" style="width:13px; color:var(--color-acento);"></i>
+              Servicios adicionales
+            </span>
+            <div class="rd-tags">${serviciosHtml}</div>
+          </div>
+
+        </div>`;
+
         if (window.lucide) lucide.createIcons({ parent: document.getElementById('detalleContent') });
         document.getElementById('detalleModalOverlay').classList.add('activo');
     } catch(e) {
@@ -511,6 +548,7 @@ window.verDetalleReserva = async (id) => {
         mostrarNotificacion('Error al cargar el detalle de la reserva.', 'error');
     }
 };
+
 
 window.editarReserva = async (id) => {
     try {
@@ -1342,7 +1380,7 @@ window.mostrarDetallesCabana = async (id) => {
         document.getElementById('detalleContent').style.padding = "0";
 
         const modalBox = document.querySelector('#detalleModalOverlay .modal-box-ver');
-        if (modalBox) modalBox.classList.add('modal-box--wide');
+        if (modalBox) modalBox.classList.remove('modal-box--wide');
 
         document.getElementById('detalleContent').innerHTML = `
             <div class="cabana-detalle">
@@ -1631,7 +1669,7 @@ let chartServicios = null;
 
 async function cargarDashboard() {
     // Resetear stats con animación
-    ['kpi-ocupacion', 'kpi-ingresos', 'kpi-satisfaccion', 'kpi-reservas']
+    ['kpi-ocupacion', 'kpi-ingresos', 'kpi-reservas']
         .forEach(id => {
             const el = document.getElementById(id);
             if (el) { el.textContent = '...'; el.classList.add('loading-num'); }
@@ -1664,11 +1702,6 @@ async function cargarDashboard() {
         const subIng = document.getElementById('kpi-ingresos-trend');
         if (subIng) { subIng.textContent = '+12%'; subIng.className = 'kpi-trend kpi-trend--positive'; }
 
-        // ── KPI 3: Satisfacción del Cliente ──
-        const elSat = document.getElementById('kpi-satisfaccion');
-        if (elSat) { elSat.classList.remove('loading-num'); elSat.textContent = '4.8/5'; }
-        const subSat = document.getElementById('kpi-satisfaccion-trend');
-        if (subSat) { subSat.textContent = '+0.2'; subSat.className = 'kpi-trend kpi-trend--positive'; }
 
         // ── KPI 4: Reservas Activas ──
         const elRes = document.getElementById('kpi-reservas');
@@ -1678,7 +1711,7 @@ async function cargarDashboard() {
 
         // Renderizar gráficas
         renderGraficaCabanas(cabanas);
-        renderGraficaClientes(clientes);
+        renderGraficaEstadoReservas(reservas);
         renderGraficaReservas(reservas);
 
         // Renderizar tablas
@@ -1829,34 +1862,46 @@ function renderGraficaCabanas(cabanas) {
         }
     });
 }
+let chartEstadoReservas = null;
 
-function renderGraficaClientes(clientes) {
-    const ctx = document.getElementById('grafica-clientes');
+function renderGraficaEstadoReservas(reservas) {
+    const ctx = document.getElementById('grafica-estado-reservas');
     if (!ctx) return;
-    if (chartClientes) chartClientes.destroy();
+    if (chartEstadoReservas) chartEstadoReservas.destroy();
 
-    const activos = clientes.filter(c => c.Estado === 1).length;
-    const inactivos = clientes.length - activos;
+    let pendientes = 0;
+    let confirmadas = 0;
 
-    chartClientes = new Chart(ctx, {
-        type: 'bar',
+    reservas.forEach(r => {
+        const estado = (r.NombreEstadoReserva || '').toLowerCase();
+        if (estado === 'pendiente') {
+            pendientes++;
+        } else if (estado === 'confirmada') {
+            confirmadas++;
+        }
+    });
+
+    chartEstadoReservas = new Chart(ctx, {
+        type: 'doughnut',
         data: {
-            labels: ['Activos', 'Inactivos'],
+            labels: ['Pendientes', 'Confirmadas'],
             datasets: [{
-                label: 'Clientes',
-                data: [activos, inactivos],
-                backgroundColor: ['#10b981', '#ef4444'],
-                borderRadius: 8
+                data: [pendientes, confirmadas],
+                backgroundColor: ['#f59e0b', '#10b981'],
+                borderWidth: 0,
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.4)' } },
-                x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)' } }
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: 'rgba(255,255,255,0.7)', font: { size: 12 } }
+                }
             },
-            plugins: { legend: { display: false } }
+            cutout: '70%'
         }
     });
 }

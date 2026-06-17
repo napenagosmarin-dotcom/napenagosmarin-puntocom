@@ -1,14 +1,20 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-let resend;
+let transporter;
 try {
-  resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASS
+    }
+  });
 } catch (error) {
-  console.error('Error inicializando Resend:', error.message);
-  resend = null;
+  console.error('Error inicializando Nodemailer:', error.message);
+  transporter = null;
 }
 
-const resendFromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+const senderEmail = process.env.GMAIL_USER || 'noreply@auraglamping.com';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIG DEL GLAMPING — centralizada aquí para fácil personalización
@@ -54,8 +60,8 @@ function formatMoney(n) {
 // PASO 1 — CORREO: RESERVA PENDIENTE DE PAGO
 // ─────────────────────────────────────────────────────────────────────────────
 const sendReservationPendingEmail = async (toEmail, reservation) => {
-  if (!resend) {
-    console.warn('[email] Resend no configurado. No se envió correo PENDIENTE a:', toEmail);
+  if (!transporter) {
+    console.warn('[email] Nodemailer no configurado. No se envió correo PENDIENTE a:', toEmail);
     return null;
   }
 
@@ -194,27 +200,27 @@ const sendReservationPendingEmail = async (toEmail, reservation) => {
 </body>
 </html>`;
 
-  const { data, error } = await resend.emails.send({
-    from: resendFromEmail,
-    to: recipient,
-    subject: `🌿 Reserva recibida en ${GLAMPING.nombre} – Pendiente de pago`,
-    html,
-  });
-
-  if (data) console.log('[email] PENDIENTE enviado | Resend ID:', data.id, '→', recipient);
-  if (error) {
+  try {
+    const info = await transporter.sendMail({
+      from: senderEmail,
+      to: recipient,
+      subject: `🌿 Reserva recibida en ${GLAMPING.nombre} – Pendiente de pago`,
+      html,
+    });
+    console.log('[email] PENDIENTE enviado | Message ID:', info.messageId, '→', recipient);
+    return info;
+  } catch (error) {
     console.error('[email] Error enviando PENDIENTE:', error);
     throw new Error(`Error enviando email de reserva pendiente: ${error.message}`);
   }
-  return data;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PASO 2 — CORREO: RESERVA CONFIRMADA
 // ─────────────────────────────────────────────────────────────────────────────
 const sendReservationConfirmedEmail = async (toEmail, reservation) => {
-  if (!resend) {
-    console.warn('[email] Resend no configurado. No se envió correo CONFIRMADO a:', toEmail);
+  if (!transporter) {
+    console.warn('[email] Nodemailer no configurado. No se envió correo CONFIRMADO a:', toEmail);
     return null;
   }
 
@@ -309,19 +315,19 @@ const sendReservationConfirmedEmail = async (toEmail, reservation) => {
 </body>
 </html>`;
 
-  const { data, error } = await resend.emails.send({
-    from: resendFromEmail,
-    to: recipient,
-    subject: `✅ ¡Reserva confirmada! Te esperamos en ${GLAMPING.nombre}`,
-    html,
-  });
-
-  if (data) console.log('[email] CONFIRMADA enviado | Resend ID:', data.id, '→', recipient);
-  if (error) {
+  try {
+    const info = await transporter.sendMail({
+      from: senderEmail,
+      to: recipient,
+      subject: `✅ ¡Reserva confirmada! Te esperamos en ${GLAMPING.nombre}`,
+      html,
+    });
+    console.log('[email] CONFIRMADA enviado | Message ID:', info.messageId, '→', recipient);
+    return info;
+  } catch (error) {
     console.error('[email] Error enviando CONFIRMADA:', error);
     throw new Error(`Error enviando email de reserva confirmada: ${error.message}`);
   }
-  return data;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -331,8 +337,8 @@ const sendReservationConfirmedEmail = async (toEmail, reservation) => {
 //                      valorReembolso, diasRestantes, mensaje, fechaCancelacion }
 // ─────────────────────────────────────────────────────────────────────────────
 const sendReservationCancelledEmail = async (toEmail, reservation, cancellationInfo) => {
-  if (!resend) {
-    console.warn('[email] Resend no configurado. No se envió correo CANCELACIÓN a:', toEmail);
+  if (!transporter) {
+    console.warn('[email] Nodemailer no configurado. No se envió correo CANCELACIÓN a:', toEmail);
     return null;
   }
 
@@ -518,80 +524,84 @@ const sendReservationCancelledEmail = async (toEmail, reservation, cancellationI
 </body>
 </html>`;
 
-  const { data, error } = await resend.emails.send({
-    from: resendFromEmail,
-    to: recipient,
-    subject: `${esGratuita ? '✅' : '⚠️'} Reserva #${idReserva} cancelada – ${GLAMPING.nombre}`,
-    html,
-  });
-
-  if (data) console.log('[email] CANCELACIÓN enviado | Resend ID:', data.id, '→', recipient);
-  if (error) {
+  try {
+    const info = await transporter.sendMail({
+      from: senderEmail,
+      to: recipient,
+      subject: `${esGratuita ? '✅' : '⚠️'} Reserva #${idReserva} cancelada – ${GLAMPING.nombre}`,
+      html,
+    });
+    console.log('[email] CANCELACIÓN enviado | Message ID:', info.messageId, '→', recipient);
+    return info;
+  } catch (error) {
     console.error('[email] Error enviando CANCELACIÓN:', error);
     throw new Error(`Error enviando email de cancelación: ${error.message}`);
   }
-  return data;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MANTENIDOS — emails de auth
 // ─────────────────────────────────────────────────────────────────────────────
 const sendPasswordResetEmail = async (toEmail, resetToken) => {
-  if (!resend) {
-    throw new Error('Servicio de email no configurado (falta RESEND_API_KEY). No se envió el correo a: ' + toEmail);
+  if (!transporter) {
+    throw new Error('Servicio de email no configurado (faltan credenciales de Gmail). No se envió el correo a: ' + toEmail);
   }
   const resetUrl = `${process.env.FRONTEND_URL || process.env.BACKEND_URL || 'http://localhost:3001'}/reset-password?token=${resetToken}`;
 
-  const { data, error } = await resend.emails.send({
-    from: resendFromEmail,
-    to: toEmail,
-    subject: 'Recuperación de contraseña - Aura Travel',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Recupera tu contraseña</h2>
-        <p>Recibimos una solicitud para restablecer tu contraseña.</p>
-        <a href="${resetUrl}" 
-           style="background-color: #4F46E5; color: white; padding: 12px 24px; 
-                  text-decoration: none; border-radius: 6px; display: inline-block;">
-          Restablecer contraseña
-        </a>
-        <p style="color: #666; margin-top: 20px;">Este enlace expira en <strong>1 hora</strong>.</p>
-        <p style="color: #666;">Si no solicitaste esto, ignora este correo.</p>
-      </div>
-    `,
-  });
-
-  if (error) throw new Error(`Error enviando email: ${error.message}. Revisa que RESEND_FROM_EMAIL esté configurado con un remitente verificado en resend.com/domains.`);
-  return data;
+  try {
+    const info = await transporter.sendMail({
+      from: senderEmail,
+      to: toEmail,
+      subject: 'Recuperación de contraseña - Aura Travel',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Recupera tu contraseña</h2>
+          <p>Recibimos una solicitud para restablecer tu contraseña.</p>
+          <a href="${resetUrl}" 
+             style="background-color: #4F46E5; color: white; padding: 12px 24px; 
+                    text-decoration: none; border-radius: 6px; display: inline-block;">
+            Restablecer contraseña
+          </a>
+          <p style="color: #666; margin-top: 20px;">Este enlace expira en <strong>1 hora</strong>.</p>
+          <p style="color: #666;">Si no solicitaste esto, ignora este correo.</p>
+        </div>
+      `,
+    });
+    return info;
+  } catch (error) {
+    throw new Error(`Error enviando email: ${error.message}. Revisa tus credenciales de Gmail.`);
+  }
 };
 
 const sendVerificationEmail = async (toEmail, verificationToken) => {
-  if (!resend) {
-    throw new Error('Servicio de email no configurado (falta RESEND_API_KEY). No se envió el correo a: ' + toEmail);
+  if (!transporter) {
+    throw new Error('Servicio de email no configurado (faltan credenciales de Gmail). No se envió el correo a: ' + toEmail);
   }
   const verificationUrl = `${process.env.BACKEND_URL || process.env.FRONTEND_URL || 'http://localhost:3001'}/api/auth/verify-email?token=${verificationToken}`;
 
-  const { data, error } = await resend.emails.send({
-    from: resendFromEmail,
-    to: toEmail,
-    subject: 'Verifica tu correo electrónico - Aura Travel',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Bienvenido a Aura Travel</h2>
-        <p>Gracias por registrarte. Antes de continuar, verifica tu correo electrónico.</p>
-        <a href="${verificationUrl}" 
-           style="background-color: #4F46E5; color: white; padding: 12px 24px; 
-                  text-decoration: none; border-radius: 6px; display: inline-block;">
-          Verificar correo
-        </a>
-        <p style="color: #666; margin-top: 20px;">Este enlace expira en <strong>1 hora</strong>.</p>
-        <p style="color: #666;">Si no te registraste, ignora este correo.</p>
-      </div>
-    `,
-  });
-
-  if (error) throw new Error(`Error enviando email: ${error.message}. Revisa que RESEND_FROM_EMAIL esté configurado con un remitente verificado en resend.com/domains.`);
-  return data;
+  try {
+    const info = await transporter.sendMail({
+      from: senderEmail,
+      to: toEmail,
+      subject: 'Verifica tu correo electrónico - Aura Travel',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Bienvenido a Aura Travel</h2>
+          <p>Gracias por registrarte. Antes de continuar, verifica tu correo electrónico.</p>
+          <a href="${verificationUrl}" 
+             style="background-color: #4F46E5; color: white; padding: 12px 24px; 
+                    text-decoration: none; border-radius: 6px; display: inline-block;">
+            Verificar correo
+          </a>
+          <p style="color: #666; margin-top: 20px;">Este enlace expira en <strong>1 hora</strong>.</p>
+          <p style="color: #666;">Si no te registraste, ignora este correo.</p>
+        </div>
+      `,
+    });
+    return info;
+  } catch (error) {
+    throw new Error(`Error enviando email: ${error.message}. Revisa tus credenciales de Gmail.`);
+  }
 };
 
 // ALIAS de compatibilidad — mantiene el nombre viejo que usa reservation.service.js
