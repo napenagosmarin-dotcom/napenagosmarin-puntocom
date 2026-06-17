@@ -22,8 +22,8 @@ const getTransporter = async () => {
 
   transporter = nodemailer.createTransport({
     host: address,
-    port: 465,
-    secure: true,
+    port: 587,
+    secure: false, // true para 465, false para otros puertos
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASS
