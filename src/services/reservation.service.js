@@ -7,19 +7,23 @@ const emailService = require('./email.service');
 // Obtener todas las reservas (con paginación opcional)
 const getAllReservations = async (page = null, limit = null) => {
   try {
-    let sql = `SELECT r.*, u.NombreUsuario, u.NumeroDocumento AS NroDocumentoCliente, 
+    let sql = `SELECT DISTINCT r.IdReserva, r.FechaReserva, r.FechaInicio, r.FechaFinalizacion,
+                        r.SubTotal, r.Descuento, r.IVA, r.MontoTotal,
+                        r.MetodoPago, r.IdEstadoReserva,
+                        r.UsuarioIdusuario,
+                        u.NombreUsuario, u.NumeroDocumento AS NroDocumentoCliente, 
                         e.NombreEstadoReserva, m.NomMetodoPago,
-                         p.IDPaquete, p.nombre AS NombrePaquete, p.precio AS PrecioPaquete,
-                         COALESCE(h_direct.IDHabitacion, h_paq.IDHabitacion) AS IDHabitacion,
-                         COALESCE(h_direct.NombreHabitacion, h_paq.NombreHabitacion) AS NombreHabitacion,
-                         COALESCE(h_direct.precio, h_paq.precio) AS CostoHabitacion,
-                         c.NombreCabana, c.PrecioNoche AS PrecioCabana,
-                         r.IdEstadoReserva AS Estado
+                        p.IDPaquete, p.nombre AS NombrePaquete, p.precio AS PrecioPaquete,
+                        COALESCE(h_direct.IDHabitacion, h_paq.IDHabitacion) AS IDHabitacion,
+                        COALESCE(h_direct.NombreHabitacion, h_paq.NombreHabitacion) AS NombreHabitacion,
+                        COALESCE(h_direct.precio, h_paq.precio) AS CostoHabitacion,
+                        c.NombreCabana, c.PrecioNoche AS PrecioCabana,
+                        r.IdEstadoReserva AS Estado
                  FROM reserva r
                  JOIN usuarios u ON r.UsuarioIdusuario = u.IDUsuario
                  LEFT JOIN estadosreserva e ON r.IdEstadoReserva = e.IdEstadoReserva
                  LEFT JOIN metodopago m ON r.MetodoPago = m.IdMetodoPago
-                 LEFT JOIN detallereservahabitacion drh ON r.IdReserva = drh.IdReserva
+                 LEFT JOIN detallereservahabitacion drh ON r.IdReserva = drh.IDReserva
                  LEFT JOIN habitacion h_direct ON drh.IDHabitacion = h_direct.IDHabitacion
                  LEFT JOIN detallereservapaquetes drp ON drp.IDReserva = r.IdReserva
                  LEFT JOIN paquetes p ON drp.IDPaquete = p.IDPaquete

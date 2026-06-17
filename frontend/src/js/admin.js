@@ -1187,8 +1187,6 @@ window.eliminarCliente = async (id) => {
 
 window.verDetalleCliente = (id) => {
     try {
-        // En lugar de hacer fetch, buscamos en los datos que YA tenemos cargados en la tabla
-        // Esto garantiza que si se ve en la tabla, se verá en el detalle
         let c = (window.clientesData || []).find(item => 
             String(item.NroDocumento) === String(id) || 
             String(item.IDCliente) === String(id) ||
@@ -1200,60 +1198,49 @@ window.verDetalleCliente = (id) => {
             return;
         }
 
-        // Normalización de valores con búsqueda exhaustiva para el email
-        const getVal = (obj, key) => obj[key] !== undefined ? obj[key] : '-';
-        
-        // El email es crítico, buscamos en todas las variantes posibles
-        const email = c.Email || c.email || c.Correo || c.correo || c.Mail || c.mail || '-';
-        const nombre = getVal(c, 'Nombre');
-        const apellido = getVal(c, 'Apellido');
-        const idCli = getVal(c, 'IDCliente');
-        const documento = getVal(c, 'NroDocumento') !== '-' ? getVal(c, 'NroDocumento') : id;
-        const telefono = getVal(c, 'Telefono');
-        const direccion = getVal(c, 'Direccion');
-        const idRol = getVal(c, 'IDRol');
+        const email     = c.Email || c.email || c.Correo || c.correo || '-';
+        const nombre    = c.Nombre || '-';
+        const apellido  = c.Apellido || '';
+        const idCli     = c.IDCliente || '-';
+        const documento = c.NroDocumento || id;
+        const telefono  = c.Telefono || '-';
+        const direccion = c.Direccion || '-';
+        const idRol     = c.IDRol;
         const estadoVal = c.Estado !== undefined ? c.Estado : 1;
         const estadoTxt = estadoVal == 1 ? 'Activo' : 'Inactivo';
+        const badgeClass = estadoVal == 1 ? 'badge-confirmada' : 'badge-cancelada';
         
-        document.getElementById('detalleTitulo').textContent = `Detalle del Cliente`;
-        document.getElementById('detalleContent').style.padding = "0"; 
-        
-        const modalBox = document.querySelector('#detalleModalOverlay .modal-box-ver');
-        if (modalBox) modalBox.classList.remove('modal-box--wide');
-
+        document.getElementById('detalleTitulo').textContent = 'Detalle del Cliente';
         document.getElementById('detalleContent').innerHTML = `
-            <div class="cliente-detalle">
-                <div class="cliente-detalle__header">
-                    <div class="cliente-detalle__avatar">
-                        <i data-lucide="user"></i>
+            <div class="det-layout det-layout--persona">
+                <div class="det-header">
+                    <div class="det-avatar"><i data-lucide="user"></i></div>
+                    <div class="det-header-info">
+                        <h3>${nombre} ${apellido}</h3>
+                        <p>ID Cliente: <strong>${idCli}</strong> &bull; Doc: <strong>${documento}</strong></p>
                     </div>
-                    <div class="cliente-detalle__header-info">
-                        <h4>${nombre} ${apellido}</h4>
-                        <span>ID: ${idCli} &bull; Doc: ${documento}</span>
-                    </div>
-                    <span class="badge ${estadoVal == 1 ? 'badge-confirmada' : 'badge-cancelada'} cliente-detalle__badge">${estadoTxt}</span>
+                    <span class="det-badge ${badgeClass}">${estadoTxt}</span>
                 </div>
-
-                <div class="cliente-detalle__grid">
-                    <div class="cliente-detalle__card">
+                <div class="det-grid det-grid--3">
+                    <div class="det-card">
                         <i data-lucide="mail"></i>
-                        <p>EMAIL</p>
-                        <span>${email}</span>
+                        <p class="det-card__label">EMAIL</p>
+                        <span class="det-card__value det-card__value--break">${email}</span>
                     </div>
-                    <div class="cliente-detalle__card">
+                    <div class="det-card">
                         <i data-lucide="phone"></i>
-                        <p>TELÉFONO</p>
-                        <span>${telefono}</span>
+                        <p class="det-card__label">TELÉFONO</p>
+                        <span class="det-card__value">${telefono}</span>
                     </div>
-                    <div class="cliente-detalle__card">
-                        <i data-lucide="map-pin"></i>
-                        <p>DIRECCIÓN</p>
-                        <span>${direccion}</span>
-                    </div>
-                    <div class="cliente-detalle__card">
+                    <div class="det-card">
                         <i data-lucide="shield"></i>
-                        <p>ROL</p>
-                        <span>${idRol == 2 ? 'Administrador' : 'Cliente'}</span>
+                        <p class="det-card__label">ROL</p>
+                        <span class="det-card__value">${idRol == 2 ? 'Administrador' : 'Cliente'}</span>
+                    </div>
+                    <div class="det-card det-card--full">
+                        <i data-lucide="map-pin"></i>
+                        <p class="det-card__label">DIRECCIÓN</p>
+                        <span class="det-card__value det-card__value--break">${direccion}</span>
                     </div>
                 </div>
             </div>`;
@@ -1272,20 +1259,35 @@ window.verDetalleHabitacion = async (id) => {
         
         const imgUrl = h.imagen || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80';
         const estado = h.Estado === 1 ? 'Disponible' : 'Mantenimiento';
-        const estadoClass = h.Estado === 1 ? 'status-disponible' : 'status-mantenimiento';
+        const estadoClass = h.Estado === 1 ? 'det-badge--ok' : 'det-badge--warn';
 
-        document.getElementById('detalleTitulo').textContent = `Ficha de Habitación`;
+        document.getElementById('detalleTitulo').textContent = 'Ficha de Habitación';
         document.getElementById('detalleContent').innerHTML = `
-            <div class="ficha-detalle">
-                <div class="ficha-detalle__img">
-                    <img src="${imgUrl}" alt="${h.NombreHabitacion || 'Habitación'}">
-                    <div class="ficha-detalle__badge">${h.NombreHabitacion || 'Habitación'}</div>
+            <div class="det-layout det-layout--media">
+                <div class="det-media-col">
+                    <div class="det-media-wrap">
+                        <img src="${imgUrl}" alt="${h.NombreHabitacion || 'Habitación'}" loading="lazy">
+                        <div class="det-media-label">${h.NombreHabitacion || 'Habitación'}</div>
+                    </div>
                 </div>
-                <div class="ficha-detalle__info">
-                    <p class="ficha-detalle__desc">"${h.Descripcion || 'Sin descripción disponible.'}"</p>
-                    <div class="ficha-detalle__datos">
-                        <div class="ficha-detalle__dato"><i data-lucide="dollar-sign"></i> <b>Precio:</b> $${Number(h.precio || h.Precio || 0).toLocaleString('es-CO')}</div>
-                        <div class="ficha-detalle__dato"><i data-lucide="check-circle-2"></i> <b>Estado:</b> <span class="badge-status ${estadoClass}">${estado}</span></div>
+                <div class="det-info-col">
+                    <p class="det-desc">${h.Descripcion || 'Sin descripción disponible.'}</p>
+                    <div class="det-grid det-grid--2">
+                        <div class="det-card">
+                            <i data-lucide="dollar-sign"></i>
+                            <p class="det-card__label">PRECIO / NOCHE</p>
+                            <span class="det-card__value det-card__value--highlight">$${Number(h.precio || h.Precio || 0).toLocaleString('es-CO')}</span>
+                        </div>
+                        <div class="det-card">
+                            <i data-lucide="check-circle-2"></i>
+                            <p class="det-card__label">ESTADO</p>
+                            <span class="det-badge ${estadoClass}">${estado}</span>
+                        </div>
+                        <div class="det-card det-card--full">
+                            <i data-lucide="hash"></i>
+                            <p class="det-card__label">ID HABITACIÓN</p>
+                            <span class="det-card__value">#${h.IDHabitacion || id}</span>
+                        </div>
                     </div>
                 </div>
             </div>`;
@@ -1304,22 +1306,42 @@ window.verDetallePaquete = async (id) => {
         
         const imgUrl = p.imagen || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=900&q=80';
         const estado = p.Estado === 1 ? 'Activo' : 'Inactivo';
-        const estadoClass = p.Estado === 1 ? 'status-disponible' : 'status-mantenimiento';
+        const estadoClass = p.Estado === 1 ? 'det-badge--ok' : 'det-badge--warn';
+        const nombre = p.NombrePaquete || p.nombre || 'Paquete';
 
-        document.getElementById('detalleTitulo').textContent = `Ficha de Paquete`;
+        document.getElementById('detalleTitulo').textContent = 'Ficha de Paquete';
         document.getElementById('detalleContent').innerHTML = `
-            <div class="ficha-detalle">
-                <div class="ficha-detalle__img">
-                    <img src="${imgUrl}" alt="${p.NombrePaquete || p.nombre || 'Paquete'}">
-                    <div class="ficha-detalle__badge">${p.NombrePaquete || p.nombre || 'Paquete'}</div>
+            <div class="det-layout det-layout--media">
+                <div class="det-media-col">
+                    <div class="det-media-wrap">
+                        <img src="${imgUrl}" alt="${nombre}" loading="lazy">
+                        <div class="det-media-label">${nombre}</div>
+                    </div>
                 </div>
-                <div class="ficha-detalle__info">
-                    <p class="ficha-detalle__desc">"${p.Descripcion || p.descripcion || 'Sin descripción disponible.'}"</p>
-                    <div class="ficha-detalle__datos">
-                        <div class="ficha-detalle__dato"><i data-lucide="dollar-sign"></i> <b>Precio:</b> $${Number(p.precio || p.Precio || 0).toLocaleString('es-CO')}</div>
-                        <div class="ficha-detalle__dato"><i data-lucide="hotel"></i> <b>Habitación:</b> ${p.NombreHabitacion || '-'}</div>
-                        <div class="ficha-detalle__dato"><i data-lucide="smile"></i> <b>Servicio:</b> ${p.NombreServicio || '-'}</div>
-                        <div class="ficha-detalle__dato"><i data-lucide="check-circle-2"></i> <b>Estado:</b> <span class="badge-status ${estadoClass}">${estado}</span></div>
+                <div class="det-info-col">
+                    <p class="det-desc">${p.Descripcion || p.descripcion || 'Sin descripción disponible.'}</p>
+                    <div class="det-grid det-grid--2">
+                        <div class="det-card">
+                            <i data-lucide="dollar-sign"></i>
+                            <p class="det-card__label">PRECIO</p>
+                            <span class="det-card__value det-card__value--highlight">$${Number(p.precio || p.Precio || 0).toLocaleString('es-CO')}</span>
+                        </div>
+                        <div class="det-card">
+                            <i data-lucide="check-circle-2"></i>
+                            <p class="det-card__label">ESTADO</p>
+                            <span class="det-badge ${estadoClass}">${estado}</span>
+                        </div>
+                        <div class="det-card">
+                            <i data-lucide="hotel"></i>
+                            <p class="det-card__label">HABITACIÓN</p>
+                            <span class="det-card__value det-card__value--break">${p.NombreHabitacion || '—'}</span>
+                        </div>
+                        <div class="det-card">
+                            <i data-lucide="smile"></i>
+                            <p class="det-card__label">SERVICIO</p>
+                            <span class="det-card__value det-card__value--break">${p.NombreServicio || '—'}</span>
+                        </div>
+                        ${p.Descuento ? `<div class="det-card det-card--full"><i data-lucide="tag"></i><p class="det-card__label">DESCUENTO</p><span class="det-card__value">${p.Descuento}%</span></div>` : ''}
                     </div>
                 </div>
             </div>`;
@@ -1338,22 +1360,41 @@ window.verDetalleServicio = async (id) => {
         
         const imgUrl = s.imagen || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80';
         const estado = s.Estado === 1 ? 'Activo' : 'Inactivo';
-        const estadoClass = s.Estado === 1 ? 'status-disponible' : 'status-mantenimiento';
+        const estadoClass = s.Estado === 1 ? 'det-badge--ok' : 'det-badge--warn';
+        const nombre = s.NombreServicio || s.nombre || 'Servicio';
 
-        document.getElementById('detalleTitulo').textContent = `Ficha de Servicio`;
+        document.getElementById('detalleTitulo').textContent = 'Ficha de Servicio';
         document.getElementById('detalleContent').innerHTML = `
-            <div class="ficha-detalle">
-                <div class="ficha-detalle__img">
-                    <img src="${imgUrl}" alt="${s.NombreServicio || s.nombre || 'Servicio'}">
-                    <div class="ficha-detalle__badge">${s.NombreServicio || s.nombre || 'Servicio'}</div>
+            <div class="det-layout det-layout--media">
+                <div class="det-media-col">
+                    <div class="det-media-wrap">
+                        <img src="${imgUrl}" alt="${nombre}" loading="lazy">
+                        <div class="det-media-label">${nombre}</div>
+                    </div>
                 </div>
-                <div class="ficha-detalle__info">
-                    <p class="ficha-detalle__desc">"${s.Descripcion || s.descripcion || 'Sin descripción disponible.'}"</p>
-                    <div class="ficha-detalle__datos">
-                        <div class="ficha-detalle__dato"><i data-lucide="dollar-sign"></i> <b>Precio:</b> $${Number(s.precio || s.Costo || 0).toLocaleString('es-CO')}</div>
-                        <div class="ficha-detalle__dato"><i data-lucide="clock"></i> <b>Duración:</b> ${s.Duracion || s.duracion || '-'}</div>
-                        <div class="ficha-detalle__dato"><i data-lucide="users"></i> <b>Máx. Personas:</b> ${s.CantidadMaximaPersonas || '-'}</div>
-                        <div class="ficha-detalle__dato"><i data-lucide="check-circle-2"></i> <b>Estado:</b> <span class="badge-status ${estadoClass}">${estado}</span></div>
+                <div class="det-info-col">
+                    <p class="det-desc">${s.Descripcion || s.descripcion || 'Sin descripción disponible.'}</p>
+                    <div class="det-grid det-grid--2">
+                        <div class="det-card">
+                            <i data-lucide="dollar-sign"></i>
+                            <p class="det-card__label">PRECIO</p>
+                            <span class="det-card__value det-card__value--highlight">$${Number(s.precio || s.Costo || 0).toLocaleString('es-CO')}</span>
+                        </div>
+                        <div class="det-card">
+                            <i data-lucide="check-circle-2"></i>
+                            <p class="det-card__label">ESTADO</p>
+                            <span class="det-badge ${estadoClass}">${estado}</span>
+                        </div>
+                        <div class="det-card">
+                            <i data-lucide="clock"></i>
+                            <p class="det-card__label">DURACIÓN</p>
+                            <span class="det-card__value">${s.Duracion || s.duracion || '—'}</span>
+                        </div>
+                        <div class="det-card">
+                            <i data-lucide="users"></i>
+                            <p class="det-card__label">MÁX. PERSONAS</p>
+                            <span class="det-card__value">${s.CantidadMaximaPersonas || '—'}</span>
+                        </div>
                     </div>
                 </div>
             </div>`;
@@ -1375,43 +1416,41 @@ window.mostrarDetallesCabana = async (id) => {
         if (c.data) c = c.data;
 
         const { texto, clase } = etiquetaEstadoCabana(c.Estado || c.estado);
-        const estadoClass = Number(c.Estado || c.estado) === 1 ? 'status-disponible' : 'status-mantenimiento';
+        const estadoClass = Number(c.Estado || c.estado) === 1 ? 'det-badge--ok' : 'det-badge--warn';
+        const imgUrl = c.ImagenCabana || c.imagenCabana || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1000';
+        const nombre = c.NombreCabana || c.nombreCabana || 'Cabaña';
 
-        document.getElementById('detalleTitulo').textContent = `Ficha de Cabaña`;
-        document.getElementById('detalleContent').style.padding = "0";
-
-        const modalBox = document.querySelector('#detalleModalOverlay .modal-box-ver');
-        if (modalBox) modalBox.classList.remove('modal-box--wide');
-
+        document.getElementById('detalleTitulo').textContent = 'Ficha de Cabaña';
         document.getElementById('detalleContent').innerHTML = `
-            <div class="cabana-detalle">
-                <div class="cabana-detalle__img-wrapper">
-                    <img src="${c.ImagenCabana || c.imagenCabana || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1000'}" alt="${c.NombreCabana || c.nombreCabana || 'Cabaña'}">
+            <div class="det-layout det-layout--media">
+                <div class="det-media-col">
+                    <div class="det-media-wrap">
+                        <img src="${imgUrl}" alt="${nombre}" loading="lazy">
+                        <div class="det-media-label">${nombre}</div>
+                    </div>
                 </div>
-                <div class="cabana-detalle__info">
-                    <h2 class="cabana-detalle__title">${c.NombreCabana || c.nombreCabana || 'Cabaña'}</h2>
-                    <p class="cabana-detalle__desc">"${c.Descripcion || c.descripcion || 'Sin descripción detallada disponible.'}"</p>
-                    <div class="cabana-detalle__grid">
-                        <div class="cabana-detalle__card">
+                <div class="det-info-col">
+                    <p class="det-desc">${c.Descripcion || c.descripcion || 'Sin descripción detallada disponible.'}</p>
+                    <div class="det-grid det-grid--2">
+                        <div class="det-card">
                             <i data-lucide="users"></i>
-                            <div class="cabana-detalle__card-text">
-                                <p>CAPACIDAD</p>
-                                <span>${c.CapacidadPersonas || c.capacidadPersonas} personas</span>
-                            </div>
+                            <p class="det-card__label">CAPACIDAD</p>
+                            <span class="det-card__value">${c.CapacidadPersonas || c.capacidadPersonas || '—'} personas</span>
                         </div>
-                        <div class="cabana-detalle__card">
+                        <div class="det-card">
                             <i data-lucide="dollar-sign"></i>
-                            <div class="cabana-detalle__card-text">
-                                <p>PRECIO</p>
-                                <span>$${Number(c.PrecioNoche || c.precioNoche || 0).toLocaleString('es-CO')}</span>
-                            </div>
+                            <p class="det-card__label">PRECIO / NOCHE</p>
+                            <span class="det-card__value det-card__value--highlight">$${Number(c.PrecioNoche || c.precioNoche || 0).toLocaleString('es-CO')}</span>
                         </div>
-                        <div class="cabana-detalle__card" style="grid-column: span 2;">
+                        <div class="det-card">
+                            <i data-lucide="door-open"></i>
+                            <p class="det-card__label">NRO HABITACIONES</p>
+                            <span class="det-card__value">${c.NumeroHabitaciones || c.numeroHabitaciones || '—'}</span>
+                        </div>
+                        <div class="det-card">
                             <i data-lucide="check-circle-2"></i>
-                            <div class="cabana-detalle__card-text">
-                                <p>ESTADO</p>
-                                <span class="badge ${clase}">${texto}</span>
-                            </div>
+                            <p class="det-card__label">ESTADO</p>
+                            <span class="det-badge ${estadoClass}">${texto}</span>
                         </div>
                     </div>
                 </div>
