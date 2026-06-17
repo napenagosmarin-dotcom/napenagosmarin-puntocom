@@ -10,6 +10,46 @@
   <link rel="stylesheet" href="../css/admin.css?v=1.2" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* === FORZAR FONDO OSCURO SIN IMAGEN EN PANEL ADMIN === */
+    html,
+    body,
+    body:has(.admin-layout),
+    .admin-layout,
+    .admin-main,
+    .admin-sidebar,
+    .dashboard-content,
+    #section-dashboard,
+    #section-reservas,
+    #section-habitaciones,
+    #section-usuarios,
+    #section-clientes,
+    #section-cabanas,
+    #section-paquetes,
+    #section-servicios {
+      background-image: none !important;
+      background-attachment: scroll !important;
+    }
+    html,
+    body,
+    body:has(.admin-layout) {
+      background-color: #0B0E14 !important;
+    }
+    .admin-layout {
+      background-color: #0B0E14 !important;
+    }
+    .admin-main {
+      background-color: #0B0E14 !important;
+    }
+    /* Desactivar también cualquier ::before o ::after con imagen */
+    .admin-layout::before,
+    .admin-layout::after,
+    .admin-main::before,
+    .admin-main::after {
+      background-image: none !important;
+      content: none !important;
+    }
+  </style>
 </head>
 <body>
 
