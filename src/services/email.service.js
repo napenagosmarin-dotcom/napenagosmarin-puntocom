@@ -224,7 +224,7 @@ const sendReservationPendingEmail = async (toEmail, reservation) => {
 </html>`;
 
   try {
-    const info = await transporter.sendMail({
+    const info = await t.sendMail({
       from: senderEmail,
       to: recipient,
       subject: `🌿 Reserva recibida en ${GLAMPING.nombre} – Pendiente de pago`,
@@ -342,7 +342,7 @@ const sendReservationConfirmedEmail = async (toEmail, reservation) => {
 </html>`;
 
   try {
-    const info = await transporter.sendMail({
+    const info = await t.sendMail({
       from: senderEmail,
       to: recipient,
       subject: `✅ ¡Reserva confirmada! Te esperamos en ${GLAMPING.nombre}`,
@@ -554,7 +554,7 @@ const sendReservationCancelledEmail = async (toEmail, reservation, cancellationI
 </html>`;
 
   try {
-    const info = await transporter.sendMail({
+    const info = await t.sendMail({
       from: senderEmail,
       to: recipient,
       subject: `${esGratuita ? '✅' : '⚠️'} Reserva #${idReserva} cancelada – ${GLAMPING.nombre}`,
@@ -581,7 +581,7 @@ const sendPasswordResetEmail = async (toEmail, resetToken) => {
   const resetUrl = `${process.env.FRONTEND_URL || process.env.BACKEND_URL || 'http://localhost:3001'}/reset-password?token=${resetToken}`;
 
   try {
-    const info = await transporter.sendMail({
+    const info = await t.sendMail({
       from: senderEmail,
       to: toEmail,
       subject: 'Recuperación de contraseña - Aura Travel',
@@ -615,7 +615,7 @@ const sendVerificationEmail = async (toEmail, verificationToken) => {
   const verificationUrl = `${process.env.BACKEND_URL || process.env.FRONTEND_URL || 'http://localhost:3001'}/api/auth/verify-email?token=${verificationToken}`;
 
   try {
-    const info = await transporter.sendMail({
+    const info = await t.sendMail({
       from: senderEmail,
       to: toEmail,
       subject: 'Verifica tu correo electrónico - Aura Travel',
