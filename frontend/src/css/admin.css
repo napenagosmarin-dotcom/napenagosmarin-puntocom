@@ -26,7 +26,8 @@
 /* ===== BODY OVERRIDE PARA ADMIN ===== */
 body:has(.admin-layout) {
   display: block !important;
-  background: var(--color-primario);
+  background-color: #0B0E14 !important;
+  background-image: none !important;
 }
 
 /* ===== LAYOUT ADMIN ===== */
@@ -34,7 +35,8 @@ body:has(.admin-layout) {
   display: flex;
   width: 100%;
   min-height: 100vh;
-  background: #0B0E14;
+  background-color: #0B0E14 !important;
+  background-image: none !important;
 }
 
 /* ===== SIDEBAR ===== */
@@ -191,6 +193,8 @@ body:has(.admin-layout) {
   padding: 2.5rem 2.75rem;
   color: #fff;
   box-sizing: border-box;
+  background-color: #0B0E14 !important;
+  background-image: none !important;
 }
 
 /* ===== HEADER ===== */
