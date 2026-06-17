@@ -2291,9 +2291,18 @@ function renderForm(section, data = null, extra = {}) {
                     <label>📝 DESCRIPCIÓN</label>
                     <textarea name="Descripcion">${data?.Descripcion || ''}</textarea>
                 </div>
-                <div class="form-group">
-                    <label>💰 PRECIO</label>
-                    <input type="number" name="precio" value="${data?.precio || data?.Precio || ''}" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>💰 PRECIO</label>
+                        <input type="number" name="precio" value="${data?.precio || data?.Precio || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>⚙️ ESTADO</label>
+                        <select name="Estado">
+                            <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Disponible</option>
+                            <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Mantenimiento</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group" style="text-align: center; margin-bottom: 1rem;">
                     <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
@@ -2301,47 +2310,44 @@ function renderForm(section, data = null, extra = {}) {
                 <div class="form-group">
                     <label>🖼️ IMAGEN URL</label>
                     <input type="text" name="imagen" value="${data?.imagen || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80'">
-                </div>
-                <div class="form-group">
-                    <label>⚙️ ESTADO</label>
-                    <select name="Estado">
-                        <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Disponible</option>
-                        <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Mantenimiento</option>
-                    </select>
                 </div>`;
             break;
         case 'clientes':
             fields = `
-                <div class="form-group">
-                    <label>🆔 NRO DOCUMENTO</label>
-                    <input type="text" name="NroDocumento" value="${data?.NroDocumento || ''}" pattern="\\d+" title="Solo debe contener números." required>
-                    <span class="field-error" id="err-NroDocumento"></span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🆔 NRO DOCUMENTO</label>
+                        <input type="text" name="NroDocumento" value="${data?.NroDocumento || ''}" pattern="\\d+" title="Solo debe contener números." required>
+                        <span class="field-error" id="err-NroDocumento"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>📞 TELÉFONO</label>
+                        <input type="text" name="Telefono" value="${data?.Telefono || ''}" pattern="\\d+" title="Solo debe contener números.">
+                        <span class="field-error" id="err-Telefono"></span>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>👤 NOMBRE</label>
-                    <input type="text" name="Nombre" value="${data?.Nombre || ''}" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo debe contener letras y espacios." required>
-                    <span class="field-error" id="err-Nombre"></span>
-                </div>
-                <div class="form-group">
-                    <label>👤 APELLIDO</label>
-                    <input type="text" name="Apellido" value="${data?.Apellido || ''}" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo debe contener letras y espacios.">
-                    <span class="field-error" id="err-Apellido"></span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>👤 NOMBRE</label>
+                        <input type="text" name="Nombre" value="${data?.Nombre || ''}" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo debe contener letras y espacios." required>
+                        <span class="field-error" id="err-Nombre"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>👤 APELLIDO</label>
+                        <input type="text" name="Apellido" value="${data?.Apellido || ''}" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo debe contener letras y espacios.">
+                        <span class="field-error" id="err-Apellido"></span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>📧 EMAIL</label>
                     <input type="email" name="Email" value="${data?.Email || data?.Correo || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label>📞 TELÉFONO</label>
-                    <input type="text" name="Telefono" value="${data?.Telefono || ''}" pattern="\\d+" title="Solo debe contener números.">
-                    <span class="field-error" id="err-Telefono"></span>
-                </div>
-                <div class="form-group">
                     <label>📍 DIRECCIÓN</label>
                     <input type="text" name="Direccion" value="${data?.Direccion || ''}">
                 </div>
-                ${isEdit ? `<input type="hidden" name="Estado" value="${data?.Estado ?? 1}">` : ''}
-                ${isEdit ? `<input type="hidden" name="IDRol" value="${data?.IDRol ?? 1}">` : ''}`;
+                ${isEdit ? \`<input type="hidden" name="Estado" value="\${data?.Estado ?? 1}">\` : ''}
+                ${isEdit ? \`<input type="hidden" name="IDRol" value="\${data?.IDRol ?? 1}">\` : ''}`;
             break;
         case 'cabanas':
             fields = `
@@ -2355,20 +2361,22 @@ function renderForm(section, data = null, extra = {}) {
                     <textarea name="Descripcion" title="Solo debe contener letras y espacios.">${data?.Descripcion || ''}</textarea>
                     <span class="field-error" id="err-Descripcion"></span>
                 </div>
-                <div class="form-group">
-                    <label>👥 CAPACIDAD DE PERSONAS</label>
-                    <input type="text" name="CapacidadPersonas" value="${data?.CapacidadPersonas || ''}" pattern="\\d+" title="Solo debe contener números." required>
-                    <span class="field-error" id="err-CapacidadPersonas"></span>
-                </div>
-                <div class="form-group">
-                    <label>🚪 NÚMERO DE HABITACIONES</label>
-                    <input type="text" name="NumeroHabitaciones" value="${data?.NumeroHabitaciones || ''}" pattern="\\d+" title="Solo debe contener números." required>
-                    <span class="field-error" id="err-NumeroHabitaciones"></span>
-                </div>
-                <div class="form-group">
-                    <label>💰 PRECIO POR NOCHE</label>
-                    <input type="text" name="PrecioNoche" value="${data?.PrecioNoche || ''}" pattern="\\d+" title="Solo debe contener números." required>
-                    <span class="field-error" id="err-PrecioNoche"></span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>👥 CAP. PERSONAS</label>
+                        <input type="text" name="CapacidadPersonas" value="${data?.CapacidadPersonas || ''}" pattern="\\d+" title="Solo debe contener números." required>
+                        <span class="field-error" id="err-CapacidadPersonas"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>🚪 NRO HABITACIONES</label>
+                        <input type="text" name="NumeroHabitaciones" value="${data?.NumeroHabitaciones || ''}" pattern="\\d+" title="Solo debe contener números." required>
+                        <span class="field-error" id="err-NumeroHabitaciones"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>💰 PRECIO POR NOCHE</label>
+                        <input type="text" name="PrecioNoche" value="${data?.PrecioNoche || ''}" pattern="\\d+" title="Solo debe contener números." required>
+                        <span class="field-error" id="err-PrecioNoche"></span>
+                    </div>
                 </div>
                 <div class="form-group" style="text-align: center; margin-bottom: 1rem;">
                     <img id="preview-img-modal" src="${data?.ImagenCabana || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
@@ -2377,49 +2385,55 @@ function renderForm(section, data = null, extra = {}) {
                     <label>🖼️ IMAGEN URL</label>
                     <input type="text" name="ImagenCabana" value="${data?.ImagenCabana || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'">
                 </div>
-                ${isEdit ? `<input type="hidden" name="Estado" value="${data?.Estado ?? 1}">` : ''}`;
+                ${isEdit ? \`<input type="hidden" name="Estado" value="\${data?.Estado ?? 1}">\` : ''}`;
             break;
         case 'usuarios':
             fields = `
-                <div class="form-group">
-                    <label>👤 NOMBRE DE USUARIO</label>
-                    <input type="text" name="NombreUsuario" value="${data?.NombreUsuario || ''}" required>
-                </div>
-                <div class="form-group">
-                    <label>👤 APELLIDO</label>
-                    <input type="text" name="Apellido" value="${data?.Apellido || ''}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>👤 NOMBRE DE USUARIO</label>
+                        <input type="text" name="NombreUsuario" value="${data?.NombreUsuario || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>👤 APELLIDO</label>
+                        <input type="text" name="Apellido" value="${data?.Apellido || ''}">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>📧 EMAIL</label>
                     <input type="email" name="Email" value="${data?.Email || ''}" required>
                 </div>
-                <div class="form-group">
-                    <label>📞 TELÉFONO</label>
-                    <input type="text" name="Telefono" value="${data?.Telefono || ''}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>📞 TELÉFONO</label>
+                        <input type="text" name="Telefono" value="${data?.Telefono || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>🌍 PAÍS</label>
+                        <input type="text" name="Pais" value="${data?.Pais || ''}">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>🌍 PAÍS</label>
-                    <input type="text" name="Pais" value="${data?.Pais || ''}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🔑 ROL</label>
+                        <select name="IDRol">
+                            <option value="1" ${data?.IDRol === 1 ? 'selected' : ''}>Cliente</option>
+                            <option value="2" ${data?.IDRol === 2 ? 'selected' : ''}>Administrador</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>⚙️ ESTADO</label>
+                        <select name="Estado">
+                            <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Activo</option>
+                            <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Inactivo</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>🔑 ROL</label>
-                    <select name="IDRol">
-                        <option value="1" ${data?.IDRol === 1 ? 'selected' : ''}>Cliente</option>
-                        <option value="2" ${data?.IDRol === 2 ? 'selected' : ''}>Administrador</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>⚙️ ESTADO</label>
-                    <select name="Estado">
-                        <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Activo</option>
-                        <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Inactivo</option>
-                    </select>
-                </div>
-                ${!isEdit ? `
+                ${!isEdit ? \`
                 <div class="form-group">
                     <label>🔒 CONTRASEÑA</label>
                     <input type="password" name="Contrasena" required>
-                </div>` : ''}`;
+                </div>\` : ''}`;
             break;
         case 'paquetes':
             const selectedServices = (data?.IDServicio || '').toString().split(',');
@@ -2430,33 +2444,35 @@ function renderForm(section, data = null, extra = {}) {
                 </div>
                 <div class="form-group">
                     <label>📝 DESCRIPCIÓN</label>
-                    <textarea id="paquete-descripcion-admin" name="Descripcion" rows="4">${data?.Descripcion || data?.descripcion || ''}</textarea>
+                    <textarea id="paquete-descripcion-admin" name="Descripcion" rows="3">${data?.Descripcion || data?.descripcion || ''}</textarea>
                 </div>
-                <div class="form-group">
-                    <label>🏨 HABITACIÓN</label>
-                    <select name="IDHabitacion" id="select-habitacion" onchange="window.calcularPrecioPaquete()">
-                        <option value="" data-precio="0">Ninguna</option>
-                        ${(extra.habitaciones || []).filter(h => h.Estado === 1 || h.IDHabitacion === data?.IDHabitacion).map(h => `
-                            <option value="${h.IDHabitacion}" data-precio="${h.precio || h.Precio || 0}" ${h.IDHabitacion === data?.IDHabitacion ? 'selected' : ''}>
-                                ${h.NombreHabitacion} ($${Number(h.precio || h.Precio || 0).toLocaleString('es-CO')})
-                            </option>
-                        `).join('')}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>🏕️ CABAÑA</label>
-                    <select name="IDCabana" id="select-cabana" onchange="window.calcularPrecioPaquete()">
-                        <option value="" data-precio="0">Ninguna</option>
-                        ${(extra.cabanas || []).filter(c => Number(c.Estado) === 1 || c.IDCabana === data?.IDCabana).map(c => `
-                            <option value="${c.IDCabana}" data-precio="${c.PrecioNoche || c.precioNoche || 0}" ${c.IDCabana === data?.IDCabana ? 'selected' : ''}>
-                                ${c.NombreCabana} ($${Number(c.PrecioNoche || c.precioNoche || 0).toLocaleString('es-CO')})
-                            </option>
-                        `).join('')}
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🏨 HABITACIÓN</label>
+                        <select name="IDHabitacion" id="select-habitacion" onchange="window.calcularPrecioPaquete()">
+                            <option value="" data-precio="0">Ninguna</option>
+                            ${(extra.habitaciones || []).filter(h => h.Estado === 1 || h.IDHabitacion === data?.IDHabitacion).map(h => `
+                                <option value="${h.IDHabitacion}" data-precio="${h.precio || h.Precio || 0}" ${h.IDHabitacion === data?.IDHabitacion ? 'selected' : ''}>
+                                    ${h.NombreHabitacion} ($${Number(h.precio || h.Precio || 0).toLocaleString('es-CO')})
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🏕️ CABAÑA</label>
+                        <select name="IDCabana" id="select-cabana" onchange="window.calcularPrecioPaquete()">
+                            <option value="" data-precio="0">Ninguna</option>
+                            ${(extra.cabanas || []).filter(c => Number(c.Estado) === 1 || c.IDCabana === data?.IDCabana).map(c => `
+                                <option value="${c.IDCabana}" data-precio="${c.PrecioNoche || c.precioNoche || 0}" ${c.IDCabana === data?.IDCabana ? 'selected' : ''}>
+                                    ${c.NombreCabana} ($${Number(c.PrecioNoche || c.precioNoche || 0).toLocaleString('es-CO')})
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>🛠️ SERVICIOS INCLUIDOS</label>
-                    <div id="checkboxes-servicios" style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                    <div id="checkboxes-servicios" style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
                         ${(extra.servicios || []).map(s => `
                             <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; margin: 0; padding: 4px; transition: background 0.2s; border-radius: 4px;">
                                 <input type="checkbox" name="IDServicioCheckbox" value="${s.IDServicio}" data-precio="${s.precio || s.Costo || 0}" ${selectedServices.includes(s.IDServicio.toString()) ? 'checked' : ''} onchange="window.calcularPrecioPaquete()" style="width: 18px; height: 18px; accent-color: #6366f1; cursor: pointer;">
@@ -2465,33 +2481,34 @@ function renderForm(section, data = null, extra = {}) {
                         `).join('')}
                     </div>
                 </div>
-                <div style="background-color: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1);">
+                <div class="form-row" style="background-color: rgba(255,255,255,0.02); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.05);">
                     <div class="form-group" style="margin: 0;">
                         <label style="display: flex; justify-content: space-between; align-items: center;">
                             <span>📉 DESCUENTO (%)</span>
-                            <span style="font-size: 0.8rem; color: #10b981; font-weight: normal;">(Se aplica al elegir 2 o más servicios)</span>
                         </label>
                         <input type="number" name="Descuento" id="input-descuento" value="${data?.Descuento || 0}" oninput="window.calcularPrecioPaquete()" min="0" max="100" step="any">
                         <input type="hidden" name="TipoDescuento" value="porcentaje">
                     </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label>💰 PRECIO FINAL</label>
+                        <input type="number" name="precio" id="input-precio-final" value="${data?.precio || data?.Precio || 0}" required readonly style="background-color: rgba(255,255,255,0.05); color: #10b981; font-weight: bold;">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>💰 PRECIO FINAL AUTOMÁTICO</label>
-                    <input type="number" name="precio" id="input-precio-final" value="${data?.precio || data?.Precio || 0}" required readonly style="background-color: rgba(255,255,255,0.05); color: #10b981; font-weight: bold;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🖼️ IMAGEN URL</label>
+                        <input type="text" name="imagen" value="${data?.imagen || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=900&q=80'">
+                    </div>
+                    <div class="form-group">
+                        <label>⚙️ ESTADO</label>
+                        <select name="Estado">
+                            <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Activo</option>
+                            <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Inactivo</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group" style="text-align: center; margin-bottom: 1rem;">
                     <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                </div>
-                <div class="form-group">
-                    <label>🖼️ IMAGEN URL</label>
-                    <input type="text" name="imagen" value="${data?.imagen || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=900&q=80'">
-                </div>
-                <div class="form-group">
-                    <label>⚙️ ESTADO</label>
-                    <select name="Estado">
-                        <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Activo</option>
-                        <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Inactivo</option>
-                    </select>
                 </div>`;
             break;
         case 'servicios':
@@ -2504,17 +2521,28 @@ function renderForm(section, data = null, extra = {}) {
                     <label>📝 DESCRIPCIÓN</label>
                     <textarea name="Descripcion">${data?.Descripcion || ''}</textarea>
                 </div>
-                <div class="form-group">
-                    <label>⏱️ DURACIÓN</label>
-                    <input type="text" name="Duracion" value="${data?.Duracion || ''}" placeholder="Ej: 2 horas">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>⏱️ DURACIÓN</label>
+                        <input type="text" name="Duracion" value="${data?.Duracion || ''}" placeholder="Ej: 2 horas">
+                    </div>
+                    <div class="form-group">
+                        <label>👥 MÁX. PERSONAS</label>
+                        <input type="number" name="CantidadMaximaPersonas" value="${data?.CantidadMaximaPersonas || ''}">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>👥 MÁX. PERSONAS</label>
-                    <input type="number" name="CantidadMaximaPersonas" value="${data?.CantidadMaximaPersonas || ''}">
-                </div>
-                <div class="form-group">
-                    <label>💰 PRECIO</label>
-                    <input type="number" name="precio" value="${data?.precio || data?.Costo || ''}" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>💰 PRECIO</label>
+                        <input type="number" name="precio" value="${data?.precio || data?.Costo || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>⚙️ ESTADO</label>
+                        <select name="Estado">
+                            <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Activo</option>
+                            <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Inactivo</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group" style="text-align: center; margin-bottom: 1rem;">
                     <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
@@ -2522,13 +2550,6 @@ function renderForm(section, data = null, extra = {}) {
                 <div class="form-group">
                     <label>🖼️ IMAGEN URL</label>
                     <input type="text" name="imagen" value="${data?.imagen || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'">
-                </div>
-                <div class="form-group">
-                    <label>⚙️ ESTADO</label>
-                    <select name="Estado">
-                        <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Activo</option>
-                        <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Inactivo</option>
-                    </select>
                 </div>`;
             break;
     }

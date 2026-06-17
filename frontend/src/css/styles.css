@@ -573,8 +573,8 @@ img { max-width: 100%; display: block; }
 .modal-form select,
 .modal-form textarea {
   width: 100%;
-  padding: 1rem 1.25rem;
-  border-radius: 16px;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
   border: 1px solid rgba(15, 23, 42, 0.1);
   background: #ffffff;
   color: #1a1a2e;
@@ -585,9 +585,15 @@ img { max-width: 100%; display: block; }
 }
 
 .modal-form textarea {
-  min-height: 140px;
-  line-height: 1.6;
+  min-height: 80px;
+  line-height: 1.5;
   resize: vertical;
+}
+
+.modal-form .form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
 }
 
 .modal-form input:focus,

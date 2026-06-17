@@ -16,10 +16,16 @@ async function migrate() {
 
   console.log('¡Conexión exitosa!');
 
+  const tablesToDrop = ['detallereservacabana', 'detallereservahabitacion', 'detallereservaservicio', 'reserva', 'paquetes', 'habitacion', 'cabanas', 'servicios', 'clientes', 'roles', 'metodopago', 'estadosreserva'];
+  
+  await connection.query('SET FOREIGN_KEY_CHECKS = 0;');
+  for (const table of tablesToDrop) {
+      console.log(`Dropping ${table}...`);
+      await connection.query(`DROP TABLE IF EXISTS \`${table}\``);
+  }
+  await connection.query('SET FOREIGN_KEY_CHECKS = 1;');
+
   const files = [
-    'schema.sql',
-    'migration_cancel_columns.sql',
-    'migration_paquetes_columns.sql',
     'seed.sql'
   ];
 
