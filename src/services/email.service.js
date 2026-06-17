@@ -19,7 +19,8 @@ try {
     },
     tls: {
       rejectUnauthorized: false
-    }
+    },
+    family: 4 // Fuerza a Nodemailer a usar IPv4 (ignora IPv6 ENETUNREACH)
   });
 } catch (error) {
   console.error('Error inicializando Nodemailer:', error.message);
