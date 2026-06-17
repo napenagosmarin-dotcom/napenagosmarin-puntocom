@@ -20,7 +20,7 @@ const getAllReservations = async (page = null, limit = null) => {
                         c.NombreCabana, c.PrecioNoche AS PrecioCabana,
                         r.IdEstadoReserva AS Estado
                  FROM reserva r
-                 JOIN usuarios u ON r.UsuarioIdusuario = u.IDUsuario
+                 LEFT JOIN usuarios u ON r.UsuarioIdusuario = u.IDUsuario
                  LEFT JOIN estadosreserva e ON r.IdEstadoReserva = e.IdEstadoReserva
                  LEFT JOIN metodopago m ON r.MetodoPago = m.IdMetodoPago
                  LEFT JOIN detallereservahabitacion drh ON r.IdReserva = drh.IDReserva
@@ -73,7 +73,7 @@ const getReservationById = async (id) => {
                          c.NombreCabana, c.PrecioNoche AS PrecioCabana,
                          r.IdEstadoReserva AS Estado
                  FROM reserva r
-                 JOIN usuarios u ON r.UsuarioIdusuario = u.IDUsuario
+                 LEFT JOIN usuarios u ON r.UsuarioIdusuario = u.IDUsuario
                  LEFT JOIN estadosreserva e ON r.IdEstadoReserva = e.IdEstadoReserva
                  LEFT JOIN metodopago m ON r.MetodoPago = m.IdMetodoPago
                  LEFT JOIN detallereservahabitacion drh ON r.IdReserva = drh.IdReserva
@@ -117,7 +117,7 @@ const getReservationsByUser = async (userId) => {
                          c.NombreCabana, c.PrecioNoche AS PrecioCabana,
                          r.IdEstadoReserva AS Estado
                  FROM reserva r
-                 JOIN usuarios u ON r.UsuarioIdusuario = u.IDUsuario
+                 LEFT JOIN usuarios u ON r.UsuarioIdusuario = u.IDUsuario
                  LEFT JOIN estadosreserva e ON r.IdEstadoReserva = e.IdEstadoReserva
                  LEFT JOIN metodopago m ON r.MetodoPago = m.IdMetodoPago
                  LEFT JOIN detallereservahabitacion drh ON r.IdReserva = drh.IdReserva

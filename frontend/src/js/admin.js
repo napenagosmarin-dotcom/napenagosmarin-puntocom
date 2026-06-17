@@ -2071,20 +2071,57 @@ window.verDetalleUsuario = async (id) => {
         
         const overlay = document.getElementById('detalleModalOverlay');
         const content = document.getElementById('detalleContent');
-        document.getElementById('detalleTitulo').textContent = 'Detalle de Usuario';
+        
+        const email     = data.Email || data.email || data.Correo || '-';
+        const nombre    = data.NombreUsuario || data.Nombre || '-';
+        const apellido  = data.Apellido || '';
+        const idRol     = data.IDRol;
+        const estadoVal = data.Estado !== undefined ? data.Estado : 1;
+        const estadoTxt = estadoVal == 1 ? 'Activo' : 'Inactivo';
+        const badgeClass = estadoVal == 1 ? 'badge-confirmada' : 'badge-cancelada';
+        
+        const telefono  = data.Telefono || '—';
+        const pais      = data.Pais || '—';
+        const direccion = data.Direccion || '—';
+        const documento = `${data.TipoDocumento || ''} ${data.NumeroDocumento || ''}`.trim() || '—';
 
+        document.getElementById('detalleTitulo').textContent = 'Detalle de Usuario';
         content.innerHTML = `
-            <div class="ver-cabana-info">
-                <p>Información completa del usuario registrado en el sistema.</p>
-                <div class="ver-cabana-datos">
-                    <span><i data-lucide="user"></i> <b>Nombre:</b> ${data.NombreUsuario} ${data.Apellido || ''}</span>
-                    <span><i data-lucide="mail"></i> <b>Email:</b> ${data.Email}</span>
-                    <span><i data-lucide="phone"></i> <b>Teléfono:</b> ${data.Telefono || '—'}</span>
-                    <span><i data-lucide="globe"></i> <b>País:</b> ${data.Pais || '—'}</span>
-                    <span><i data-lucide="map-pin"></i> <b>Dirección:</b> ${data.Direccion || '—'}</span>
-                    <span><i data-lucide="shield"></i> <b>Rol:</b> ${data.IDRol === 2 ? 'Administrador' : 'Cliente'}</span>
-                    <span><i data-lucide="fingerprint"></i> <b>Documento:</b> ${data.TipoDocumento || ''} ${data.NumeroDocumento || ''}</span>
-                    <span><i data-lucide="activity"></i> <b>Estado:</b> ${data.Estado === 1 ? 'Activo' : 'Inactivo'}</span>
+            <div class="det-layout det-layout--persona">
+                <div class="det-header">
+                    <div class="det-avatar"><i data-lucide="user"></i></div>
+                    <div class="det-header-info">
+                        <h3>${nombre} ${apellido}</h3>
+                        <p>Rol: <strong>${idRol === 2 ? 'Administrador' : 'Usuario General'}</strong></p>
+                    </div>
+                    <span class="det-badge ${badgeClass}">${estadoTxt}</span>
+                </div>
+                <div class="det-grid det-grid--3">
+                    <div class="det-card det-card--full">
+                        <i data-lucide="mail"></i>
+                        <p class="det-card__label">EMAIL</p>
+                        <span class="det-card__value det-card__value--break">${email}</span>
+                    </div>
+                    <div class="det-card">
+                        <i data-lucide="phone"></i>
+                        <p class="det-card__label">TELÉFONO</p>
+                        <span class="det-card__value">${telefono}</span>
+                    </div>
+                    <div class="det-card">
+                        <i data-lucide="fingerprint"></i>
+                        <p class="det-card__label">DOCUMENTO</p>
+                        <span class="det-card__value">${documento}</span>
+                    </div>
+                    <div class="det-card">
+                        <i data-lucide="globe"></i>
+                        <p class="det-card__label">PAÍS</p>
+                        <span class="det-card__value">${pais}</span>
+                    </div>
+                    <div class="det-card det-card--full">
+                        <i data-lucide="map-pin"></i>
+                        <p class="det-card__label">DIRECCIÓN</p>
+                        <span class="det-card__value det-card__value--break">${direccion}</span>
+                    </div>
                 </div>
             </div>`;
             
