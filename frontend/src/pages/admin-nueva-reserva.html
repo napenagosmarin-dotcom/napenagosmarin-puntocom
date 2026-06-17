@@ -43,16 +43,19 @@
       position: relative;
     }
 
-    /* Background igual al de nueva-reserva */
+    /* Background sin imágenes para el panel admin */
     .anr-bg {
       position: fixed;
       inset: 0;
       left: var(--admin-sidebar-width, 240px);
-      background:
-        linear-gradient(135deg, rgba(13,11,46,0.93) 0%, rgba(20,10,60,0.88) 50%, rgba(10,25,60,0.92) 100%),
-        url('https://images.unsplash.com/photo-1564078516393-cf04bd966897?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+      background: #0B0E14 !important;
       z-index: 0;
       pointer-events: none;
+    }
+
+    .admin-layout .main-content--premium {
+      background: #0B0E14 !important;
+      background-image: none !important;
     }
 
     /* Breadcrumb / header superior del área principal */
