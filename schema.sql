@@ -1,6 +1,4 @@
--- Crear base de datos si no existe
-CREATE DATABASE IF NOT EXISTS aura;
-USE aura;
+
 
 -- Tabla usuarios
 CREATE TABLE IF NOT EXISTS usuarios (

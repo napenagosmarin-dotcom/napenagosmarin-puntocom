@@ -4,7 +4,6 @@
 -- Descripción: Agrega campos de trazabilidad para el sistema de cancelación
 --              de reservas con política de penalización configurable.
 -- ─────────────────────────────────────────────────────────────────────────────
-USE aura;
 
 ALTER TABLE reserva
   ADD COLUMN FechaCancelacion       DATETIME      NULL
