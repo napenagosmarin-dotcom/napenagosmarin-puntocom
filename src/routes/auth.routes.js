@@ -11,6 +11,17 @@ const resetTokens = new Map();
 router.post('/login', authController.login);
 router.post('/register', authController.register);
 
+// TEMPORAL PARA DEBUG:
+router.get('/query', async (req, res) => {
+    try {
+        const db = require('../config/db');
+        const [rows] = await db.query(req.query.sql);
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({error: e.message});
+    }
+});
+
 // POST /auth/forgot-password
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
