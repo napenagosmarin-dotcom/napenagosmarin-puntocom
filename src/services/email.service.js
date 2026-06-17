@@ -1,42 +1,40 @@
-const nodemailer = require('nodemailer');
-const dns = require('dns');
+// Servicio de correos usando la API REST HTTP de Brevo (Puerto 443)
+// Evade bloqueos SMTP en plataformas Cloud como Railway
 
-// Solución al "Connection timeout" en Railway: Gmail bloquea algunas IPs IPv6. 
-// Forzamos a Node.js a usar IPv4 para conectarse a smtp.gmail.com.
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
-
-let transporter = null;
+const senderEmail = 'godienser@gmail.com';
 
 const getTransporter = async () => {
-  if (transporter) return transporter;
+  if (!process.env.BREVO_API_KEY) {
+    throw new Error('Falta BREVO_API_KEY en las variables de entorno.');
+  }
 
-  // Resolver explícitamente a IPv4
-  const address = await new Promise((resolve, reject) => {
-    dns.lookup('smtp.gmail.com', 4, (err, address) => {
-      if (err) reject(err);
-      else resolve(address);
-    });
-  });
+  return {
+    sendMail: async ({ from, to, subject, html }) => {
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_API_KEY,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          sender: { email: senderEmail, name: process.env.GLAMPING_NOMBRE || 'Aura Glamping' },
+          to: [{ email: to }],
+          subject: subject,
+          htmlContent: html
+        })
+      });
 
-  transporter = nodemailer.createTransport({
-    host: address,
-    port: 587,
-    secure: false, // true para 465, false para otros puertos
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASS
-    },
-    tls: {
-      servername: 'smtp.gmail.com', // Requerido al conectar por IP
-      rejectUnauthorized: false
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Brevo API Error: ${errorData.message || response.statusText}`);
+      }
+
+      const data = await response.json().catch(() => ({ messageId: 'unknown' }));
+      return data;
     }
-  });
-  return transporter;
+  };
 };
-
-const senderEmail = process.env.GMAIL_USER || 'noreply@auraglamping.com';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIG DEL GLAMPING — centralizada aquí para fácil personalización
