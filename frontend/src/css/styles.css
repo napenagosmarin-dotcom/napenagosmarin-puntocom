@@ -2,19 +2,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap');
 
 :root {
-  --color-primario:      #0d0b2e;
-  --color-secundario:    #7b2ff7;
-  --color-acento:        #00d4ff;
-  --color-magenta:       #e040fb;
-  --color-morado-medio:  #4a1d96;
+  /* ── Tema Natural Aura — Bosque & Ámbar ── */
+  --color-primario:      #1A4D35;   /* verde bosque profundo */
+  --color-secundario:    #279B65;   /* verde vivo */
+  --color-acento:        #4EC9A0;   /* menta/teal */
+  --color-magenta:       #D4902B;   /* ámbar cálido */
+  --color-morado-medio:  #1C6040;   /* verde medio-oscuro */
 
   --color-blanco:        #ffffff;
-  --color-texto:         #1a1a2e;
-  --color-texto-claro:   #6b7280;
-  --color-fondo:         #f5f3ff;
+  --color-texto:         #1C2B20;   /* negro verdoso */
+  --color-texto-claro:   #4D7060;   /* verde gris medio */
+  --color-fondo:         #F4F7F3;   /* blanco cálido con tinte verde */
 
-  --color-exito:         #10b981;
-  --color-error:         #ef4444;
+  --color-exito:         #16A34A;
+  --color-error:         #DC2626;
 
   --sidebar-ancho:       245px;
   --sidebar-ancho-col:   68px;
@@ -29,8 +30,8 @@
 
   --radio-borde:         10px;
   --transicion:          all 0.3s ease;
-  --sombra:              0 2px 12px rgba(13, 11, 46, 0.12);
-  --sombra-hover:        0 8px 30px rgba(123, 47, 247, 0.3);
+  --sombra:              0 2px 12px rgba(26,77,53,0.10);
+  --sombra-hover:        0 8px 30px rgba(39,155,101,0.22);
 }
 
 /* ===== SCROLLBAR ESTÉTICO GLOBAL ===== */
@@ -118,8 +119,8 @@ img { max-width: 100%; display: block; }
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 20% 25%, rgba(123,47,247,0.12) 0%, transparent 55%),
-    radial-gradient(circle at 80% 75%, rgba(0,212,255,0.07) 0%, transparent 55%);
+    radial-gradient(circle at 20% 25%, rgba(78,201,160,0.12) 0%, transparent 55%),
+    radial-gradient(circle at 80% 75%, rgba(212,144,43,0.08) 0%, transparent 55%);
   pointer-events: none;
 }
 
@@ -1956,8 +1957,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(rgba(7, 6, 20, 0.6), rgba(7, 6, 20, 0.8)),
-              url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1800&q=80');
+  background: linear-gradient(rgba(12, 33, 21, 0.52), rgba(12, 33, 21, 0.72)),
+              url('https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?auto=format&fit=crop&w=1800&q=80');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -1971,11 +1972,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 90%;
   max-width: 1200px;
   min-height: 650px;
-  background: #0a0818; /* Solid Landing c-dark */
+  background: #ffffff;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(0, 212, 255, 0.1);
+  box-shadow: 0 40px 100px rgba(12,33,21,0.45);
+  border: 1px solid rgba(78,201,160,0.18);
 }
 
 .auth-image-panel {
@@ -2043,12 +2044,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .auth-form-panel {
   flex: 1.2;
   padding: 3rem 2rem;
-  background: #0d0b2e; /* Solid Landing c-deep */
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-left: 1px solid rgba(0, 212, 255, 0.1);
+  border-left: 1px solid rgba(26,77,53,0.1);
   min-width: 0;
 }
 
@@ -2074,7 +2075,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .login-header h2 {
   font-family: var(--fuente-principal);
   font-size: 2.5rem;
-  color: #fff;
+  color: var(--color-primario);
   margin-bottom: 0.5rem;
 }
 
@@ -2369,8 +2370,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* ===== PREMIUM DASHBOARD (CLIENTE) ===== */
 .main-content--premium {
-  background: linear-gradient(rgba(7, 6, 20, 0.7), rgba(7, 6, 20, 0.9)),
-              url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1800&q=80') center/cover fixed no-repeat !important;
+  background: linear-gradient(rgba(12, 33, 21, 0.55), rgba(12, 33, 21, 0.75)),
+              url('https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?auto=format&fit=crop&w=1800&q=80') center/cover fixed no-repeat !important;
   color: #fff !important;
 }
 
@@ -2417,7 +2418,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   align-items: center;
   justify-content: center;
   padding: 0 0.5rem;
-  color: #00d4ff;
+  color: #4EC9A0;
   font-weight: 600;
   font-size: 0.9rem;
   pointer-events: none;
@@ -2430,7 +2431,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 100% !important;
   padding: 1rem 1.25rem 1rem 6.5rem !important;
   background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(0, 212, 255, 0.2) !important;
+  border: 1px solid rgba(78,201,160,0.25) !important;
   border-radius: 12px !important;
   color: #fff !important;
   font-size: 1rem !important;
@@ -2439,8 +2440,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .phone-input-wrapper input:focus {
   background: rgba(255, 255, 255, 0.08) !important;
-  border-color: #00d4ff !important;
-  box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.15) !important;
+  border-color: #4EC9A0 !important;
+  box-shadow: 0 0 0 4px rgba(78,201,160,0.18) !important;
 }
 
 /* ===== PASSWORD FIELD WITH TOGGLE ===== */
@@ -2481,22 +2482,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* Tarjetas Glassmorphism en Mis Reservas */
 .main-content--premium .reservation-card {
-  background: linear-gradient(180deg, rgba(7,6,30,0.96) 0%, rgba(36,18,78,0.92) 100%) !important;
+  background: linear-gradient(180deg, rgba(10,26,17,0.95) 0%, rgba(20,56,36,0.92) 100%) !important;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 212, 255, 0.12) !important;
+  border: 1px solid rgba(78,201,160,0.15) !important;
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
 .main-content--premium .reservation-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(0, 212, 255, 0.28);
+  border-color: rgba(78,201,160,0.32);
 }
 
 .main-content--premium .reservation-info h3 {
-  color: #00d4ff !important;
+  color: #4EC9A0 !important;
   font-family: var(--fuente-principal);
   font-size: 1.5rem;
   margin-bottom: 1rem;
@@ -2508,28 +2509,28 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .main-content--premium .reservation-info strong {
-  color: #e040fb;
+  color: #D4902B;
   font-weight: 500;
 }
 
 /* Tarjetas Glassmorphism en Nueva Reserva */
 .main-content--premium .nr-card,
 .main-content--premium .nr-resumen {
-  background: linear-gradient(180deg, rgba(7,6,30,0.96) 0%, rgba(36,18,78,0.92) 100%) !important;
+  background: linear-gradient(180deg, rgba(10,26,17,0.95) 0%, rgba(20,56,36,0.92) 100%) !important;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 212, 255, 0.12) !important;
+  border: 1px solid rgba(78,201,160,0.12) !important;
   border-radius: 20px;
   color: #fff !important;
 }
 
 .main-content--premium .nr-card:hover,
 .main-content--premium .nr-resumen:hover {
-  border-color: rgba(0, 212, 255, 0.22) !important;
+  border-color: rgba(78,201,160,0.25) !important;
 }
 
 .main-content--premium .nr-card__titulo,
 .main-content--premium .nr-resumen__titulo {
-  color: #00d4ff !important;
+  color: #4EC9A0 !important;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   font-family: var(--fuente-principal);
 }

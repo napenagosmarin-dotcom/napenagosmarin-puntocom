@@ -51,12 +51,12 @@
    CARDS CON STEP BADGES
    ----------------------------------------------- */
 .nr-card {
-  background: linear-gradient(135deg, rgba(10,8,35,0.98) 0%, rgba(35,15,80,0.95) 100%);
+  background: linear-gradient(135deg, rgba(10,25,16,0.97) 0%, rgba(20,55,35,0.95) 100%);
   backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(0,212,255,0.1);
+  border: 1.5px solid rgba(78,201,160,0.12);
   border-radius: 14px;
   padding: 1.2rem 1.4rem;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   position: relative;
@@ -69,12 +69,12 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(78,201,160,0.35), transparent);
 }
 
 .nr-card:hover {
-  border-color: rgba(0,212,255,0.25);
-  box-shadow: 0 15px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+  border-color: rgba(78,201,160,0.28);
+  box-shadow: 0 15px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
   transform: translateY(-2px);
 }
 
@@ -770,12 +770,12 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   position: sticky;
   top: 1.5rem;
   align-self: start;
-  background: linear-gradient(135deg, rgba(10,8,35,0.98) 0%, rgba(50,20,100,0.95) 100%);
+  background: linear-gradient(135deg, rgba(10,25,16,0.97) 0%, rgba(26,77,53,0.95) 100%);
   backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(0,212,255,0.15);
+  border: 1.5px solid rgba(78,201,160,0.18);
   border-radius: 14px;
   padding: 1.2rem 1.3rem;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
   z-index: 10;
 }
 
@@ -784,10 +784,10 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.2px;
-  color: #00d4ff;
+  color: #4EC9A0;
   margin-bottom: 0.9rem;
   padding-bottom: 0.7rem;
-  border-bottom: 1.5px solid rgba(0,212,255,0.15);
+  border-bottom: 1.5px solid rgba(78,201,160,0.2);
 }
 
 /* Desglose dinámico de ítems */
@@ -885,7 +885,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 }
 
 .nr-resumen__total span:last-child {
-  color: #ff40fb;
+  color: #D4902B;
   font-size: 1.3rem;
   font-weight: 900;
   letter-spacing: -0.5px;

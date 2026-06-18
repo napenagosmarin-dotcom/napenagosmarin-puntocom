@@ -1,14 +1,14 @@
 :root {
-  /* Colores principales */
-  --color-primario: #1a3c5e;      /* Azul oscuro elegante */
-  --color-secundario: #c9a84c;    /* Dorado hotel */
-  --color-acento: #e8f4f8;        /* Azul muy claro */
-  --color-fondo: #f5f5f5;
+  /* Colores — Tema Natural Aura */
+  --color-primario: #1A4D35;      /* verde bosque profundo */
+  --color-secundario: #279B65;    /* verde vivo */
+  --color-acento: #4EC9A0;        /* menta/teal */
+  --color-fondo: #F4F7F3;         /* blanco cálido */
   --color-blanco: #ffffff;
-  --color-texto: #2c2c2c;
-  --color-texto-claro: #6b6b6b;
-  --color-error: #e74c3c;
-  --color-exito: #27ae60;
+  --color-texto: #1C2B20;         /* negro verdoso */
+  --color-texto-claro: #4D7060;   /* verde gris */
+  --color-error: #DC2626;
+  --color-exito: #16A34A;
 
   /* Tipografía */
   --fuente-principal: 'Georgia', serif;

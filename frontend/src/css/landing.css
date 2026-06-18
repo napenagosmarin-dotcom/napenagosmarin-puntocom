@@ -5,17 +5,17 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@200;300;400;500;600&display=swap');
 
-/* ─── VARIABLES ─── */
+/* ─── VARIABLES — Tema Natural Aura ─── */
 :root {
-  --c-dark:    #0a0818;
-  --c-deep:    #0d0b2e;
-  --c-mid:     #4a1d96;
-  --c-purple:  #7b2ff7;
-  --c-cyan:    #00d4ff;
-  --c-magenta: #e040fb;
+  --c-dark:    #0C2115;   /* selva nocturna */
+  --c-deep:    #122B1C;   /* bosque profundo */
+  --c-mid:     #1C5438;   /* verde medio */
+  --c-purple:  #279B65;   /* verde vivo (reemplaza morado) */
+  --c-cyan:    #4EC9A0;   /* menta/teal (reemplaza cian) */
+  --c-magenta: #D4902B;   /* ámbar cálido (reemplaza magenta) */
   --c-white:   #ffffff;
-  --c-cream:   #f5f3ff;
-  --c-muted:   rgba(255,255,255,0.5);
+  --c-cream:   #F2EDE5;   /* crema cálida */
+  --c-muted:   rgba(255,255,255,0.65);
   --ff-serif:  'Cormorant Garamond', Georgia, serif;
   --ff-sans:   'Outfit', sans-serif;
 }
@@ -58,12 +58,12 @@ nav {
   padding: 24px 60px;
   display: flex; align-items: center; justify-content: space-between;
   transition: background 0.4s, padding 0.4s;
-  background: rgba(10,8,24,0.4);
+  background: rgba(12,33,21,0.45);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 nav.scrolled {
-  background: rgba(10,8,24,0.92);
+  background: rgba(12,33,21,0.93);
   backdrop-filter: blur(16px);
   padding: 16px 60px;
   border-bottom: 1px solid rgba(0,212,255,0.08);
@@ -126,8 +126,8 @@ nav.scrolled {
 .hero-bg {
   position: absolute; inset: 0;
   background:
-    linear-gradient(to bottom, rgba(10,8,24,0.3) 0%, rgba(10,8,24,0.7) 100%),
-    url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;
+    linear-gradient(to bottom, rgba(12,33,21,0.25) 0%, rgba(12,33,21,0.65) 100%),
+    url('https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;
   transform: scale(1.08);
   animation: heroZoom 18s ease-in-out infinite alternate;
 }
@@ -138,8 +138,8 @@ nav.scrolled {
 .hero-overlay {
   position: absolute; inset: 0;
   background:
-    radial-gradient(ellipse at 60% 40%, rgba(123,47,247,0.18) 0%, transparent 65%),
-    radial-gradient(ellipse at 20% 80%, rgba(0,212,255,0.1)   0%, transparent 55%);
+    radial-gradient(ellipse at 60% 40%, rgba(39,155,101,0.18) 0%, transparent 65%),
+    radial-gradient(ellipse at 20% 80%, rgba(212,144,43,0.12) 0%, transparent 55%);
 }
 .hero-content {
   position: relative; z-index: 2;
@@ -185,11 +185,11 @@ nav.scrolled {
   letter-spacing: 2.5px; text-transform: uppercase;
   border: none; border-radius: 2px; cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 8px 32px rgba(123,47,247,0.4);
+  box-shadow: 0 8px 32px rgba(39,155,101,0.4);
 }
 .btn-hero-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 16px 48px rgba(123,47,247,0.55);
+  box-shadow: 0 16px 48px rgba(39,155,101,0.55);
 }
 .btn-hero-secondary {
   background: transparent; color: var(--c-white);
@@ -367,7 +367,7 @@ section { padding: 120px 60px; }
 .room-card:hover img { transform: scale(1.06); }
 .room-card-overlay {
   position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(10,8,24,0.92) 0%, transparent 55%);
+  background: linear-gradient(to top, rgba(12,33,21,0.93) 0%, transparent 55%);
   display: flex; flex-direction: column;
   justify-content: flex-end; padding: 28px;
   transition: background 0.4s;
