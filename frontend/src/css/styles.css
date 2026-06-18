@@ -2087,6 +2087,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin-bottom: 1.5rem;
 }
 
+.premium-group label {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
 .input-icon-wrapper {
   position: relative;
   display: flex;
@@ -2104,7 +2108,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   transition: color 0.3s ease;
 }
 
-.input-icon-wrapper input {
+.input-icon-wrapper input,
+.input-icon-wrapper select {
   width: 100% !important;
   padding: 1rem 1.25rem 1rem 3.5rem !important;
   background: rgba(255, 255, 255, 0.05) !important;
@@ -2115,7 +2120,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   transition: all 0.3s ease !important;
 }
 
-.input-icon-wrapper input:focus {
+.input-icon-wrapper select option {
+  background: #0d0b2a;
+  color: #fff;
+}
+
+.input-icon-wrapper input:focus,
+.input-icon-wrapper select:focus {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: #00d4ff !important;
   box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.15) !important;

@@ -118,11 +118,41 @@
             </div>
           </div>
 
-          <!-- Términos y condiciones -->
-          <div class="nr-card" style="padding: 1rem 1.2rem;">
-            <label class="nr-tc-label" style="display:flex; align-items:flex-start; gap:0.7rem; cursor:pointer; color:rgba(255,255,255,0.85); font-size:0.9rem; line-height:1.5;">
-              <input type="checkbox" id="aceptaTerminos" style="margin-top:3px; accent-color:#7b2ff7; width:16px; height:16px; flex-shrink:0;">
-              <span>He leído y acepto los <a href="#" style="color:#00d4ff; text-decoration:underline;" onclick="return false;">Términos y Condiciones</a> de Aura Travel. Entiendo la política de cancelación: cancelaciones con menos de 7 días de anticipación generan una penalización del 40% sobre el total reservado.</span>
+          <!-- Términos y condiciones — diseño profesional -->
+          <div class="nr-card nr-tc-card">
+            <div class="nr-card__titulo">📋 Política de Cancelación y Términos</div>
+
+            <!-- Dos bloques de política -->
+            <div class="nr-tc-politica">
+              <div class="nr-tc-row nr-tc-free">
+                <span class="nr-tc-icon">✅</span>
+                <div class="nr-tc-row-body">
+                  <strong>Cancelación gratuita</strong>
+                  <p>Si cancelas con <strong>7 días o más</strong> de anticipación a la fecha de llegada, recibes un reembolso completo del <strong>100 %</strong>.</p>
+                </div>
+              </div>
+              <div class="nr-tc-row nr-tc-penalty">
+                <span class="nr-tc-icon">⚠️</span>
+                <div class="nr-tc-row-body">
+                  <strong>Cancelación tardía — cargo del 40 %</strong>
+                  <p>Si cancelas con <strong>menos de 7 días</strong> de anticipación, se retiene el <strong>40 %</strong> del total como cargo de cancelación. El 60 % restante es reembolsado.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Letras pequeñas -->
+            <ul class="nr-tc-small">
+              <li>Check-in desde las <strong>3:00 PM</strong> · Check-out hasta las <strong>12:00 PM</strong>.</li>
+              <li>La reserva se confirma únicamente una vez verificado el comprobante de pago.</li>
+              <li>Los precios mostrados incluyen IVA del 19 %.</li>
+              <li>Aura Travel no se hace responsable por objetos olvidados ni por daños causados por el huésped.</li>
+              <li>Las reservas están sujetas a disponibilidad hasta confirmar el pago.</li>
+            </ul>
+
+            <!-- Checkbox de aceptación -->
+            <label class="nr-tc-check-label">
+              <input type="checkbox" id="aceptaTerminos" class="nr-tc-checkbox">
+              <span class="nr-tc-check-text">He leído y acepto los <strong>Términos y Condiciones</strong> y la política de cancelación de Aura Travel.</span>
             </label>
           </div>
 

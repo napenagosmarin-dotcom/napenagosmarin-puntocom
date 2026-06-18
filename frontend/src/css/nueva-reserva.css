@@ -590,6 +590,130 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 }
 
 /* -----------------------------------------------
+   TÉRMINOS Y CONDICIONES
+   ----------------------------------------------- */
+.nr-tc-card {
+  border-color: rgba(123,47,247,0.2);
+}
+
+.nr-tc-politica {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.nr-tc-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+}
+
+.nr-tc-free {
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.25);
+}
+
+.nr-tc-penalty {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.25);
+}
+
+.nr-tc-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.nr-tc-row-body strong {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.02em;
+}
+
+.nr-tc-row-body p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.5;
+}
+
+.nr-tc-small {
+  list-style: none;
+  padding: 0.75rem 0.9rem;
+  margin: 0 0 1rem 0;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.nr-tc-small li {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.6;
+  padding-left: 0.9rem;
+  position: relative;
+}
+
+.nr-tc-small li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: rgba(0,212,255,0.5);
+}
+
+.nr-tc-small li strong {
+  color: rgba(255,255,255,0.65);
+  font-weight: 600;
+}
+
+.nr-tc-check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+  padding: 0.65rem 0.9rem;
+  background: rgba(123,47,247,0.08);
+  border: 1px solid rgba(123,47,247,0.25);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.nr-tc-check-label:hover {
+  background: rgba(123,47,247,0.14);
+}
+
+.nr-tc-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #7b2ff7;
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.nr-tc-check-text {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.5;
+}
+
+.nr-tc-check-text strong {
+  color: #c084fc;
+}
+
+@media (max-width: 640px) {
+  .nr-tc-politica {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* -----------------------------------------------
    ACCIONES — jerarquía clara
    ----------------------------------------------- */
 .nr-actions {

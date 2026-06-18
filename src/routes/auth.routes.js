@@ -61,18 +61,19 @@ router.post('/resend-verification', async (req, res) => {
 // GET /auth/verify-email
 router.get('/verify-email', async (req, res) => {
   const { token } = req.query;
+  const FRONTEND = (process.env.FRONTEND_URL || '').replace(/\/$/, '');
 
   if (!token) {
-    return res.redirect('/src/pages/verify-email.html?status=failed');
+    return res.redirect(`${FRONTEND}/src/pages/verify-email.html?status=failed`);
   }
 
   const email = authService.verifyEmailToken(token);
 
   if (!email) {
-    return res.redirect('/src/pages/verify-email.html?status=failed');
+    return res.redirect(`${FRONTEND}/src/pages/verify-email.html?status=failed`);
   }
 
-  return res.redirect('/src/pages/verify-email.html?status=success');
+  return res.redirect(`${FRONTEND}/src/pages/verify-email.html?status=success`);
 });
 
 // POST /auth/reset-password
