@@ -58,6 +58,52 @@ const passwordRules = {
     special: { regex: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, label: 'Un carácter especial' }
 };
 
+// ── API Colombia ──────────────────────────────────────────────────────────────
+const API_COL = 'https://api-colombia.com/api/v1';
+
+const cargarDepartamentos = async () => {
+  const select = document.getElementById('Departamento');
+  try {
+    const res = await fetch(`${API_COL}/Department`);
+    const deps = await res.json();
+    deps.sort((a, b) => a.name.localeCompare(b.name));
+    select.innerHTML = '<option value="" disabled selected>Selecciona departamento...</option>';
+    deps.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.name;
+      opt.dataset.id = d.id;
+      opt.textContent = d.name;
+      select.appendChild(opt);
+    });
+    select.disabled = false;
+  } catch {
+    select.innerHTML = '<option value="" disabled selected>Error cargando — escribe manualmente</option>';
+    select.disabled = false;
+  }
+};
+
+const cargarMunicipios = async (depId) => {
+  const select = document.getElementById('Municipio');
+  select.innerHTML = '<option value="" disabled selected>Cargando municipios...</option>';
+  select.disabled = true;
+  try {
+    const res = await fetch(`${API_COL}/Department/${depId}/cities`);
+    const cities = await res.json();
+    cities.sort((a, b) => a.name.localeCompare(b.name));
+    select.innerHTML = '<option value="" disabled selected>Selecciona municipio...</option>';
+    cities.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.name;
+      opt.textContent = c.name;
+      select.appendChild(opt);
+    });
+    select.disabled = false;
+  } catch {
+    select.innerHTML = '<option value="" disabled selected>Error cargando municipios</option>';
+    select.disabled = false;
+  }
+};
+
 // Update country prefix and show/hide Colombia-specific fields
 const updateCountryPrefix = () => {
   const countrySelect = document.getElementById('Pais');
@@ -72,7 +118,9 @@ const updateCountryPrefix = () => {
   }
 
   if (camposColombia) {
-    camposColombia.style.display = selectedCountry === 'Colombia' ? 'block' : 'none';
+    const mostrar = selectedCountry === 'Colombia';
+    camposColombia.style.display = mostrar ? 'block' : 'none';
+    if (mostrar) cargarDepartamentos();
   }
 };
 
@@ -154,6 +202,13 @@ const showSuccess = (message) => {
 // Event listeners
 document.getElementById('Pais').addEventListener('change', updateCountryPrefix);
 
+document.getElementById('Departamento').addEventListener('change', function () {
+  const selected = this.options[this.selectedIndex];
+  if (selected && selected.dataset.id) {
+    cargarMunicipios(selected.dataset.id);
+  }
+});
+
 passwordInput.addEventListener('input', () => {
     updatePasswordRequirements(passwordInput.value);
     passwordInput.classList.toggle('input-ok', Object.values(getPasswordValidation(passwordInput.value)).every(Boolean));
@@ -201,7 +256,7 @@ registerForm.addEventListener('submit', async (e) => {
         Pais: selectedCountry,
         Direccion: document.getElementById('Direccion').value,
         Departamento: selectedCountry === 'Colombia' ? (document.getElementById('Departamento')?.value || '') : '',
-        Municipio: selectedCountry === 'Colombia' ? (document.getElementById('Municipio')?.value || '') : ''
+        Municipio:    selectedCountry === 'Colombia' ? (document.getElementById('Municipio')?.value || '') : ''
     };
 
     try {
