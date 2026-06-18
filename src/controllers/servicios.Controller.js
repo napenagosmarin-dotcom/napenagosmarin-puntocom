@@ -50,8 +50,8 @@ const deleteServicio = async (req, res) => {
         const resultado = await eliminarServicio(id);
         res.json(resultado);
     } catch (error) {
-        if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.errno === 1451) {
-            return res.status(400).json({ message: "No se puede eliminar el servicio porque está asociado a una o más reservas. Puedes desactivarlo cambiando su estado." });
+        if (error.statusCode === 409 || error.code === 'ER_ROW_IS_REFERENCED_2' || error.errno === 1451) {
+            return res.status(409).json({ message: error.message || 'No se puede eliminar el servicio porque está asociado a reservas existentes. Cambia su estado a inactivo.' });
         }
         res.status(500).json({ error: error.message });
     }

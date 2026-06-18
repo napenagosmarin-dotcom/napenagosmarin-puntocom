@@ -48,25 +48,26 @@ const login = async (Email, Contrasena) => {
 const register = async (data) => {
   const connection = await db.getConnection();
   try {
-    const { NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion } = data;
+    const { NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, Departamento, Municipio } = data;
 
     await connection.beginTransaction();
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(Contrasena, salt);
 
-    const sqlUsuario = `INSERT INTO usuarios 
-      (NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, IDRol) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const sqlUsuario = `INSERT INTO usuarios
+      (NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, Departamento, Municipio, IDRol)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const [result] = await connection.query(sqlUsuario, [
       NombreUsuario, hashedPassword, Apellido, Email,
       TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion,
+      Departamento || null, Municipio || null,
       1
     ]);
 
-    const sqlCliente = `INSERT INTO clientes 
-      (NroDocumento, Nombre, Apellido, Direccion, Email, Telefono, Estado, IDRol) 
+    const sqlCliente = `INSERT INTO clientes
+      (NroDocumento, Nombre, Apellido, Direccion, Email, Telefono, Estado, IDRol)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
     await connection.query(sqlCliente, [

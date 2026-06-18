@@ -40,11 +40,12 @@ const create = async (data) => {
     const TipoDescuento = data.TipoDescuento || 'porcentaje';
     const Estado = data.Estado !== undefined ? Number(data.Estado) : 1;
     const imagen = data.imagen || '';
+    const NumeroPersonas = data.NumeroPersonas ? Number(data.NumeroPersonas) : null;
 
     const [result] = await db.query(
-        `INSERT INTO paquetes (nombre, Descripcion, IDHabitacion, IDCabana, IDServicio, precio, Descuento, TipoDescuento, Estado, imagen)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [nombre, Descripcion, IDHabitacion, IDCabana, IDServicio, Precio, Descuento, TipoDescuento, Estado, imagen]
+        `INSERT INTO paquetes (nombre, Descripcion, IDHabitacion, IDCabana, IDServicio, precio, Descuento, TipoDescuento, Estado, imagen, NumeroPersonas)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [nombre, Descripcion, IDHabitacion, IDCabana, IDServicio, Precio, Descuento, TipoDescuento, Estado, imagen, NumeroPersonas]
     );
     return { IDPaquete: result.insertId, ...data };
 };
@@ -61,17 +62,26 @@ const update = async (id, data) => {
     const TipoDescuento = data.TipoDescuento || 'porcentaje';
     const Estado = data.Estado !== undefined ? Number(data.Estado) : 1;
     const imagen = data.imagen || '';
+    const NumeroPersonas = data.NumeroPersonas ? Number(data.NumeroPersonas) : null;
 
     await db.query(
-        `UPDATE paquetes 
-         SET nombre=?, Descripcion=?, IDHabitacion=?, IDCabana=?, IDServicio=?, precio=?, Descuento=?, TipoDescuento=?, Estado=?, imagen=?
+        `UPDATE paquetes
+         SET nombre=?, Descripcion=?, IDHabitacion=?, IDCabana=?, IDServicio=?, precio=?, Descuento=?, TipoDescuento=?, Estado=?, imagen=?, NumeroPersonas=?
          WHERE IDPaquete=?`,
-        [nombre, Descripcion, IDHabitacion, IDCabana, IDServicio, Precio, Descuento, TipoDescuento, Estado, imagen, id]
+        [nombre, Descripcion, IDHabitacion, IDCabana, IDServicio, Precio, Descuento, TipoDescuento, Estado, imagen, NumeroPersonas, id]
     );
     return getById(id);
 };
 
 const remove = async (id) => {
+    const [check] = await db.query(
+        'SELECT COUNT(*) AS total FROM detallereservapaquetes WHERE IDPaquete = ?', [id]
+    );
+    if (check[0].total > 0) {
+        const err = new Error('No se puede eliminar el paquete porque está asociado a reservas existentes. Cambia su estado a inactivo.');
+        err.statusCode = 409;
+        throw err;
+    }
     await db.query("DELETE FROM paquetes WHERE IDPaquete=?", [id]);
 };
 

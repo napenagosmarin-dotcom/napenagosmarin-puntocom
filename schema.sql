@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     NumeroDocumento VARCHAR(50),
     Telefono VARCHAR(50),
     Pais VARCHAR(100),
+    Departamento VARCHAR(100),
+    Municipio VARCHAR(100),
     Direccion TEXT,
     IDRol INT DEFAULT 1,
     Estado INT DEFAULT 1
@@ -80,6 +82,7 @@ CREATE TABLE IF NOT EXISTS paquetes (
     IDServicio VARCHAR(255),
     Descuento DECIMAL(10,2) DEFAULT 0,
     TipoDescuento VARCHAR(50) DEFAULT 'porcentaje',
+    NumeroPersonas INT DEFAULT NULL,
     FOREIGN KEY (IDHabitacion) REFERENCES habitacion(IDHabitacion),
     FOREIGN KEY (IDCabana) REFERENCES cabanas(IDCabana)
 );

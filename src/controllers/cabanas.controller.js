@@ -89,9 +89,12 @@ const CabanasController = {
             }
             res.json({ message: 'Cabaña eliminada correctamente' });
         } catch (error) {
-            res.status(500).json({ 
-                error: 'Error al eliminar cabaña', 
-                details: error.message 
+            if (error.statusCode === 409) {
+                return res.status(409).json({ error: error.message });
+            }
+            res.status(500).json({
+                error: 'Error al eliminar cabaña',
+                details: error.message
             });
         }
     },

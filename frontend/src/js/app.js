@@ -375,12 +375,13 @@ function templatePaquete(paq) {
       <div class="card__contenido">
         <h3 class="card__titulo">${paq.nombre || paq.NombrePaquete || 'Paquete'}</h3>
         <p class="card__precio">$${Number(paq.Precio || paq.precio || 0).toLocaleString('es-CO')}</p>
+        ${paq.NumeroPersonas ? `<p class="card__descripcion" style="font-size:0.8rem; color:rgba(255,255,255,0.6);">👥 ${paq.NumeroPersonas} persona(s)</p>` : ''}
         <p class="card__descripcion">${paq.Descripcion || paq.descripcion || 'Paquete especial.'}</p>
         <div class="card__acciones">
           <button class="btn icon-btn btn-secundario" title="Ver detalle" onclick="mostrarDetalles(${itemJson}, 'Paquete')">
             <i data-lucide="eye"></i>
           </button>
-          <button class="btn btn-primario" onclick="editarPaquete('${paq.IDPaquete}', '${paq.nombre || paq.NombrePaquete || ''}', ${paq.Precio || paq.precio || 0}, '${paq.Descripcion || paq.descripcion || ''}', '${paq.imagen || ''}')">Editar</button>
+          <button class="btn btn-primario" onclick="editarPaquete('${paq.IDPaquete}', '${paq.nombre || paq.NombrePaquete || ''}', ${paq.Precio || paq.precio || 0}, '${paq.Descripcion || paq.descripcion || ''}', '${paq.imagen || ''}', ${paq.NumeroPersonas || ''})">Editar</button>
           <button class="btn btn-peligro" onclick="eliminarPaquete('${paq.IDPaquete}')">Borrar</button>
         </div>
       </div>
@@ -750,6 +751,7 @@ function validarPaquete() {
   const nombre = document.getElementById('paquete-nombre').value.trim();
   const precio = document.getElementById('paquete-precio').value;
   const descripcion = document.getElementById('paquete-descripcion').value.trim();
+  const personas = document.getElementById('paquete-personas')?.value;
 
   if (!nombre) {
     mostrarError('paquete-nombre', 'error-paquete-nombre', 'El nombre es obligatorio.');
@@ -760,6 +762,11 @@ function validarPaquete() {
     mostrarError('paquete-precio', 'error-paquete-precio', 'Ingresa un precio válido mayor a 0.');
     valido = false;
   } else { limpiarError('paquete-precio', 'error-paquete-precio'); }
+
+  if (!personas || Number(personas) <= 0) {
+    mostrarError('paquete-personas', 'error-paquete-personas', 'Ingresa el número de personas.');
+    valido = false;
+  } else { limpiarError('paquete-personas', 'error-paquete-personas'); }
 
   if (!descripcion) {
     mostrarError('paquete-descripcion', 'error-paquete-descripcion', 'La descripción es obligatoria.');
@@ -957,6 +964,7 @@ function configurarEventosPaquetes() {
     const data = {
       nombre: nombreInput,
       Precio: document.getElementById('paquete-precio').value,
+      NumeroPersonas: document.getElementById('paquete-personas')?.value || null,
       Descripcion: document.getElementById('paquete-descripcion').value.trim(),
       imagen: document.getElementById('paquete-imagen').value || '',
       Estado: 1
@@ -977,15 +985,18 @@ function configurarEventosPaquetes() {
   });
 }
 
-window.editarPaquete = (id, nombre, precio, descripcion, imagen) => {
+window.editarPaquete = (id, nombre, precio, descripcion, imagen, personas) => {
   document.getElementById('paquete-id').value = id;
   document.getElementById('paquete-nombre').value = nombre;
   document.getElementById('paquete-precio').value = precio;
   document.getElementById('paquete-descripcion').value = descripcion;
   document.getElementById('paquete-imagen').value = imagen;
+  const paqPersonasEl = document.getElementById('paquete-personas');
+  if (paqPersonasEl) paqPersonasEl.value = personas || '';
   limpiarTodosLosErrores([
     { campoId: 'paquete-nombre',      errorId: 'error-paquete-nombre' },
     { campoId: 'paquete-precio',      errorId: 'error-paquete-precio' },
+    { campoId: 'paquete-personas',    errorId: 'error-paquete-personas' },
     { campoId: 'paquete-descripcion', errorId: 'error-paquete-descripcion' },
   ]);
   abrirModal('Editar Paquete');

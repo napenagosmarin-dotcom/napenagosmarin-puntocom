@@ -37,6 +37,14 @@ const update = async (id, data) => {
 };
 
 const remove = async (id) => {
+    const [check] = await db.query(
+        'SELECT COUNT(*) AS total FROM detallereservahabitacion WHERE IDHabitacion = ?', [id]
+    );
+    if (check[0].total > 0) {
+        const err = new Error('No se puede eliminar la habitación porque está asociada a reservas existentes. Cambia su estado a inactivo.');
+        err.statusCode = 409;
+        throw err;
+    }
     const [result] = await db.query("DELETE FROM habitacion WHERE IDHabitacion=?", [id]);
     return result;
 };

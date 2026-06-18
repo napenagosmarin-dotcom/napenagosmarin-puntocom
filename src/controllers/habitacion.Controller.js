@@ -40,6 +40,9 @@ const deleteHabitacion = async (req, res) => {
         await remove(req.params.id);
         res.json({ message: "Habitación eliminada correctamente" });
     } catch (error) {
+        if (error.statusCode === 409) {
+            return res.status(409).json({ error: error.message });
+        }
         res.status(500).json({ error: error.message });
     }
 };

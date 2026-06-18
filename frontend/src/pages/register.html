@@ -65,7 +65,7 @@
 
           <h4 class="form-section-title">Datos de Contacto</h4>
           <div class="form-grid premium-grid">
-            <div class="form-group premium-group">
+            <div class="form-group premium-group" style="grid-column: 1 / -1;">
               <label for="Pais">País</label>
               <div class="input-icon-wrapper">
                 <i data-lucide="map-pin" class="input-icon"></i>
@@ -115,6 +115,61 @@
                 </select>
               </div>
             </div>
+            <!-- Campos solo para Colombia -->
+            <div id="campos-colombia" style="display:none; grid-column: 1 / -1;">
+              <div class="form-grid premium-grid">
+                <div class="form-group premium-group">
+                  <label for="Departamento">Departamento</label>
+                  <div class="input-icon-wrapper">
+                    <i data-lucide="map" class="input-icon"></i>
+                    <select id="Departamento" class="premium-select">
+                      <option value="" disabled selected>Selecciona departamento...</option>
+                      <option value="Amazonas">Amazonas</option>
+                      <option value="Antioquia">Antioquia</option>
+                      <option value="Arauca">Arauca</option>
+                      <option value="Atlántico">Atlántico</option>
+                      <option value="Bogotá D.C.">Bogotá D.C.</option>
+                      <option value="Bolívar">Bolívar</option>
+                      <option value="Boyacá">Boyacá</option>
+                      <option value="Caldas">Caldas</option>
+                      <option value="Caquetá">Caquetá</option>
+                      <option value="Casanare">Casanare</option>
+                      <option value="Cauca">Cauca</option>
+                      <option value="Cesar">Cesar</option>
+                      <option value="Chocó">Chocó</option>
+                      <option value="Córdoba">Córdoba</option>
+                      <option value="Cundinamarca">Cundinamarca</option>
+                      <option value="Guainía">Guainía</option>
+                      <option value="Guaviare">Guaviare</option>
+                      <option value="Huila">Huila</option>
+                      <option value="La Guajira">La Guajira</option>
+                      <option value="Magdalena">Magdalena</option>
+                      <option value="Meta">Meta</option>
+                      <option value="Nariño">Nariño</option>
+                      <option value="Norte de Santander">Norte de Santander</option>
+                      <option value="Putumayo">Putumayo</option>
+                      <option value="Quindío">Quindío</option>
+                      <option value="Risaralda">Risaralda</option>
+                      <option value="San Andrés y Providencia">San Andrés y Providencia</option>
+                      <option value="Santander">Santander</option>
+                      <option value="Sucre">Sucre</option>
+                      <option value="Tolima">Tolima</option>
+                      <option value="Valle del Cauca">Valle del Cauca</option>
+                      <option value="Vaupés">Vaupés</option>
+                      <option value="Vichada">Vichada</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group premium-group">
+                  <label for="Municipio">Municipio / Ciudad</label>
+                  <div class="input-icon-wrapper">
+                    <i data-lucide="building-2" class="input-icon"></i>
+                    <input type="text" id="Municipio" placeholder="Ej. Medellín">
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="form-group premium-group">
               <label for="Telefono">Teléfono</label>
               <div class="phone-input-wrapper">

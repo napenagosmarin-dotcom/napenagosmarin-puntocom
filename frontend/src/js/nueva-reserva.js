@@ -1156,6 +1156,12 @@ document.getElementById('reservationForm').addEventListener('submit', async (e) 
         return;
     }
 
+    const tcCheck = document.getElementById('aceptaTerminos');
+    if (!tcCheck || !tcCheck.checked) {
+        alert('Debes aceptar los Términos y Condiciones para confirmar la reserva.');
+        return;
+    }
+
     const serviciosSeleccionados = Array.from(document.querySelectorAll('.servicio-check:checked')).map(s => ({
         IDServicio: parseInt(s.value),
         Cantidad: getServicioQuantity(s.value)

@@ -58,16 +58,21 @@ const passwordRules = {
     special: { regex: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, label: 'Un carácter especial' }
 };
 
-// Update country prefix based on selected country
+// Update country prefix and show/hide Colombia-specific fields
 const updateCountryPrefix = () => {
   const countrySelect = document.getElementById('Pais');
   const prefixElement = document.getElementById('countryPrefix');
   const selectedCountry = countrySelect.value;
-  
+  const camposColombia = document.getElementById('campos-colombia');
+
   if (selectedCountry && countryPrefixes[selectedCountry]) {
     prefixElement.textContent = countryPrefixes[selectedCountry];
   } else {
-    prefixElement.textContent = '+57'; // Default to Colombia
+    prefixElement.textContent = '+57';
+  }
+
+  if (camposColombia) {
+    camposColombia.style.display = selectedCountry === 'Colombia' ? 'block' : 'none';
   }
 };
 
@@ -181,9 +186,10 @@ registerForm.addEventListener('submit', async (e) => {
 
     const countrySelect = document.getElementById('Pais');
     const prefix = countryPrefixes[countrySelect.value] || '+57';
-    const phoneNumber = document.getElementById('Telefono').value;
+    const phoneNumber = document.getElementById('Telefono').value.trim();
     const fullPhoneNumber = `${prefix} ${phoneNumber}`;
 
+    const selectedCountry = countrySelect.value;
     const data = {
         NombreUsuario: document.getElementById('NombreUsuario').value,
         Apellido: document.getElementById('Apellido').value,
@@ -192,8 +198,10 @@ registerForm.addEventListener('submit', async (e) => {
         TipoDocumento: document.getElementById('TipoDocumento').value,
         NumeroDocumento: document.getElementById('NumeroDocumento').value,
         Telefono: fullPhoneNumber,
-        Pais: countrySelect.value,
-        Direccion: document.getElementById('Direccion').value
+        Pais: selectedCountry,
+        Direccion: document.getElementById('Direccion').value,
+        Departamento: selectedCountry === 'Colombia' ? (document.getElementById('Departamento')?.value || '') : '',
+        Municipio: selectedCountry === 'Colombia' ? (document.getElementById('Municipio')?.value || '') : ''
     };
 
     try {
