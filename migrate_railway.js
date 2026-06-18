@@ -1,53 +1,35 @@
+// Script de migración — usar con variables de entorno, no credenciales en duro
+// node migrate_railway.js
 const mysql = require('mysql2/promise');
-const fs = require('fs').promises;
-const path = require('path');
 require('dotenv').config();
 
-async function migrate() {
-  console.log('Conectando a la base de datos de Railway (Red Interna)...');
-  
-  // Utiliza la URL interna que provee Railway nativamente, o las variables locales
-  const dbUrl = process.env.MYSQL_URL || `mysql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
-
-  const connection = await mysql.createConnection({
-    uri: dbUrl,
-    multipleStatements: true
+async function run() {
+  const conn = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
   });
 
-  console.log('¡Conexión exitosa!');
+  console.log('Conectado OK');
 
-  const tablesToDrop = ['detallereservacabana', 'detallereservahabitacion', 'detallereservaservicio', 'reserva', 'paquetes', 'habitacion', 'cabanas', 'servicios', 'clientes', 'roles', 'metodopago', 'estadosreserva'];
-  
-  await connection.query('SET FOREIGN_KEY_CHECKS = 0;');
-  for (const table of tablesToDrop) {
-      console.log(`Dropping ${table}...`);
-      await connection.query(`DROP TABLE IF EXISTS \`${table}\``);
-  }
-  await connection.query('SET FOREIGN_KEY_CHECKS = 1;');
+  await conn.query(`
+    ALTER TABLE \`usuarios\`
+    ADD COLUMN IF NOT EXISTS \`Departamento\` VARCHAR(100) NULL DEFAULT NULL AFTER \`Pais\`,
+    ADD COLUMN IF NOT EXISTS \`Municipio\`    VARCHAR(100) NULL DEFAULT NULL AFTER \`Departamento\`
+  `);
+  console.log('OK: Departamento y Municipio en usuarios');
 
-  const files = [
-    'seed.sql'
-  ];
+  await conn.query(`
+    ALTER TABLE \`paquetes\`
+    ADD COLUMN IF NOT EXISTS \`NumeroPersonas\` INT NULL DEFAULT NULL AFTER \`TipoDescuento\`
+  `);
+  console.log('OK: NumeroPersonas en paquetes');
 
-  for (const file of files) {
-    console.log(`\nProcesando ${file}...`);
-    try {
-      const sql = await fs.readFile(path.join(__dirname, file), 'utf8');
-      
-      if (sql.trim().length > 0) {
-        await connection.query(sql);
-        console.log(`✅ ${file} ejecutado correctamente.`);
-      } else {
-        console.log(`⚠️ ${file} está vacío.`);
-      }
-    } catch (err) {
-      console.error(`❌ Error ejecutando ${file}:`, err.message);
-    }
-  }
-
-  console.log('\nCerrando conexión...');
-  await connection.end();
-  console.log('✅ Migración finalizada.');
+  await conn.end();
+  console.log('Migraciones completadas.');
 }
 
-migrate().catch(console.error);
+run().catch(e => console.error('ERROR:', e.message));
