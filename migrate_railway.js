@@ -186,7 +186,9 @@ async function run() {
   console.log('✓ migrate_railway.js finalizado correctamente.');
 }
 
-run().catch(e => {
-  console.error('ADVERTENCIA migrate_railway.js — continuando de todos modos:', e.message);
-  // No hacemos process.exit(1) para que el servidor arranque aunque falle la migración
-});
+run()
+  .then(() => process.exit(0))
+  .catch(e => {
+    console.error('ADVERTENCIA migrate_railway.js — continuando de todos modos:', e.message);
+    process.exit(0); // salir limpio para que "; node server.js" pueda arrancar
+  });
