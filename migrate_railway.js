@@ -45,7 +45,7 @@ async function run() {
     CREATE TABLE IF NOT EXISTS cabanas (
       IDCabana           INT AUTO_INCREMENT PRIMARY KEY,
       NombreCabana       VARCHAR(255) NOT NULL,
-      Descripcion        TEXT,
+      Descripcion        TEXT NULL,
       CapacidadPersonas  INT,
       PrecioNoche        DECIMAL(10,2),
       Estado             INT DEFAULT 1,
@@ -73,7 +73,7 @@ async function run() {
     CREATE TABLE IF NOT EXISTS servicios (
       IDServicio             INT AUTO_INCREMENT PRIMARY KEY,
       nombre                 VARCHAR(255) NOT NULL,
-      Descripcion            TEXT NOT NULL DEFAULT '',
+      Descripcion            TEXT NULL,
       precio                 DECIMAL(10,2),
       Duracion               VARCHAR(100),
       CantidadMaximaPersonas INT,
@@ -87,7 +87,7 @@ async function run() {
     CREATE TABLE IF NOT EXISTS paquetes (
       IDPaquete     INT AUTO_INCREMENT PRIMARY KEY,
       nombre        VARCHAR(255) NOT NULL,
-      Descripcion   TEXT NOT NULL DEFAULT '',
+      Descripcion   TEXT NULL,
       IDHabitacion  INT,
       IDServicio    INT,
       precio        FLOAT,
