@@ -148,7 +148,7 @@ async function run() {
   await conn.query(`
     INSERT IGNORE INTO servicios (IDServicio, nombre, Descripcion, precio, Duracion, CantidadMaximaPersonas, imagen, Estado, Costo) VALUES
     (5,  'Masaje Relajante',   'Técnica milenaria para equilibrar cuerpo y mente con aceites esenciales.',      120000, '1 hora',   1,    '',  1, NULL),
-    (7,  'Servicio Infantil',  'Servicio especial para los más pequeños de la familia.',                          80000, '',         NULL, 'https://media.istockphoto.com/id/1209739507/es/foto/todo-lo-que-necesitas-camarera-en-uniforme-entrega-de-bandeja-con-comida.jpg', 1, NULL),
+    (7,  'Servicio Infantil',  'Servicio especial para los más pequeños de la familia con inflables y entretenimiento para niños.',  80000, '',  NULL, 'https://images.unsplash.com/photo-1765947389722-2e96d8c0aad9?auto=format&fit=crop&w=800&q=80', 1, NULL),
     (8,  'Masaje Chino',       'Enfoque terapéutico para mejorar el rendimiento y aliviar dolores musculares.', 430000, '2 horas',  3,    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfs9-q-lEcUjFQgDSEkfJ259j5inSQ7kXcKg&s', 1, NULL),
     (9,  'Masaje Deportivo',   'Ambiente exclusivo con velas y selección de aceites premium.',                    80000, '',         NULL, 'https://ecopostural.com/wp-content/uploads/2024/02/Beneficios_masaje_deportivo-Ecopostural.jpg', 1, NULL),
     (10, 'Cena Romántica',     'Circuito completo de relajación con sauna, turco y exfoliación corporal.',      150000, '',         2,    'https://i.pinimg.com/736x/c1/29/7f/c1297f095d5dc0cd72c32c93713d5a48.jpg', 1, NULL),
