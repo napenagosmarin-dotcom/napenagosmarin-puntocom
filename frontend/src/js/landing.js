@@ -21,7 +21,7 @@ async function cargarHabitaciones() {
     } catch (error) {
         console.error("Error al cargar habitaciones:", error);
         const contenedor = document.getElementById('grid-habitaciones');
-        if (contenedor) contenedor.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay habitaciones disponibles en este momento.</p>';
+        if (contenedor) contenedor.innerHTML = '<p style="color: rgba(26,43,74,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay habitaciones disponibles en este momento.</p>';
     }
 }
 
@@ -35,7 +35,7 @@ async function cargarPaquetes() {
     } catch (error) {
         console.error("Error al cargar paquetes:", error);
         const contenedor = document.getElementById('grid-paquetes');
-        if (contenedor) contenedor.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay paquetes disponibles en este momento.</p>';
+        if (contenedor) contenedor.innerHTML = '<p style="color: rgba(26,43,74,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay paquetes disponibles en este momento.</p>';
     }
 }
 
@@ -49,7 +49,7 @@ async function cargarServicios() {
     } catch (error) {
         console.error("Error al cargar servicios:", error);
         const contenedor = document.getElementById('grid-servicios');
-        if (contenedor) contenedor.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay servicios disponibles en este momento.</p>';
+        if (contenedor) contenedor.innerHTML = '<p style="color: rgba(26,43,74,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay servicios disponibles en este momento.</p>';
     }
 }
 
@@ -81,7 +81,7 @@ function renderizarHabitaciones(habitaciones) {
     if (!contenedor) return;
 
     if (habitaciones.length === 0) {
-        contenedor.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay habitaciones disponibles en este momento.</p>';
+        contenedor.innerHTML = '<p style="color: rgba(26,43,74,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay habitaciones disponibles en este momento.</p>';
         return;
     }
 
@@ -129,7 +129,7 @@ function renderizarPaquetes(paquetes) {
     if (!contenedor) return;
 
     if (paquetes.length === 0) {
-        contenedor.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay paquetes disponibles en este momento.</p>';
+        contenedor.innerHTML = '<p style="color: rgba(26,43,74,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay paquetes disponibles en este momento.</p>';
         return;
     }
 
@@ -179,7 +179,7 @@ function renderizarServicios(servicios) {
     if (!contenedor) return;
 
     if (servicios.length === 0) {
-        contenedor.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay servicios disponibles en este momento.</p>';
+        contenedor.innerHTML = '<p style="color: rgba(26,43,74,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay servicios disponibles en este momento.</p>';
         return;
     }
 
