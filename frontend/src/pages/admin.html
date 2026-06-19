@@ -11,7 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* === FORZAR FONDO OSCURO SIN IMAGEN EN PANEL ADMIN === */
+    /* === FORZAR FONDO CLARO SIN IMAGEN EN PANEL ADMIN === */
     html,
     body,
     body:has(.admin-layout),
@@ -33,13 +33,13 @@
     html,
     body,
     body:has(.admin-layout) {
-      background-color: #0B0E14 !important;
+      background-color: #EBF4FB !important;
     }
     .admin-layout {
-      background-color: #0B0E14 !important;
+      background-color: #EBF4FB !important;
     }
     .admin-main {
-      background-color: #0B0E14 !important;
+      background-color: #EBF4FB !important;
     }
     /* Desactivar también cualquier ::before o ::after con imagen */
     .admin-layout::before,
@@ -62,34 +62,34 @@
           <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" class="admin-sidebar__logo-svg">
             <defs>
               <linearGradient id="ngcv" x1="0%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stop-color="#7b2ff7"/>
-                <stop offset="100%" stop-color="#00d4ff"/>
+                <stop offset="0%" stop-color="#1A2B4A"/>
+                <stop offset="100%" stop-color="#2B6CB0"/>
               </linearGradient>
               <linearGradient id="ngc" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#00d4ff"/>
-                <stop offset="100%" stop-color="#7b2ff7"/>
+                <stop offset="0%" stop-color="#2B6CB0"/>
+                <stop offset="100%" stop-color="#1A2B4A"/>
               </linearGradient>
               <linearGradient id="ngring" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.9"/>
-                <stop offset="50%" stop-color="#9b59f5" stop-opacity="0.5"/>
-                <stop offset="100%" stop-color="#7b2ff7" stop-opacity="0.8"/>
+                <stop offset="0%" stop-color="#2B6CB0" stop-opacity="0.9"/>
+                <stop offset="50%" stop-color="#3182CE" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#1A2B4A" stop-opacity="0.8"/>
               </linearGradient>
               <linearGradient id="ngshine" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
                 <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
               </linearGradient>
             </defs>
-            <circle cx="19" cy="19" r="19" fill="#0d0b2e"/>
+            <circle cx="19" cy="19" r="19" fill="#EBF4FB"/>
             <circle cx="19" cy="19" r="18.5" fill="none" stroke="url(#ngring)" stroke-width="0.8"/>
             <circle cx="19" cy="19" r="15.5" fill="none" stroke="url(#ngc)" stroke-width="0.3" opacity="0.3"/>
             <ellipse cx="19" cy="11" rx="8" ry="4" fill="url(#ngshine)"/>
             <polygon points="5,31 9.5,31 19,6 16.5,6" fill="url(#ngcv)"/>
             <polygon points="21.5,6 19,6 28.5,31 33,31" fill="url(#ngcv)"/>
             <rect x="9.5" y="19.5" width="19" height="4" rx="1" fill="url(#ngc)"/>
-            <polygon points="14,19.5 24,19.5 19,14.5" fill="#0d0b2e"/>
-            <line x1="5.5" y1="31" x2="18.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
-            <line x1="32.5" y1="31" x2="19.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
-            <circle cx="19" cy="6" r="1.4" fill="#e040fb"/>
+            <polygon points="14,19.5 24,19.5 19,14.5" fill="#EBF4FB"/>
+            <line x1="5.5" y1="31" x2="18.5" y2="7.5" stroke="#3182CE" stroke-width="0.7" opacity="0.55"/>
+            <line x1="32.5" y1="31" x2="19.5" y2="7.5" stroke="#3182CE" stroke-width="0.7" opacity="0.55"/>
+            <circle cx="19" cy="6" r="1.4" fill="#3182CE"/>
           </svg>
         </div>
         <div>

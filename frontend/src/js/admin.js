@@ -173,7 +173,7 @@ async function cargarReservas(page = 1) {
     reservasCurrentPage = page;
     const list = document.getElementById('reservasList');
     if (!list.innerHTML.trim()) {
-        list.innerHTML = '<p style="color:rgba(255,255,255,0.4); padding:2rem;">Cargando reservas...</p>';
+        list.innerHTML = '<p style="color:rgba(26,43,74,0.5); padding:2rem;">Cargando reservas...</p>';
     }
 
     try {
@@ -201,7 +201,7 @@ async function cargarReservas(page = 1) {
 
         if (!Array.isArray(reservasData) || reservasData.length === 0) {
             list.innerHTML = `
-                <div style="text-align:center; padding:4rem 2rem; color:rgba(255,255,255,0.3);">
+                <div style="text-align:center; padding:4rem 2rem; color:rgba(26,43,74,0.45);">
                     <div style="font-size:3rem; margin-bottom:1rem;">📭</div>
                     <p style="font-size:1.1rem;">No hay reservas registradas en el sistema.</p>
                 </div>`;
@@ -228,8 +228,8 @@ function renderReservas(reservas, kpis) {
         pendiente:   { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.3)',  icon: 'clock' },
         confirmada:  { color: '#10b981', bg: 'rgba(16,185,129,0.12)',  border: 'rgba(16,185,129,0.3)',  icon: 'check-circle-2' },
         cancelada:   { color: '#ef4444', bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.3)',   icon: 'x-circle' },
-        completada:  { color: '#00d4ff', bg: 'rgba(0,212,255,0.12)',   border: 'rgba(0,212,255,0.3)',   icon: 'check-circle' },
-        procesando:  { color: '#7b2ff7', bg: 'rgba(123,47,247,0.12)', border: 'rgba(123,47,247,0.3)', icon: 'loader' },
+        completada:  { color: '#2B6CB0', bg: 'rgba(49,130,206,0.12)',   border: 'rgba(49,130,206,0.3)',   icon: 'check-circle' },
+        procesando:  { color: '#1A2B4A', bg: 'rgba(26,43,74,0.12)', border: 'rgba(26,43,74,0.3)', icon: 'loader' },
     };
 
     function getEstado(nombre) {
@@ -430,8 +430,8 @@ window.verDetalleReserva = async (id) => {
             pendiente:   { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)',  icon: 'clock' },
             confirmada:  { color: '#10b981', bg: 'rgba(16,185,129,0.15)',  icon: 'check-circle-2' },
             cancelada:   { color: '#ef4444', bg: 'rgba(239,68,68,0.15)',   icon: 'x-circle' },
-            completada:  { color: '#00d4ff', bg: 'rgba(0,212,255,0.15)',   icon: 'check-circle' },
-            procesando:  { color: '#7b2ff7', bg: 'rgba(123,47,247,0.15)', icon: 'loader' },
+            completada:  { color: '#2B6CB0', bg: 'rgba(49,130,206,0.15)',   icon: 'check-circle' },
+            procesando:  { color: '#1A2B4A', bg: 'rgba(26,43,74,0.15)', icon: 'loader' },
         };
         const key = (r.NombreEstadoReserva || '').toLowerCase();
         const cfg = estadoConfig[key] || { color: '#6b7280', bg: 'rgba(107,114,128,0.15)', icon: 'help-circle' };
@@ -440,7 +440,7 @@ window.verDetalleReserva = async (id) => {
         const alojamiento = r.NombreHabitacion || r.NombreCabana || r.NombrePaquete || '—';
         const serviciosHtml = (r.servicios && r.servicios.length > 0)
             ? r.servicios.map(s => `<span class="rd-tag">${s.NombreServicio} x${s.Cantidad}</span>`).join('')
-            : '<span style="color:rgba(255,255,255,0.35); font-size:0.8rem;">Sin servicios adicionales</span>';
+            : '<span style="color:rgba(26,43,74,0.45); font-size:0.8rem;">Sin servicios adicionales</span>';
 
         document.getElementById('detalleTitulo').textContent = `Detalle de Reserva #${r.IdReserva}`;
         document.getElementById('detalleContent').style.padding = '0';
@@ -461,7 +461,7 @@ window.verDetalleReserva = async (id) => {
             </div>
             <div class="rd-hero__center">
               <span class="rd-hero__label">Total a pagar</span>
-              <span class="rd-hero__amount" style="color:#fff;">
+              <span class="rd-hero__amount" style="color:#1A2B4A;">
                 <span style="color:#10b981;">$</span>${Number(r.MontoTotal || 0).toLocaleString('es-CO')}
               </span>
             </div>
@@ -488,7 +488,7 @@ window.verDetalleReserva = async (id) => {
 
             <!-- ALOJAMIENTO -->
             <div class="rd-card">
-              <div class="rd-card__icon" style="background:rgba(0,212,255,0.12); border-color:rgba(0,212,255,0.3); color:#00d4ff;">
+              <div class="rd-card__icon" style="background:rgba(49,130,206,0.12); border-color:rgba(49,130,206,0.3); color:#2B6CB0;">
                 <i data-lucide="home" style="width:16px;height:16px;"></i>
               </div>
               <div class="rd-card__content">
@@ -507,7 +507,7 @@ window.verDetalleReserva = async (id) => {
                 <span class="rd-card__label">Estadía</span>
                 <div class="rd-dates">
                   <span><i data-lucide="log-in" style="width:11px;color:#10b981;"></i> ${fmt(r.FechaInicio)}</span>
-                  <span style="color:rgba(255,255,255,0.3);">→</span>
+                  <span style="color:rgba(26,43,74,0.35);">→</span>
                   <span><i data-lucide="log-out" style="width:11px;color:#ef4444;"></i> ${fmt(r.FechaFinalizacion)}</span>
                 </div>
               </div>
@@ -673,7 +673,7 @@ async function cargarHabitaciones() {
     const container = document.getElementById('habitacionesGrid');
     if (!container) return;
     if (!container.innerHTML.trim()) {
-        container.innerHTML = '<p style="color:rgba(255,255,255,0.4);">Cargando habitaciones...</p>';
+        container.innerHTML = '<p style="color:rgba(26,43,74,0.5);">Cargando habitaciones...</p>';
     }
 
     try {
@@ -688,7 +688,7 @@ async function cargarHabitaciones() {
         );
 
         if (!filtered.length) {
-            container.innerHTML = '<p style="color:rgba(255,255,255,0.4);">No hay habitaciones registradas.</p>';
+            container.innerHTML = '<p style="color:rgba(26,43,74,0.5);">No hay habitaciones registradas.</p>';
             renderPaginacionAdmin(0, itemsPorPaginaHabitaciones, paginaActualHabitaciones, 'paginacion-habitaciones-admin', (nuevaPagina) => {
                 paginaActualHabitaciones = nuevaPagina;
                 cargarHabitaciones();
@@ -724,7 +724,7 @@ async function cargarHabitaciones() {
                         <div class="room-info" style="margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
                             <span class="room-price">${precio}</span>
                         </div>
-                        <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
+                        <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(49,130,206,0.12);">
                             <span class="badge-status ${estadoClass}">${estado}</span>
                             <div style="display:flex; gap:8px;">
                                 <button onclick="toggleEstadoHabitacion(${h.IDHabitacion}, ${h.Estado})" class="btn-icon-admin" title="Cambiar Estado">
@@ -761,7 +761,7 @@ async function cargarHabitaciones() {
 async function cargarUsuarios() {
     const list = document.getElementById('usuariosList');
     if (!list.innerHTML.trim()) {
-        list.innerHTML = '<p style="color:rgba(255,255,255,0.4); padding:2rem;">Cargando usuarios...</p>';
+        list.innerHTML = '<p style="color:rgba(26,43,74,0.5); padding:2rem;">Cargando usuarios...</p>';
     }
 
     try {
@@ -794,7 +794,7 @@ async function cargarUsuarios() {
                             return `
                             <tr>
                                 <td><span style="color:var(--color-acento);font-weight:600;">${u.IDUsuario}</span></td>
-                                <td style="color:#fff;font-weight:500;">${u.NombreUsuario}</td>
+                                <td style="color:#1A2B4A;font-weight:500;">${u.NombreUsuario}</td>
                                 <td>${u.Apellido || '-'}</td>
                                 <td>${u.Email}</td>
                                 <td>${u.Telefono || '-'}</td>
@@ -841,7 +841,7 @@ async function cargarUsuarios() {
 async function cargarClientes() {
     const list = document.getElementById('clientesList');
     if (!list.innerHTML.trim()) {
-        list.innerHTML = '<p style="color:rgba(255,255,255,0.4); padding:2rem;">Cargando clientes...</p>';
+        list.innerHTML = '<p style="color:rgba(26,43,74,0.5); padding:2rem;">Cargando clientes...</p>';
     }
 
     try {
@@ -880,7 +880,7 @@ async function cargarClientes() {
                             return `
                             <tr>
                                 <td><span style="color:var(--color-acento);font-weight:600;">${c.NroDocumento}</span></td>
-                                <td style="color:#fff;font-weight:500;">${c.Nombre}</td>
+                                <td style="color:#1A2B4A;font-weight:500;">${c.Nombre}</td>
                                 <td>${c.Apellido || '-'}</td>
                                 <td>${email}</td>
                                 <td>${c.Telefono || '-'}</td>
@@ -977,7 +977,7 @@ async function cargarCabanas() {
     const container = document.getElementById('cabanasGrid');
     if (!container) return;
     if (!container.innerHTML.trim()) {
-        container.innerHTML = '<p style="color:rgba(255,255,255,0.4);">Cargando cabañas...</p>';
+        container.innerHTML = '<p style="color:rgba(26,43,74,0.5);">Cargando cabañas...</p>';
     }
 
     try {
@@ -992,7 +992,7 @@ async function cargarCabanas() {
         );
 
         if (!filtered.length) {
-            container.innerHTML = '<p style="color:rgba(255,255,255,0.4);">No hay cabañas registradas.</p>';
+            container.innerHTML = '<p style="color:rgba(26,43,74,0.5);">No hay cabañas registradas.</p>';
             renderPaginacionAdmin(0, itemsPorPaginaCabanas, paginaActualCabanas, 'paginacion-cabanas-admin', (nuevaPagina) => {
                 paginaActualCabanas = nuevaPagina;
                 cargarCabanas();
@@ -1024,7 +1024,7 @@ async function cargarCabanas() {
                         <div>
                             <h3>${c.NombreCabana || 'Cabaña'}</h3>
                             <p>${c.Descripcion || 'Descripción breve de la cabaña.'}</p>
-                            <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 0.5rem; display: flex; flex-direction: column; gap: 4px;">
+                            <div style="font-size: 0.8rem; color: rgba(26,43,74,0.5); margin-top: 0.5rem; display: flex; flex-direction: column; gap: 4px;">
                                 <span>👥 Capacidad: ${c.CapacidadPersonas || 0} pers.</span>
                                 <span>🚪 Habitaciones: ${c.NumeroHabitaciones || 0}</span>
                             </div>
@@ -1032,7 +1032,7 @@ async function cargarCabanas() {
                         <div class="room-info" style="margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
                             <span class="room-price">${precio}</span>
                         </div>
-                        <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
+                        <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(49,130,206,0.12);">
                             <span class="badge-status ${estadoClass}">${estado}</span>
                             <div style="display:flex; gap:8px;">
                                 <button onclick="toggleEstadoCabana(${c.IDCabana}, ${c.Estado || 0})" class="btn-icon-admin" title="Cambiar Estado">
@@ -1515,7 +1515,7 @@ window.eliminarCabana = async (id) => {
 async function cargarPaquetes() {
     const list = document.getElementById('paquetesList');
     if (!list.innerHTML.trim()) {
-        list.innerHTML = '<p style="color:rgba(255,255,255,0.4); padding:2rem;">Cargando paquetes...</p>';
+        list.innerHTML = '<p style="color:rgba(26,43,74,0.5); padding:2rem;">Cargando paquetes...</p>';
     }
 
     try {
@@ -1530,7 +1530,7 @@ async function cargarPaquetes() {
         );
 
         if (!filtered.length) {
-            list.innerHTML = '<p style="color:rgba(255,255,255,0.4);">No hay paquetes registrados.</p>';
+            list.innerHTML = '<p style="color:rgba(26,43,74,0.5);">No hay paquetes registrados.</p>';
             renderPaginacionAdmin(0, itemsPorPaginaPaquetes, paginaActualPaquetes, 'paginacion-paquetes-admin', (nuevaPagina) => {
                 paginaActualPaquetes = nuevaPagina;
                 cargarPaquetes();
@@ -1563,7 +1563,7 @@ async function cargarPaquetes() {
                                 <div>
                                     <h3>${p.NombrePaquete || p.nombre || 'Paquete'}</h3>
                                     <p>${p.Descripcion || 'Sin descripción disponible.'}</p>
-                                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 0.5rem; display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="font-size: 0.8rem; color: rgba(26,43,74,0.5); margin-top: 0.5rem; display: flex; flex-direction: column; gap: 4px;">
                                         ${p.NombreHabitacion ? `<span>🏠 Habitación: ${p.NombreHabitacion}</span>` : ''}
                                         ${p.NombreCabana ? `<span>🏕️ Cabaña: ${p.NombreCabana}</span>` : ''}
                                         <span>🛠️ Servicios: ${p.NombreServicio || '-'}</span>
@@ -1572,7 +1572,7 @@ async function cargarPaquetes() {
                                 <div class="room-info" style="margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
                                     <span class="room-price">${precio}</span>
                                 </div>
-                                <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
+                                <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(49,130,206,0.12);">
                                     <span class="badge-status ${estadoClass}">${estado}</span>
                                     <div style="display:flex; gap:8px;">
                                         <button onclick="toggleEstadoPaquete(${p.IDPaquete}, ${p.Estado})" class="btn-icon-admin" title="Cambiar Estado">
@@ -1610,7 +1610,7 @@ async function cargarPaquetes() {
 async function cargarServicios() {
     const list = document.getElementById('serviciosList');
     if (!list.innerHTML.trim()) {
-        list.innerHTML = '<p style="color:rgba(255,255,255,0.4); padding:2rem;">Cargando servicios...</p>';
+        list.innerHTML = '<p style="color:rgba(26,43,74,0.5); padding:2rem;">Cargando servicios...</p>';
     }
 
     try {
@@ -1625,7 +1625,7 @@ async function cargarServicios() {
         );
 
         if (!filtered.length) {
-            list.innerHTML = '<p style="color:rgba(255,255,255,0.4);">No hay servicios registrados.</p>';
+            list.innerHTML = '<p style="color:rgba(26,43,74,0.5);">No hay servicios registrados.</p>';
             renderPaginacionAdmin(0, itemsPorPaginaServicios, paginaActualServicios, 'paginacion-servicios-admin', (nuevaPagina) => {
                 paginaActualServicios = nuevaPagina;
                 cargarServicios();
@@ -1658,7 +1658,7 @@ async function cargarServicios() {
                                 <div>
                                     <h3>${s.NombreServicio || s.nombre || 'Servicio'}</h3>
                                     <p>${s.Descripcion || 'Sin descripción disponible.'}</p>
-                                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 0.5rem; display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="font-size: 0.8rem; color: rgba(26,43,74,0.5); margin-top: 0.5rem; display: flex; flex-direction: column; gap: 4px;">
                                         <span>⏱️ Duración: ${s.Duracion || '-'}</span>
                                         <span>👥 Max. Personas: ${s.CantidadMaximaPersonas || '-'}</span>
                                     </div>
@@ -1666,7 +1666,7 @@ async function cargarServicios() {
                                 <div class="room-info" style="margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
                                     <span class="room-price">${costo}</span>
                                 </div>
-                                <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
+                                <div class="card__acciones" style="display:flex; justify-content: space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(49,130,206,0.12);">
                                     <span class="badge-status ${estadoClass}">${estado}</span>
                                     <div style="display:flex; gap:8px;">
                                         <button onclick="toggleEstadoServicio(${s.IDServicio}, ${s.Estado})" class="btn-icon-admin" title="Cambiar Estado">
@@ -1793,7 +1793,7 @@ function renderTopPaquetesAdmin(paquetes) {
           const activo = p.Estado === 1 || p.Estado === '1' || p.Estado === true;
           return `
             <tr>
-              <td style="text-align: center; font-weight: bold; color: rgba(255,255,255,0.4);">${index + 1}</td>
+              <td style="text-align: center; font-weight: bold; color: rgba(26,43,74,0.5);">${index + 1}</td>
               <td>${nombre}</td>
               <td>$${precio.toLocaleString('es-CO')}</td>
               <td>
@@ -1837,7 +1837,7 @@ function renderTopServiciosAdmin(servicios) {
           const activo = s.Estado === 1 || s.Estado === '1' || s.Estado === true;
           return `
             <tr>
-              <td style="text-align: center; font-weight: bold; color: rgba(255,255,255,0.4);">${index + 1}</td>
+              <td style="text-align: center; font-weight: bold; color: rgba(26,43,74,0.5);">${index + 1}</td>
               <td>${nombre}</td>
               <td>$${precio.toLocaleString('es-CO')}</td>
               <td>
@@ -1895,7 +1895,7 @@ function renderGraficaCabanas(cabanas) {
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { color: 'rgba(255,255,255,0.6)', padding: 20 }
+                    labels: { color: 'rgba(26,43,74,0.7)', padding: 20 }
                 }
             },
             cutout: '70%'
@@ -1938,7 +1938,7 @@ function renderGraficaEstadoReservas(reservas) {
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { color: 'rgba(255,255,255,0.7)', font: { size: 12 } }
+                    labels: { color: 'rgba(26,43,74,0.7)', font: { size: 12 } }
                 }
             },
             cutout: '70%'
@@ -1985,7 +1985,7 @@ function renderGraficaReservas(reservas) {
                 {
                     label: 'Check-outs',
                     data: checkouts,
-                    backgroundColor: '#e040fb',
+                    backgroundColor: '#3182CE',
                     borderRadius: 4
                 }
             ]
@@ -1994,15 +1994,15 @@ function renderGraficaReservas(reservas) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.4)', stepSize: 1 } },
-                x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)' } }
+                y: { beginAtZero: true, grid: { color: 'rgba(49,130,206,0.08)' }, ticks: { color: 'rgba(26,43,74,0.5)', stepSize: 1 } },
+                x: { grid: { display: false }, ticks: { color: 'rgba(26,43,74,0.5)' } }
             },
-            plugins: { 
-                legend: { 
+            plugins: {
+                legend: {
                     display: true,
                     position: 'top',
-                    labels: { color: 'rgba(255,255,255,0.6)' }
-                } 
+                    labels: { color: 'rgba(26,43,74,0.7)' }
+                }
             }
         }
     });
@@ -2381,7 +2381,7 @@ function renderForm(section, data = null, extra = {}) {
                     </div>
                 </div>
                 <div class="form-group" style="text-align: center; margin-bottom: 1rem;">
-                    <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(49,130,206,0.15); box-shadow: 0 4px 15px rgba(26,43,74,0.1);">
                 </div>
                 <div class="form-group">
                     <label>🖼️ IMAGEN URL</label>
@@ -2455,7 +2455,7 @@ function renderForm(section, data = null, extra = {}) {
                     </div>
                 </div>
                 <div class="form-group" style="text-align: center; margin-bottom: 1rem;">
-                    <img id="preview-img-modal" src="${data?.ImagenCabana || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <img id="preview-img-modal" src="${data?.ImagenCabana || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(49,130,206,0.15); box-shadow: 0 4px 15px rgba(26,43,74,0.1);">
                 </div>
                 <div class="form-group">
                     <label>🖼️ IMAGEN URL</label>
@@ -2548,16 +2548,16 @@ function renderForm(section, data = null, extra = {}) {
                 </div>
                 <div class="form-group">
                     <label>🛠️ SERVICIOS INCLUIDOS</label>
-                    <div id="checkboxes-servicios" style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                    <div id="checkboxes-servicios" style="background-color: #f0f7ff; border: 1px solid rgba(49,130,206,0.18); border-radius: 8px; padding: 10px; max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
                         ${(extra.servicios || []).map(s => `
                             <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; margin: 0; padding: 4px; transition: background 0.2s; border-radius: 4px;">
-                                <input type="checkbox" name="IDServicioCheckbox" value="${s.IDServicio}" data-precio="${s.precio || s.Costo || 0}" ${selectedServices.includes(s.IDServicio.toString()) ? 'checked' : ''} onchange="window.calcularPrecioPaquete()" style="width: 18px; height: 18px; accent-color: #6366f1; cursor: pointer;">
-                                <span>${s.nombre || s.NombreServicio} <strong style="color: rgba(255,255,255,0.5); font-weight: normal;">($${Number(s.precio || s.Costo || 0).toLocaleString('es-CO')})</strong></span>
+                                <input type="checkbox" name="IDServicioCheckbox" value="${s.IDServicio}" data-precio="${s.precio || s.Costo || 0}" ${selectedServices.includes(s.IDServicio.toString()) ? 'checked' : ''} onchange="window.calcularPrecioPaquete()" style="width: 18px; height: 18px; accent-color: #2B6CB0; cursor: pointer;">
+                                <span>${s.nombre || s.NombreServicio} <strong style="color: rgba(26,43,74,0.5); font-weight: normal;">($${Number(s.precio || s.Costo || 0).toLocaleString('es-CO')})</strong></span>
                             </label>
                         `).join('')}
                     </div>
                 </div>
-                <div class="form-row" style="background-color: rgba(255,255,255,0.02); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.05);">
+                <div class="form-row" style="background-color: rgba(49,130,206,0.04); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(49,130,206,0.1);">
                     <div class="form-group" style="margin: 0;">
                         <label style="display: flex; justify-content: space-between; align-items: center;">
                             <span>📉 DESCUENTO (%)</span>
@@ -2567,7 +2567,7 @@ function renderForm(section, data = null, extra = {}) {
                     </div>
                     <div class="form-group" style="margin: 0;">
                         <label>💰 PRECIO FINAL</label>
-                        <input type="number" name="precio" id="input-precio-final" value="${data?.precio || data?.Precio || 0}" required readonly style="background-color: rgba(255,255,255,0.05); color: #10b981; font-weight: bold;">
+                        <input type="number" name="precio" id="input-precio-final" value="${data?.precio || data?.Precio || 0}" required readonly style="background-color: #f0f7ff; color: #10b981; font-weight: bold;">
                     </div>
                 </div>
                 <div class="form-row">
@@ -2584,7 +2584,7 @@ function renderForm(section, data = null, extra = {}) {
                     </div>
                 </div>
                 <div class="form-group" style="text-align: center; margin-bottom: 1rem;">
-                    <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(49,130,206,0.15); box-shadow: 0 4px 15px rgba(26,43,74,0.1);">
                 </div>`;
             break;
         case 'servicios':
@@ -2621,7 +2621,7 @@ function renderForm(section, data = null, extra = {}) {
                     </div>
                 </div>
                 <div class="form-group" style="text-align: center; margin-bottom: 1rem;">
-                    <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(49,130,206,0.15); box-shadow: 0 4px 15px rgba(26,43,74,0.1);">
                 </div>
                 <div class="form-group">
                     <label>🖼️ IMAGEN URL</label>
