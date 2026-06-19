@@ -386,7 +386,7 @@ section { padding: 120px 60px; }
   background: linear-gradient(to top, rgba(26,43,74,0.96) 0%, rgba(43,108,176,0.18) 100%);
 }
 .room-tag { font-size: 0.62rem; letter-spacing: 3px; text-transform: uppercase; color: var(--c-cyan); margin-bottom: 6px; }
-.room-name { font-family: var(--ff-serif); font-size: 1.4rem; font-weight: 400; margin-bottom: 4px; }
+.room-name { font-family: var(--ff-serif); font-size: 1.4rem; font-weight: 400; margin-bottom: 4px; color: #ffffff; }
 .room-card:first-child .room-name { font-size: 2rem; }
 .room-price { font-size: 0.8rem; font-weight: 300; color: rgba(255,255,255,0.5); }
 .room-price span { color: var(--c-white); font-weight: 500; }
