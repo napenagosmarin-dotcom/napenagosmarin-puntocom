@@ -2089,7 +2089,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .premium-group label {
-  color: rgba(255, 255, 255, 0.75) !important;
+  color: var(--color-texto) !important;
 }
 
 .input-icon-wrapper {
@@ -2113,24 +2113,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .input-icon-wrapper select {
   width: 100% !important;
   padding: 1rem 1.25rem 1rem 3.5rem !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(0, 212, 255, 0.2) !important;
+  background: #f0f7ff !important;
+  border: 1px solid rgba(49, 130, 206, 0.25) !important;
   border-radius: 14px !important;
-  color: #fff !important;
+  color: var(--color-texto) !important;
   font-size: 1rem !important;
   transition: all 0.3s ease !important;
 }
 
 .input-icon-wrapper select option {
-  background: #0d0b2a;
-  color: #fff;
+  background: #ffffff;
+  color: var(--color-texto);
 }
 
 .input-icon-wrapper input:focus,
 .input-icon-wrapper select:focus {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: #00d4ff !important;
-  box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.15) !important;
+  background: #ffffff !important;
+  border-color: var(--color-secundario) !important;
+  box-shadow: 0 0 0 4px rgba(43, 108, 176, 0.12) !important;
   outline: none;
 }
 
@@ -2150,7 +2150,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-texto-claro);
   cursor: pointer;
 }
 
@@ -2162,7 +2162,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .forgot-password {
-  color: #00d4ff;
+  color: var(--color-secundario);
   text-decoration: none;
   font-weight: 500;
 }
@@ -2198,7 +2198,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   align-items: center;
   text-align: center;
   margin: 2rem 0;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--color-texto-claro);
   font-size: 0.85rem;
 }
 
@@ -2206,7 +2206,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .login-divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(26, 43, 74, 0.15);
 }
 
 .login-divider span {
@@ -2215,12 +2215,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .login-register-text {
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-texto-claro);
   font-size: 0.95rem;
 }
 
 .login-register-text a {
-  color: #00d4ff;
+  color: var(--color-secundario);
   font-weight: 600;
   margin-left: 0.2rem;
   text-decoration: none;
@@ -2229,7 +2229,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .login-register-text a:hover {
   text-decoration: underline;
-  color: #e040fb;
+  color: var(--color-acento);
 }
 
 @media (max-width: 900px) {
@@ -2467,7 +2467,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .password-toggle:hover {
-  color: #00d4ff;
+  color: var(--color-secundario);
   transform: scale(1.1);
 }
 
@@ -2794,7 +2794,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .main-content--auth .auth-section {
   background:
-    linear-gradient(rgba(7, 6, 20, 0.65), rgba(7, 6, 20, 0.82)),
+    linear-gradient(rgba(26, 43, 74, 0.52), rgba(26, 43, 74, 0.72)),
     url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1800&q=80')
     center / cover no-repeat fixed;
   min-height: 100vh;
@@ -2807,11 +2807,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .auth-form-panel--solo {
   width: 100%;
   max-width: 520px;
-  background: #0d0b2e;
-  border: 1px solid rgba(0, 212, 255, 0.15);
+  background: #ffffff;
+  border: 1px solid rgba(49, 130, 206, 0.2);
   border-radius: 24px;
   padding: 3rem 2.5rem;
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 40px 100px rgba(26, 43, 74, 0.25);
 }
 
 /* Register necesita un poco más de ancho por el grid */
