@@ -37,7 +37,6 @@
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 2rem;
-  /* align-items: start remivido para permitir sticky en nr-resumen */
 }
 
 .nr-form {
@@ -51,12 +50,11 @@
    CARDS CON STEP BADGES
    ----------------------------------------------- */
 .nr-card {
-  background: linear-gradient(135deg, rgba(10,25,16,0.97) 0%, rgba(20,55,35,0.95) 100%);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(78,201,160,0.12);
+  background: #ffffff;
+  border: 1.5px solid rgba(49,130,206,0.15);
   border-radius: 14px;
   padding: 1.2rem 1.4rem;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 4px 20px rgba(26,43,74,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   position: relative;
@@ -68,17 +66,17 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(78,201,160,0.35), transparent);
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(49,130,206,0.4), transparent);
 }
 
 .nr-card:hover {
-  border-color: rgba(78,201,160,0.28);
-  box-shadow: 0 15px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+  border-color: rgba(49,130,206,0.3);
+  box-shadow: 0 8px 30px rgba(26,43,74,0.12), inset 0 1px 0 rgba(255,255,255,0.9);
   transform: translateY(-2px);
 }
 
-.nr-card--step4 { border-color: rgba(0,212,255,0.2); }
+.nr-card--step4 { border-color: rgba(49,130,206,0.2); }
 .nr-card--step3 {
   overflow: visible;
   z-index: 2;
@@ -89,10 +87,10 @@
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.2px;
-  color: rgba(255,255,255,0.95);
+  color: #1A2B4A;
   margin: 0 0 0.9rem 0;
   padding-bottom: 0.6rem;
-  border-bottom: 1px solid rgba(0,212,255,0.15);
+  border-bottom: 1px solid rgba(49,130,206,0.15);
 }
 
 .nr-card__titulo--flex {
@@ -107,7 +105,7 @@
   font-family: var(--fuente-secundaria);
   font-size: 0.8rem;
   font-weight: 500;
-  color: #fbbf24;
+  color: #D97706;
   letter-spacing: 0.2px;
   text-transform: none;
 }
@@ -139,7 +137,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
+  color: rgba(26,43,74,0.55);
   margin-bottom: 0.35rem;
 }
 
@@ -160,12 +158,12 @@
   min-width: 0;
   padding: 0.65rem 0.9rem;
   height: 2.4rem;
-  background: rgba(255,255,255,0.05);
-  border: 1.5px solid rgba(255,255,255,0.1);
+  background: #f0f7ff;
+  border: 1.5px solid rgba(49,130,206,0.2);
   border-radius: 10px;
   font-family: var(--fuente-secundaria);
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.95);
+  color: #1A2B4A;
   transition: all 0.2s ease;
   box-sizing: border-box;
   outline: none;
@@ -173,26 +171,25 @@
 
 .nr-field select:hover,
 .nr-field input[type="date"]:hover {
-  border-color: rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.08);
+  border-color: rgba(49,130,206,0.35);
+  background: #e8f4ff;
 }
 
 .nr-field select:focus,
 .nr-field input[type="date"]:focus {
-  border-color: rgba(0,212,255,0.6);
-  box-shadow: 0 0 0 4px rgba(0,212,255,0.1);
-  background: rgba(255,255,255,0.08);
+  border-color: rgba(49,130,206,0.7);
+  box-shadow: 0 0 0 4px rgba(49,130,206,0.1);
+  background: #f0f7ff;
 }
 
 .nr-field select option {
-  background: #0d0b2a;
-  color: #fff;
+  background: #ffffff;
+  color: #1A2B4A;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: 0.6;
-  filter: invert(1);
   transition: opacity 0.2s ease;
 }
 
@@ -214,8 +211,8 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(76,220,182,0.1));
-  border: 1.5px solid rgba(0,212,255,0.3);
+  background: linear-gradient(135deg, rgba(49,130,206,0.12), rgba(59,130,246,0.08));
+  border: 1.5px solid rgba(49,130,206,0.3);
   border-radius: 999px;
   padding: 0.35rem 0.85rem;
   margin-bottom: 0.7rem;
@@ -226,12 +223,12 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .nr-noches-badge__num {
   font-size: 0.95rem;
   font-weight: 800;
-  color: #00d4ff;
+  color: #2B6CB0;
 }
 
 .nr-noches-badge__label {
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.7);
+  color: rgba(26,43,74,0.7);
   font-weight: 600;
 }
 
@@ -240,12 +237,12 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
    ----------------------------------------------- */
 .nr-detalle {
   margin-top: 0.8rem;
-  background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(123,47,247,0.06));
-  border: 1px solid rgba(0,212,255,0.15);
+  background: linear-gradient(135deg, rgba(49,130,206,0.06), rgba(26,43,74,0.04));
+  border: 1px solid rgba(49,130,206,0.15);
   border-radius: 12px;
   padding: 1rem 1.2rem;
   font-size: 0.9rem;
-  color: rgba(255,255,255,0.9);
+  color: #1A2B4A;
   animation: nrFadeUp 0.3s ease forwards;
 }
 
@@ -267,8 +264,8 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .nr-detalle .precio-tag {
   display: inline-block;
   margin-top: 0.7rem;
-  background: linear-gradient(135deg, #7b2ff7, #ff40fb);
-  color: var(--color-blanco);
+  background: linear-gradient(135deg, #2B6CB0, #3182CE);
+  color: #ffffff;
   padding: 0.35rem 1rem;
   border-radius: 50px;
   font-size: 0.85rem;
@@ -281,11 +278,11 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
    ----------------------------------------------- */
 .nr-preview-card {
   position: relative;
-  background: linear-gradient(135deg, rgba(12,8,40,0.96), rgba(50,20,100,0.92));
-  border: 1.5px solid rgba(0,212,255,0.2);
+  background: #ffffff;
+  border: 1.5px solid rgba(49,130,206,0.2);
   border-radius: 16px;
   padding: 1rem;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 30px rgba(26,43,74,0.12);
   overflow: hidden;
   animation: nrFadeUp 0.3s ease forwards;
   margin-top: 1rem;
@@ -299,8 +296,8 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   height: 2.2rem;
   border: 0;
   border-radius: 999px;
-  background: rgba(255,255,255,0.1);
-  color: #fff;
+  background: rgba(26,43,74,0.08);
+  color: #1A2B4A;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -310,7 +307,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 }
 
 .nr-preview-close:hover {
-  background: rgba(255,255,255,0.18);
+  background: rgba(26,43,74,0.15);
   transform: scale(1.1);
 }
 
@@ -328,8 +325,8 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   background-size: cover;
   background-position: center;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: inset 0 -15px 40px rgba(0,0,0,0.4);
+  border: 1px solid rgba(49,130,206,0.15);
+  box-shadow: inset 0 -15px 40px rgba(26,43,74,0.15);
 }
 
 .nr-preview-card__content {
@@ -342,14 +339,14 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .nr-preview-card__content h3 {
   margin: 0;
   font-size: 1.15rem;
-  color: #fff;
+  color: #1A2B4A;
   font-family: var(--fuente-principal);
   font-weight: 700;
 }
 
 .nr-preview-desc {
   margin: 0;
-  color: rgba(255,255,255,0.65);
+  color: rgba(26,43,74,0.65);
   font-size: 0.9rem;
   line-height: 1.4;
 }
@@ -357,13 +354,13 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .nr-preview-meta {
   display: flex;
   gap: 1rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(26,43,74,0.6);
   font-size: 0.85rem;
 }
 
 .nr-preview-price {
   font-weight: 800;
-  color: #ff40fb;
+  color: #2B6CB0;
   font-size: 1.2rem;
   margin-top: auto;
 }
@@ -388,8 +385,8 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   gap: 0.75rem;
   width: 100%;
   padding: 0.8rem 1rem;
-  background: rgba(255,255,255,0.04);
-  border: 1.5px solid rgba(255,255,255,0.1);
+  background: #f8fafc;
+  border: 1.5px solid rgba(49,130,206,0.15);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -397,14 +394,14 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 }
 
 .servicio-label:hover {
-  background: rgba(0,212,255,0.08);
-  border-color: rgba(0,212,255,0.3);
+  background: rgba(49,130,206,0.06);
+  border-color: rgba(49,130,206,0.3);
 }
 
 .servicio-check {
   width: 18px;
   height: 18px;
-  accent-color: #7b2ff7;
+  accent-color: #2B6CB0;
   flex-shrink: 0;
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -461,7 +458,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .servicio-control-label {
   font-size: 0.72rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.95);
+  color: #1A2B4A;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -477,13 +474,13 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .servicio-control-label,
 .servicio-help,
 .servicio-total {
-  color: #ffffff !important;
+  color: #1A2B4A !important;
 }
 
 .servicio-quantity-input::placeholder,
 .servicio-quantity-input:-ms-input-placeholder,
 .servicio-quantity-input::-ms-input-placeholder {
-  color: rgba(255,255,255,0.75) !important;
+  color: rgba(26,43,74,0.5) !important;
 }
 
 .servicio-quantity-input {
@@ -491,9 +488,9 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   min-width: 4.5rem;
   padding: 0.55rem 0.75rem;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.12);
-  color: #ffffff;
+  border: 1px solid rgba(49,130,206,0.25);
+  background: #f0f7ff;
+  color: #1A2B4A;
   font-size: 0.95rem;
   text-align: center;
   outline: none;
@@ -505,20 +502,20 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 }
 
 .servicio-input-suffix {
-  color: rgba(255,255,255,0.85);
+  color: rgba(26,43,74,0.7);
   font-size: 0.82rem;
   white-space: nowrap;
 }
 
 .servicio-help {
   font-size: 0.78rem;
-  color: rgba(255,255,255,0.8);
+  color: rgba(26,43,74,0.6);
   min-height: 1rem;
 }
 
 .servicio-total {
   font-size: 0.86rem;
-  color: #b7f2ff;
+  color: #2B6CB0;
   font-weight: 700;
   white-space: nowrap;
   min-width: 8rem;
@@ -536,7 +533,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .servicio-name {
   font-size: 0.88rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.92);
+  color: #1A2B4A;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -547,34 +544,34 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .servicio-price {
   font-size: 0.8rem;
   font-weight: 800;
-  color: #00d4ff;
+  color: #2B6CB0;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 /* Estado activo */
 .servicio-item.active .servicio-label {
-  background: linear-gradient(135deg, rgba(123,47,247,0.2), rgba(255,64,251,0.1));
-  border-color: rgba(123,47,247,0.6);
-  box-shadow: 0 0 20px rgba(123,47,247,0.25);
+  background: linear-gradient(135deg, rgba(43,108,176,0.1), rgba(49,130,206,0.07));
+  border-color: rgba(43,108,176,0.45);
+  box-shadow: 0 0 16px rgba(43,108,176,0.15);
 }
 
 .servicio-item.active .servicio-name {
-  color: #fff;
+  color: #1A2B4A;
 }
 
 /* Subtotal parcial de servicios */
 .nr-servicios-subtotal {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(26,43,74,0.1);
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(26,43,74,0.6);
   text-align: right;
 }
 
 .nr-servicios-subtotal strong {
-  color: #00d4ff;
+  color: #2B6CB0;
   font-size: 0.95rem;
   font-weight: 800;
 }
@@ -585,7 +582,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .nr-aviso {
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.5);
+  color: rgba(26,43,74,0.5);
   line-height: 1.4;
 }
 
@@ -593,7 +590,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
    TÉRMINOS Y CONDICIONES
    ----------------------------------------------- */
 .nr-tc-card {
-  border-color: rgba(123,47,247,0.2);
+  border-color: rgba(49,130,206,0.2);
 }
 
 .nr-tc-politica {
@@ -631,7 +628,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   display: block;
   font-size: 0.78rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.9);
+  color: #1A2B4A;
   margin-bottom: 0.3rem;
   letter-spacing: 0.02em;
 }
@@ -639,7 +636,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .nr-tc-row-body p {
   margin: 0;
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(26,43,74,0.6);
   line-height: 1.5;
 }
 
@@ -647,14 +644,14 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   list-style: none;
   padding: 0.75rem 0.9rem;
   margin: 0 0 1rem 0;
-  background: rgba(255,255,255,0.03);
+  background: rgba(26,43,74,0.03);
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid rgba(26,43,74,0.08);
 }
 
 .nr-tc-small li {
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.45);
+  color: rgba(26,43,74,0.5);
   line-height: 1.6;
   padding-left: 0.9rem;
   position: relative;
@@ -664,11 +661,11 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   content: '·';
   position: absolute;
   left: 0;
-  color: rgba(0,212,255,0.5);
+  color: rgba(49,130,206,0.6);
 }
 
 .nr-tc-small li strong {
-  color: rgba(255,255,255,0.65);
+  color: rgba(26,43,74,0.7);
   font-weight: 600;
 }
 
@@ -678,20 +675,20 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   gap: 0.6rem;
   cursor: pointer;
   padding: 0.65rem 0.9rem;
-  background: rgba(123,47,247,0.08);
-  border: 1px solid rgba(123,47,247,0.25);
+  background: rgba(49,130,206,0.06);
+  border: 1px solid rgba(49,130,206,0.2);
   border-radius: 10px;
   transition: background 0.2s ease;
 }
 
 .nr-tc-check-label:hover {
-  background: rgba(123,47,247,0.14);
+  background: rgba(49,130,206,0.1);
 }
 
 .nr-tc-checkbox {
   width: 16px;
   height: 16px;
-  accent-color: #7b2ff7;
+  accent-color: #2B6CB0;
   flex-shrink: 0;
   margin-top: 2px;
   cursor: pointer;
@@ -699,12 +696,12 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 
 .nr-tc-check-text {
   font-size: 0.82rem;
-  color: rgba(255,255,255,0.8);
+  color: rgba(26,43,74,0.8);
   line-height: 1.5;
 }
 
 .nr-tc-check-text strong {
-  color: #c084fc;
+  color: #2B6CB0;
 }
 
 @media (max-width: 640px) {
@@ -729,13 +726,13 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   font-weight: 800;
   border-radius: 10px;
   letter-spacing: 0.4px;
-  box-shadow: 0 6px 25px rgba(123,47,247,0.4), 0 0 20px rgba(255,64,251,0.2);
+  box-shadow: 0 6px 25px rgba(43,108,176,0.35), 0 0 20px rgba(49,130,206,0.15);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255,64,251,0.3);
+  border: 1px solid rgba(49,130,206,0.3);
 }
 
 .nr-btn-confirmar:hover {
-  box-shadow: 0 10px 40px rgba(123,47,247,0.6), 0 0 30px rgba(255,64,251,0.35);
+  box-shadow: 0 10px 40px rgba(43,108,176,0.5), 0 0 30px rgba(49,130,206,0.25);
   transform: translateY(-3px);
 }
 
@@ -746,7 +743,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .nr-btn-cancelar {
   background: transparent;
   border: none;
-  color: rgba(255,255,255,0.5);
+  color: rgba(26,43,74,0.5);
   font-family: var(--fuente-secundaria);
   font-size: 0.8rem;
   font-weight: 600;
@@ -759,7 +756,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 }
 
 .nr-btn-cancelar:hover {
-  color: rgba(255,255,255,0.8);
+  color: rgba(26,43,74,0.85);
   transform: translateX(-3px);
 }
 
@@ -770,12 +767,11 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   position: sticky;
   top: 1.5rem;
   align-self: start;
-  background: linear-gradient(135deg, rgba(10,25,16,0.97) 0%, rgba(26,77,53,0.95) 100%);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(78,201,160,0.18);
+  background: #ffffff;
+  border: 1.5px solid rgba(49,130,206,0.18);
   border-radius: 14px;
   padding: 1.2rem 1.3rem;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 6px 25px rgba(26,43,74,0.1), inset 0 1px 0 rgba(255,255,255,0.9);
   z-index: 10;
 }
 
@@ -784,10 +780,10 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.2px;
-  color: #4EC9A0;
+  color: #2B6CB0;
   margin-bottom: 0.9rem;
   padding-bottom: 0.7rem;
-  border-bottom: 1.5px solid rgba(78,201,160,0.2);
+  border-bottom: 1.5px solid rgba(49,130,206,0.2);
 }
 
 /* Desglose dinámico de ítems */
@@ -811,7 +807,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 
 .nr-resumen__item.accommodation-item {
   padding: 0.6rem 0;
-  border-left: 3px solid rgba(123, 47, 247, 0.5);
+  border-left: 3px solid rgba(43,108,176,0.4);
   padding-left: 0.8rem;
   margin-left: -0.8rem;
 }
@@ -822,38 +818,38 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 }
 
 .nr-resumen__item-name {
-  color: rgba(255,255,255,0.6);
+  color: rgba(26,43,74,0.6);
   line-height: 1.3;
   flex: 1;
 }
 
 .nr-resumen__item.accommodation-item .nr-resumen__item-name {
-  color: rgba(255,255,255,0.85);
+  color: #1A2B4A;
   font-weight: 600;
 }
 
 .nr-resumen__item-details {
-  color: rgba(255,255,255,0.47);
+  color: rgba(26,43,74,0.47);
   font-size: 0.75rem;
   margin-top: 0.2rem;
   line-height: 1.4;
 }
 
 .nr-resumen__item-val {
-  color: rgba(255,255,255,0.85);
+  color: #1A2B4A;
   font-weight: 700;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .nr-resumen__item.accommodation-item .nr-resumen__item-val {
-  color: #7BFF4F;
+  color: #2B6CB0;
   font-size: 0.88rem;
 }
 
 .nr-resumen__separador {
   height: 1.5px;
-  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(49,130,206,0.25), transparent);
   margin: 0.7rem 0 0.6rem;
 }
 
@@ -862,14 +858,14 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   justify-content: space-between;
   align-items: center;
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(26,43,74,0.6);
   margin-bottom: 0.4rem;
   font-weight: 600;
 }
 
 .nr-resumen__fila span:last-child {
   font-weight: 700;
-  color: rgba(255,255,255,0.85);
+  color: #1A2B4A;
 }
 
 .nr-resumen__total {
@@ -878,10 +874,10 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   align-items: center;
   margin-top: 0.7rem;
   padding-top: 0.7rem;
-  border-top: 2px solid rgba(0,212,255,0.2);
+  border-top: 2px solid rgba(49,130,206,0.2);
   font-size: 0.95rem;
   font-weight: 800;
-  color: rgba(255,255,255,0.95);
+  color: #1A2B4A;
 }
 
 .nr-resumen__total span:last-child {
@@ -894,11 +890,11 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .nr-resumen__helper {
   margin-top: 0.8rem;
   padding: 0.6rem 0.8rem;
-  background: rgba(0,212,255,0.08);
-  border: 1px solid rgba(0,212,255,0.2);
+  background: rgba(49,130,206,0.07);
+  border: 1px solid rgba(49,130,206,0.2);
   border-radius: 8px;
   font-size: 0.7rem;
-  color: rgba(0,212,255,0.8);
+  color: #2B6CB0;
   text-align: center;
   font-weight: 600;
   letter-spacing: 0.2px;
@@ -918,15 +914,15 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
-  background: linear-gradient(180deg, rgba(7,6,30,0.96) 0%, rgba(36,18,78,0.92) 100%);
-  border: 1px solid rgba(255,255,255,0.04);
+  background: #ffffff;
+  border: 1px solid rgba(49,130,206,0.15);
   padding: 1.15rem 1.25rem;
   border-radius: 14px;
   margin-bottom: 1rem;
 }
 
-.reservation-card .reservation-info h3 { margin: 0 0 0.25rem 0; color: rgba(255,255,255,0.95); }
-.reservation-card .reservation-info p  { color: rgba(255,255,255,0.75); margin: 0.15rem 0; }
+.reservation-card .reservation-info h3 { margin: 0 0 0.25rem 0; color: #1A2B4A; }
+.reservation-card .reservation-info p  { color: rgba(26,43,74,0.7); margin: 0.15rem 0; }
 .reservation-card .reservation-actions { display: flex; gap: 0.5rem; }
 .reservation-card .btn { padding: 0.55rem 0.9rem; }
 

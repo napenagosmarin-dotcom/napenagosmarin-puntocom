@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../css/reset.css" />
   <link rel="stylesheet" href="../css/variables.css" />
   <link rel="stylesheet" href="../css/styles.css?v=1.1" />
-  <link rel="stylesheet" href="../css/admin.css?v=1.1" />
+  <link rel="stylesheet" href="../css/admin.css?v=2.0" />
   <link rel="stylesheet" href="../css/nueva-reserva.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="../css/calendar-customization.css" />
@@ -20,7 +20,7 @@
   </script>
   <style>
     /* ── Layout admin con sidebar ── */
-    body { margin: 0; background: var(--color-fondo, #0d0b2e); }
+    body { margin: 0; background: #EBF4FB; }
 
     .admin-layout {
       display: flex;
@@ -48,13 +48,13 @@
       position: fixed;
       inset: 0;
       left: var(--admin-sidebar-width, 240px);
-      background: #0B0E14 !important;
+      background: #EBF4FB !important;
       z-index: 0;
       pointer-events: none;
     }
 
     .admin-layout .main-content--premium {
-      background: #0B0E14 !important;
+      background: #EBF4FB !important;
       background-image: none !important;
     }
 
@@ -66,8 +66,8 @@
       align-items: center;
       gap: 0.75rem;
       padding: 1.25rem 2rem 0.5rem;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      background: rgba(13,11,46,0.6);
+      border-bottom: 1px solid rgba(49,130,206,0.12);
+      background: rgba(235,244,251,0.85);
       backdrop-filter: blur(10px);
     }
 
@@ -77,9 +77,9 @@
       gap: 0.4rem;
       padding: 0.45rem 1rem;
       border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.05);
-      color: rgba(255,255,255,0.7);
+      border: 1px solid rgba(49,130,206,0.2);
+      background: rgba(49,130,206,0.07);
+      color: #1A2B4A;
       font-size: 0.82rem;
       font-family: var(--fuente-secundaria, 'Inter', sans-serif);
       cursor: pointer;
@@ -87,20 +87,20 @@
       text-decoration: none;
     }
     .anr-topbar__back:hover {
-      background: rgba(123,47,247,0.2);
-      border-color: rgba(123,47,247,0.4);
-      color: #fff;
+      background: rgba(49,130,206,0.15);
+      border-color: rgba(49,130,206,0.4);
+      color: #1A2B4A;
     }
 
     .anr-topbar__breadcrumb {
-      color: rgba(255,255,255,0.4);
+      color: rgba(26,43,74,0.45);
       font-size: 0.8rem;
       font-family: var(--fuente-secundaria, 'Inter', sans-serif);
       display: flex;
       align-items: center;
       gap: 0.4rem;
     }
-    .anr-topbar__breadcrumb span { color: rgba(255,255,255,0.7); }
+    .anr-topbar__breadcrumb span { color: rgba(26,43,74,0.75); }
 
     /* Contenido de la reserva (reutiliza estilos nr-*) */
     .anr-content {
@@ -123,34 +123,34 @@
           <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" class="admin-sidebar__logo-svg">
             <defs>
               <linearGradient id="ngcv2" x1="0%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stop-color="#7b2ff7"/>
-                <stop offset="100%" stop-color="#00d4ff"/>
+                <stop offset="0%" stop-color="#1A2B4A"/>
+                <stop offset="100%" stop-color="#2B6CB0"/>
               </linearGradient>
               <linearGradient id="ngc2" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#00d4ff"/>
-                <stop offset="100%" stop-color="#7b2ff7"/>
+                <stop offset="0%" stop-color="#2B6CB0"/>
+                <stop offset="100%" stop-color="#1A2B4A"/>
               </linearGradient>
               <linearGradient id="ngring2" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.9"/>
-                <stop offset="50%" stop-color="#9b59f5" stop-opacity="0.5"/>
-                <stop offset="100%" stop-color="#7b2ff7" stop-opacity="0.8"/>
+                <stop offset="0%" stop-color="#2B6CB0" stop-opacity="0.9"/>
+                <stop offset="50%" stop-color="#3182CE" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#1A2B4A" stop-opacity="0.8"/>
               </linearGradient>
               <linearGradient id="ngshine2" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
                 <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
               </linearGradient>
             </defs>
-            <circle cx="19" cy="19" r="19" fill="#0d0b2e"/>
+            <circle cx="19" cy="19" r="19" fill="#EBF4FB"/>
             <circle cx="19" cy="19" r="18.5" fill="none" stroke="url(#ngring2)" stroke-width="0.8"/>
             <circle cx="19" cy="19" r="15.5" fill="none" stroke="url(#ngc2)" stroke-width="0.3" opacity="0.3"/>
             <ellipse cx="19" cy="11" rx="8" ry="4" fill="url(#ngshine2)"/>
             <polygon points="5,31 9.5,31 19,6 16.5,6" fill="url(#ngcv2)"/>
             <polygon points="21.5,6 19,6 28.5,31 33,31" fill="url(#ngcv2)"/>
             <rect x="9.5" y="19.5" width="19" height="4" rx="1" fill="url(#ngc2)"/>
-            <polygon points="14,19.5 24,19.5 19,14.5" fill="#0d0b2e"/>
-            <line x1="5.5" y1="31" x2="18.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
-            <line x1="32.5" y1="31" x2="19.5" y2="7.5" stroke="#e040fb" stroke-width="0.7" opacity="0.55"/>
-            <circle cx="19" cy="6" r="1.4" fill="#e040fb"/>
+            <polygon points="14,19.5 24,19.5 19,14.5" fill="#EBF4FB"/>
+            <line x1="5.5" y1="31" x2="18.5" y2="7.5" stroke="#3182CE" stroke-width="0.7" opacity="0.55"/>
+            <line x1="32.5" y1="31" x2="19.5" y2="7.5" stroke="#3182CE" stroke-width="0.7" opacity="0.55"/>
+            <circle cx="19" cy="6" r="1.4" fill="#3182CE"/>
           </svg>
         </div>
         <div>
@@ -336,7 +336,7 @@
               <div class="nr-resumen__titulo">💰 Resumen de Pago</div>
 
               <!-- Detalles de Check-in y Check-out -->
-              <div id="resumenFechas" style="display:none; font-size: 0.85rem; color: rgba(255,255,255,0.8); margin-bottom: 1rem; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+              <div id="resumenFechas" style="display:none; font-size: 0.85rem; color: rgba(26,43,74,0.8); margin-bottom: 1rem; background: rgba(49,130,206,0.06); padding: 10px; border-radius: 8px; border: 1px solid rgba(49,130,206,0.15);">
                 <div style="margin-bottom: 5px;">🕒 <strong>Check-in:</strong> <span id="resumenCheckin"></span> (3:00 PM)</div>
                 <div>🕒 <strong>Check-out:</strong> <span id="resumenCheckout"></span> (12:00 PM)</div>
               </div>
