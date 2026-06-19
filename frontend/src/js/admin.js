@@ -1723,7 +1723,7 @@ async function cargarDashboard() {
             paquetesAPI.getAll(),
             serviciosAPI.getAll(),
             reservasAPI.getAll(),
-            fetch('/api/usuarios').then(res => res.json())
+            usuariosAPI.getAll()
         ]);
 
         // ── KPI 1: Tasa de Ocupación ──
@@ -2422,8 +2422,8 @@ function renderForm(section, data = null, extra = {}) {
                     <label>📍 DIRECCIÓN</label>
                     <input type="text" name="Direccion" value="${data?.Direccion || ''}">
                 </div>
-                ${isEdit ? \`<input type="hidden" name="Estado" value="\${data?.Estado ?? 1}">\` : ''}
-                ${isEdit ? \`<input type="hidden" name="IDRol" value="\${data?.IDRol ?? 1}">\` : ''}`;
+                ${isEdit ? '<input type="hidden" name="Estado" value="' + (data?.Estado ?? 1) + '">' : ''}
+                ${isEdit ? '<input type="hidden" name="IDRol" value="' + (data?.IDRol ?? 1) + '">' : ''}`;
             break;
         case 'cabanas':
             fields = `
@@ -2461,7 +2461,7 @@ function renderForm(section, data = null, extra = {}) {
                     <label>🖼️ IMAGEN URL</label>
                     <input type="text" name="ImagenCabana" value="${data?.ImagenCabana || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'">
                 </div>
-                ${isEdit ? \`<input type="hidden" name="Estado" value="\${data?.Estado ?? 1}">\` : ''}`;
+                ${isEdit ? '<input type="hidden" name="Estado" value="' + (data?.Estado ?? 1) + '">' : ''}`;
             break;
         case 'usuarios':
             fields = `
@@ -2505,11 +2505,7 @@ function renderForm(section, data = null, extra = {}) {
                         </select>
                     </div>
                 </div>
-                ${!isEdit ? \`
-                <div class="form-group">
-                    <label>🔒 CONTRASEÑA</label>
-                    <input type="password" name="Contrasena" required>
-                </div>\` : ''}`;
+                ${!isEdit ? '<div class="form-group"><label>🔒 CONTRASEÑA</label><input type="password" name="Contrasena" required></div>' : ''}`;
             break;
         case 'paquetes':
             const selectedServices = (data?.IDServicio || '').toString().split(',');
