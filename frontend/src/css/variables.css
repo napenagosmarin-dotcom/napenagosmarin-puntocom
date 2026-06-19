@@ -1,12 +1,12 @@
 :root {
   /* Colores — Tema Natural Aura */
-  --color-primario: #1A4D35;      /* verde bosque profundo */
-  --color-secundario: #279B65;    /* verde vivo */
-  --color-acento: #4EC9A0;        /* menta/teal */
-  --color-fondo: #F4F7F3;         /* blanco cálido */
+  --color-primario: #1A2B4A;      /* navy oscuro */
+  --color-secundario: #2B6CB0;    /* azul primario */
+  --color-acento: #3182CE;        /* azul cielo */
+  --color-fondo: #EBF4FB;         /* fondo azul claro */
   --color-blanco: #ffffff;
-  --color-texto: #1C2B20;         /* negro verdoso */
-  --color-texto-claro: #4D7060;   /* verde gris */
+  --color-texto: #1A2B4A;         /* texto oscuro */
+  --color-texto-claro: #4A6080;   /* texto secundario */
   --color-error: #DC2626;
   --color-exito: #16A34A;
 

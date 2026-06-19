@@ -2,17 +2,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap');
 
 :root {
-  /* ── Tema Natural Aura — Bosque & Ámbar ── */
-  --color-primario:      #1A4D35;   /* verde bosque profundo */
-  --color-secundario:    #279B65;   /* verde vivo */
-  --color-acento:        #4EC9A0;   /* menta/teal */
-  --color-magenta:       #D4902B;   /* ámbar cálido */
-  --color-morado-medio:  #1C6040;   /* verde medio-oscuro */
+  /* ── Tema Aura — Azul Cielo Claro ── */
+  --color-primario:      #1A2B4A;   /* navy oscuro — texto y sidebar */
+  --color-secundario:    #2B6CB0;   /* azul primario */
+  --color-acento:        #3182CE;   /* azul cielo */
+  --color-magenta:       #D69E2E;   /* ámbar dorado */
+  --color-morado-medio:  #2C5282;   /* azul medio */
 
   --color-blanco:        #ffffff;
-  --color-texto:         #1C2B20;   /* negro verdoso */
-  --color-texto-claro:   #4D7060;   /* verde gris medio */
-  --color-fondo:         #F4F7F3;   /* blanco cálido con tinte verde */
+  --color-texto:         #1A2B4A;   /* texto principal oscuro */
+  --color-texto-claro:   #4A6080;   /* texto secundario */
+  --color-fondo:         #EBF4FB;   /* fondo azul claro */
 
   --color-exito:         #16A34A;
   --color-error:         #DC2626;
@@ -30,8 +30,8 @@
 
   --radio-borde:         10px;
   --transicion:          all 0.3s ease;
-  --sombra:              0 2px 12px rgba(26,77,53,0.10);
-  --sombra-hover:        0 8px 30px rgba(39,155,101,0.22);
+  --sombra:              0 2px 12px rgba(26,43,74,0.08);
+  --sombra-hover:        0 8px 30px rgba(43,108,176,0.18);
 }
 
 /* ===== SCROLLBAR ESTÉTICO GLOBAL ===== */
@@ -119,8 +119,8 @@ img { max-width: 100%; display: block; }
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 20% 25%, rgba(78,201,160,0.12) 0%, transparent 55%),
-    radial-gradient(circle at 80% 75%, rgba(212,144,43,0.08) 0%, transparent 55%);
+    radial-gradient(circle at 20% 25%, rgba(49,130,206,0.1) 0%, transparent 55%),
+    radial-gradient(circle at 80% 75%, rgba(214,158,46,0.07) 0%, transparent 55%);
   pointer-events: none;
 }
 
@@ -1957,7 +1957,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(rgba(12, 33, 21, 0.52), rgba(12, 33, 21, 0.72)),
+  background: linear-gradient(rgba(26, 43, 74, 0.52), rgba(26, 43, 74, 0.72)),
               url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1800&q=80');
   background-size: cover;
   background-position: center;
