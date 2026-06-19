@@ -6,6 +6,7 @@ async function cargarDatosLanding() {
     // Cargamos cada sección de forma independiente para que un error no afecte a las demás
     await Promise.allSettled([
         cargarHabitaciones(),
+        cargarCabanas(),
         cargarPaquetes(),
         cargarServicios()
     ]);
@@ -22,6 +23,20 @@ async function cargarHabitaciones() {
         console.error("Error al cargar habitaciones:", error);
         const contenedor = document.getElementById('grid-habitaciones');
         if (contenedor) contenedor.innerHTML = '<p style="color: rgba(26,43,74,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay habitaciones disponibles en este momento.</p>';
+    }
+}
+
+async function cargarCabanas() {
+    try {
+        const res = await fetch('/api/cabanas');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const lista = Array.isArray(data) ? data : [];
+        renderizarCabanas(lista.filter(c => Number(c.Estado) === 1));
+    } catch (error) {
+        console.error("Error al cargar cabañas:", error);
+        const contenedor = document.getElementById('grid-cabanas');
+        if (contenedor) contenedor.innerHTML = '<p style="color: rgba(26,43,74,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay cabañas disponibles en este momento.</p>';
     }
 }
 
@@ -121,6 +136,52 @@ function renderizarHabitaciones(habitaciones) {
         `;
     });
     
+    contenedor.innerHTML = html;
+}
+
+function renderizarCabanas(cabanas) {
+    const contenedor = document.getElementById('grid-cabanas');
+    if (!contenedor) return;
+
+    if (cabanas.length === 0) {
+        contenedor.innerHTML = '<p style="color: rgba(26,43,74,0.5); text-align: center; grid-column: 1 / -1; padding: 40px;">No hay cabañas disponibles en este momento.</p>';
+        return;
+    }
+
+    const fallbackImg = 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&q=80';
+    let html = '';
+
+    cabanas.forEach(cab => {
+        const nombre = cab.NombreCabana || cab.nombre || 'Cabaña';
+        const precio = Number(cab.PrecioNoche || cab.precio || 0);
+        const descripcion = cab.Descripcion || cab.descripcion || '';
+        const imagen = obtenerImagen(cab.ImagenCabana || cab.imagen, fallbackImg);
+        const capacidad = cab.CapacidadPersonas || cab.capacidad || '';
+        const habitaciones = cab.NumeroHabitaciones || '';
+
+        const dataObj = {
+            tipo: 'cabana',
+            nombre: nombre,
+            precio: precio,
+            descripcion: descripcion,
+            imagen: imagen,
+            capacidad: capacidad,
+            habitaciones: habitaciones
+        };
+
+        html += `
+        <div class="room-card" onclick='abrirModalDetalle(${escaparParaAtributo(dataObj)})'>
+            <img src="${imagen}" alt="${nombre}" onerror="this.src='${fallbackImg}'"/>
+            <div class="room-card-overlay">
+                <span class="room-tag">Cabaña</span>
+                <div class="room-name">${nombre}</div>
+                <div class="room-price">Desde <span>${formatearMoneda(precio)}</span> / noche</div>
+            </div>
+            <div class="room-arrow">→</div>
+        </div>
+        `;
+    });
+
     contenedor.innerHTML = html;
 }
 
@@ -272,6 +333,21 @@ function abrirModalDetalle(data) {
         if (data.servicios) agregarCaracteristica('fa-concierge-bell', `Servicios: ${data.servicios}`);
         if (data.descuento > 0) agregarCaracteristica('fa-tag', `Descuento: ${data.descuento}%`);
         agregarCaracteristica('fa-star', 'Experiencia Única');
+
+    } else if (data.tipo === 'cabana') {
+        img.src = data.imagen;
+        img.onerror = function() { this.src = 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&q=80'; };
+        tag.textContent = 'Cabaña';
+        title.textContent = data.nombre;
+        price.textContent = formatearMoneda(data.precio);
+        priceSuffix.textContent = '/ noche';
+        desc.textContent = data.descripcion || 'Disfrute de nuestra cabaña en contacto con la naturaleza.';
+
+        if (data.capacidad) agregarCaracteristica('fa-user-friends', `Hasta ${data.capacidad} personas`);
+        if (data.habitaciones) agregarCaracteristica('fa-bed', `${data.habitaciones} habitación(es)`);
+        agregarCaracteristica('fa-tree', 'Entorno Natural');
+        agregarCaracteristica('fa-fire', 'Fogón / Chimenea');
+        agregarCaracteristica('fa-wifi', 'Wi-Fi');
 
     } else if (data.tipo === 'servicio') {
         img.src = 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80';
