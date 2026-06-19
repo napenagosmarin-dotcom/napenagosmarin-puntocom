@@ -8,9 +8,9 @@
   <link rel="stylesheet" href="../css/variables.css" />
   <link rel="stylesheet" href="../css/styles.css?v=1.1" />
   <link rel="stylesheet" href="../css/admin.css?v=2.0" />
-  <link rel="stylesheet" href="../css/nueva-reserva.css" />
+  <link rel="stylesheet" href="../css/nueva-reserva.css?v=2.0" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="../css/calendar-customization.css" />
+  <link rel="stylesheet" href="../css/calendar-customization.css?v=2.0" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     const __userData = localStorage.getItem('user');
@@ -53,9 +53,16 @@
       pointer-events: none;
     }
 
-    .admin-layout .main-content--premium {
+    .admin-layout .main-content--premium,
+    .admin-layout .main-content--premium::before,
+    .admin-layout .main-content--premium::after {
       background: #EBF4FB !important;
       background-image: none !important;
+    }
+    /* Forzar cards de nr- a fondo blanco sobre fondo claro */
+    .nr-card,
+    .nr-resumen {
+      background: #ffffff !important;
     }
 
     /* Breadcrumb / header superior del área principal */
