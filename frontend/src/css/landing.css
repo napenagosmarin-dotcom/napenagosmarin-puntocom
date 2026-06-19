@@ -402,6 +402,11 @@ section { padding: 120px 60px; }
 }
 .room-card:hover .room-arrow { opacity: 1; transform: translateY(0); }
 
+/* Cabañas: todas las tarjetas igual altura (sin span-2 en la primera) */
+#cabanas .room-card:first-child { grid-row: auto; }
+#cabanas .room-card:first-child img { min-height: 260px; }
+#cabanas .room-card:first-child .room-name { font-size: 1.4rem; }
+
 /* ─── SERVICIOS ─── */
 .services-section { max-width: 1200px; margin: 0 auto; }
 .services-header { margin-bottom: 60px; }
