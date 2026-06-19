@@ -402,9 +402,10 @@ section { padding: 120px 60px; }
 }
 .room-card:hover .room-arrow { opacity: 1; transform: translateY(0); }
 
-/* Cabañas: todas las tarjetas igual altura (sin span-2 en la primera) */
+/* Cabañas: grid uniforme sin tarjeta destacada */
+#cabanas .rooms-grid { grid-template-columns: 1fr 1fr 1fr; grid-auto-rows: 320px; }
 #cabanas .room-card:first-child { grid-row: auto; }
-#cabanas .room-card:first-child img { min-height: 260px; }
+#cabanas .room-card img { min-height: unset; height: 100%; }
 #cabanas .room-card:first-child .room-name { font-size: 1.4rem; }
 
 /* ─── SERVICIOS ─── */
