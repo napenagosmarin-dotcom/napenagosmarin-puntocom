@@ -48,6 +48,9 @@ app.get('/reset-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'src', 'pages', 'reset-password.html'));
 });
 
+// ===== HEALTH CHECK =====
+app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
+
 // ===== ARCHIVOS ESTÁTICOS DEL FRONTEND =====
 app.use(express.static(path.join(__dirname, 'frontend')));
 
