@@ -1958,7 +1958,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   align-items: center;
   justify-content: center;
   background: linear-gradient(rgba(12, 33, 21, 0.52), rgba(12, 33, 21, 0.72)),
-              url('https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?auto=format&fit=crop&w=1800&q=80');
+              url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1800&q=80');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -2371,7 +2371,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* ===== PREMIUM DASHBOARD (CLIENTE) ===== */
 .main-content--premium {
   background: linear-gradient(rgba(12, 33, 21, 0.55), rgba(12, 33, 21, 0.75)),
-              url('https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?auto=format&fit=crop&w=1800&q=80') center/cover fixed no-repeat !important;
+              url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1800&q=80') center/cover fixed no-repeat !important;
   color: #fff !important;
 }
 
