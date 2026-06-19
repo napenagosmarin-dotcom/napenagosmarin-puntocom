@@ -166,16 +166,16 @@ async function run() {
   console.log('OK: contenido sembrado (cabañas, habitaciones, servicios, paquetes)');
 
   // ── 5. Migraciones de esquema (columnas añadidas en sprints anteriores) ─
-  await conn.query(`
-    ALTER TABLE \`usuarios\`
-    ADD COLUMN IF NOT EXISTS \`Departamento\` VARCHAR(100) NULL DEFAULT NULL AFTER \`Pais\`,
-    ADD COLUMN IF NOT EXISTS \`Municipio\`    VARCHAR(100) NULL DEFAULT NULL AFTER \`Departamento\`
-  `);
-
-  await conn.query(`
-    ALTER TABLE \`paquetes\`
-    ADD COLUMN IF NOT EXISTS \`NumeroPersonas\` INT NULL DEFAULT NULL AFTER \`TipoDescuento\`
-  `);
+  // ALTER TABLE sin IF NOT EXISTS (MySQL 5.7 no lo soporta); ignoramos error de columna duplicada
+  try {
+    await conn.query(`ALTER TABLE \`usuarios\` ADD COLUMN \`Departamento\` VARCHAR(100) NULL DEFAULT NULL AFTER \`Pais\``);
+  } catch(e) { /* columna ya existe */ }
+  try {
+    await conn.query(`ALTER TABLE \`usuarios\` ADD COLUMN \`Municipio\` VARCHAR(100) NULL DEFAULT NULL AFTER \`Departamento\``);
+  } catch(e) { /* columna ya existe */ }
+  try {
+    await conn.query(`ALTER TABLE \`paquetes\` ADD COLUMN \`NumeroPersonas\` INT NULL DEFAULT NULL AFTER \`TipoDescuento\``);
+  } catch(e) { /* columna ya existe */ }
 
   console.log('OK: migraciones de esquema completadas');
 
