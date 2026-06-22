@@ -6,8 +6,8 @@
   <title>Panel Administrador - Aura Travel</title>
   <link rel="stylesheet" href="../css/reset.css" />
   <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/styles.css?v=1.2" />
-  <link rel="stylesheet" href="../css/admin.css?v=1.2" />
+  <link rel="stylesheet" href="../css/styles.css?v=3.4" />
+  <link rel="stylesheet" href="../css/admin.css?v=3.4" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -192,14 +192,25 @@
 
 
 
-            <div class="stat-card stat-card--reservas" data-section="reservas" style="cursor:pointer;">
+            <div class="stat-card stat-card--reservas">
               <div class="stat-card__icon">📅</div>
               <div class="stat-card__info">
                 <span class="stat-card__numero" id="kpi-reservas">—</span>
                 <span class="stat-card__label">Reservas Activas</span>
               </div>
               <div class="stat-card__sub" id="kpi-reservas-sub">
-                <span class="kpi-trend kpi-trend--positive" id="kpi-reservas-trend"></span> programadas esta semana
+                <span class="kpi-trend kpi-trend--positive" id="kpi-reservas-trend"></span> pendientes o confirmadas
+              </div>
+            </div>
+
+            <div class="stat-card stat-card--clientes-kpi">
+              <div class="stat-card__icon">👥</div>
+              <div class="stat-card__info">
+                <span class="stat-card__numero" id="kpi-clientes">—</span>
+                <span class="stat-card__label">Clientes Activos</span>
+              </div>
+              <div class="stat-card__sub" id="kpi-clientes-sub">
+                <span class="kpi-trend kpi-trend--positive" id="kpi-clientes-trend"></span> registrados
               </div>
             </div>
           </div>
@@ -312,7 +323,7 @@
   </div>
 
   <script src="../js/api.js"></script>
-  <script src="../js/admin.js?v=2.0"></script>
+  <script src="../js/admin.js?v=3.2"></script>
   <script>lucide.createIcons();</script>
   <!-- MODAL DE CONFIRMACIÓN -->
   <div id="confirmModalOverlay" class="modal-overlay">

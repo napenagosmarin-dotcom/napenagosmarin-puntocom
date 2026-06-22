@@ -1221,8 +1221,8 @@ window.verDetalleCliente = (id) => {
                     </div>
                     <span class="det-badge ${badgeClass}">${estadoTxt}</span>
                 </div>
-                <div class="det-grid det-grid--3">
-                    <div class="det-card">
+                <div class="det-grid det-grid--2">
+                    <div class="det-card det-card--full">
                         <i data-lucide="mail"></i>
                         <p class="det-card__label">EMAIL</p>
                         <span class="det-card__value det-card__value--break">${email}</span>
@@ -1272,10 +1272,10 @@ window.verDetalleHabitacion = async (id) => {
                 </div>
                 <div class="det-info-col">
                     <p class="det-desc">${h.Descripcion || 'Sin descripción disponible.'}</p>
-                    <div class="det-grid det-grid--2">
+                    <div class="det-grid det-grid--3">
                         <div class="det-card">
                             <i data-lucide="dollar-sign"></i>
-                            <p class="det-card__label">PRECIO / NOCHE</p>
+                            <p class="det-card__label">PRECIO POR NOCHE</p>
                             <span class="det-card__value det-card__value--highlight">$${Number(h.precio || h.Precio || 0).toLocaleString('es-CO')}</span>
                         </div>
                         <div class="det-card">
@@ -1283,7 +1283,7 @@ window.verDetalleHabitacion = async (id) => {
                             <p class="det-card__label">ESTADO</p>
                             <span class="det-badge ${estadoClass}">${estado}</span>
                         </div>
-                        <div class="det-card det-card--full">
+                        <div class="det-card">
                             <i data-lucide="hash"></i>
                             <p class="det-card__label">ID HABITACIÓN</p>
                             <span class="det-card__value">#${h.IDHabitacion || id}</span>
@@ -1308,6 +1308,9 @@ window.verDetallePaquete = async (id) => {
         const estado = p.Estado === 1 ? 'Activo' : 'Inactivo';
         const estadoClass = p.Estado === 1 ? 'det-badge--ok' : 'det-badge--warn';
         const nombre = p.NombrePaquete || p.nombre || 'Paquete';
+        const alojNombre = p.NombreHabitacion || p.NombreCabana || '—';
+        const alojLabel = p.NombreCabana && !p.NombreHabitacion ? 'CABAÑA' : 'HABITACIÓN';
+        const alojIcon = p.NombreCabana && !p.NombreHabitacion ? 'home' : 'hotel';
 
         document.getElementById('detalleTitulo').textContent = 'Ficha de Paquete';
         document.getElementById('detalleContent').innerHTML = `
@@ -1320,7 +1323,7 @@ window.verDetallePaquete = async (id) => {
                 </div>
                 <div class="det-info-col">
                     <p class="det-desc">${p.Descripcion || p.descripcion || 'Sin descripción disponible.'}</p>
-                    <div class="det-grid det-grid--2">
+                    <div class="det-grid det-grid--4">
                         <div class="det-card">
                             <i data-lucide="dollar-sign"></i>
                             <p class="det-card__label">PRECIO</p>
@@ -1332,16 +1335,23 @@ window.verDetallePaquete = async (id) => {
                             <span class="det-badge ${estadoClass}">${estado}</span>
                         </div>
                         <div class="det-card">
-                            <i data-lucide="hotel"></i>
-                            <p class="det-card__label">HABITACIÓN</p>
-                            <span class="det-card__value det-card__value--break">${p.NombreHabitacion || '—'}</span>
+                            <i data-lucide="${alojIcon}"></i>
+                            <p class="det-card__label">${alojLabel}</p>
+                            <span class="det-card__value det-card__value--break">${alojNombre}</span>
                         </div>
                         <div class="det-card">
                             <i data-lucide="smile"></i>
                             <p class="det-card__label">SERVICIO</p>
                             <span class="det-card__value det-card__value--break">${p.NombreServicio || '—'}</span>
                         </div>
-                        ${p.Descuento ? `<div class="det-card det-card--full"><i data-lucide="tag"></i><p class="det-card__label">DESCUENTO</p><span class="det-card__value">${p.Descuento}%</span></div>` : ''}
+                    </div>
+                    <div class="det-grid det-grid--2">
+                        ${p.Descuento ? `<div class="det-card"><i data-lucide="tag"></i><p class="det-card__label">DESCUENTO</p><span class="det-card__value">${p.Descuento}%</span></div>` : ''}
+                        <div class="det-card${p.Descuento ? '' : ' det-card--full'}">
+                            <i data-lucide="hash"></i>
+                            <p class="det-card__label">ID PAQUETE</p>
+                            <span class="det-card__value">#${p.IDPaquete || p.idPaquete || id}</span>
+                        </div>
                     </div>
                 </div>
             </div>`;
@@ -1374,7 +1384,7 @@ window.verDetalleServicio = async (id) => {
                 </div>
                 <div class="det-info-col">
                     <p class="det-desc">${s.Descripcion || s.descripcion || 'Sin descripción disponible.'}</p>
-                    <div class="det-grid det-grid--2">
+                    <div class="det-grid det-grid--4">
                         <div class="det-card">
                             <i data-lucide="dollar-sign"></i>
                             <p class="det-card__label">PRECIO</p>
@@ -1394,6 +1404,13 @@ window.verDetalleServicio = async (id) => {
                             <i data-lucide="users"></i>
                             <p class="det-card__label">MÁX. PERSONAS</p>
                             <span class="det-card__value">${s.CantidadMaximaPersonas || '—'}</span>
+                        </div>
+                    </div>
+                    <div class="det-grid det-grid--2">
+                        <div class="det-card det-card--full">
+                            <i data-lucide="hash"></i>
+                            <p class="det-card__label">ID SERVICIO</p>
+                            <span class="det-card__value">#${s.IDServicio || s.idServicio || id}</span>
                         </div>
                     </div>
                 </div>
@@ -1431,7 +1448,7 @@ window.mostrarDetallesCabana = async (id) => {
                 </div>
                 <div class="det-info-col">
                     <p class="det-desc">${c.Descripcion || c.descripcion || 'Sin descripción detallada disponible.'}</p>
-                    <div class="det-grid det-grid--2">
+                    <div class="det-grid det-grid--4">
                         <div class="det-card">
                             <i data-lucide="users"></i>
                             <p class="det-card__label">CAPACIDAD</p>
@@ -1439,18 +1456,25 @@ window.mostrarDetallesCabana = async (id) => {
                         </div>
                         <div class="det-card">
                             <i data-lucide="dollar-sign"></i>
-                            <p class="det-card__label">PRECIO / NOCHE</p>
+                            <p class="det-card__label">PRECIO NOCHE</p>
                             <span class="det-card__value det-card__value--highlight">$${Number(c.PrecioNoche || c.precioNoche || 0).toLocaleString('es-CO')}</span>
                         </div>
                         <div class="det-card">
                             <i data-lucide="door-open"></i>
-                            <p class="det-card__label">NRO HABITACIONES</p>
+                            <p class="det-card__label">HABITACIONES</p>
                             <span class="det-card__value">${c.NumeroHabitaciones || c.numeroHabitaciones || '—'}</span>
                         </div>
                         <div class="det-card">
                             <i data-lucide="check-circle-2"></i>
                             <p class="det-card__label">ESTADO</p>
                             <span class="det-badge ${estadoClass}">${texto}</span>
+                        </div>
+                    </div>
+                    <div class="det-grid det-grid--2">
+                        <div class="det-card det-card--full">
+                            <i data-lucide="hash"></i>
+                            <p class="det-card__label">ID CABAÑA</p>
+                            <span class="det-card__value">#${c.IDCabana || c.idCabana || id}</span>
                         </div>
                     </div>
                 </div>
@@ -1709,45 +1733,45 @@ let chartServicios = null;
 
 async function cargarDashboard() {
     // Resetear stats con animación
-    ['kpi-ocupacion', 'kpi-ingresos', 'kpi-reservas']
+    ['kpi-ocupacion', 'kpi-ingresos', 'kpi-reservas', 'kpi-clientes']
         .forEach(id => {
             const el = document.getElementById(id);
             if (el) { el.textContent = '...'; el.classList.add('loading-num'); }
         });
 
     try {
-        const [cabanas, habitaciones, clientes, paquetes, servicios, reservas, usuarios] = await Promise.all([
+        const [cabanas, paquetes, servicios, reservas, statsRes] = await Promise.all([
             cabanasAPI.getAll(),
-            habitacionesAPI.getAll(),
-            clientesAPI.getAll(),
             paquetesAPI.getAll(),
             serviciosAPI.getAll(),
             reservasAPI.getAll(),
-            usuariosAPI.getAll()
+            fetch('/api/dashboard/stats').then(r => r.ok ? r.json() : {})
         ]);
 
         // ── KPI 1: Tasa de Ocupación ──
         const elOcu = document.getElementById('kpi-ocupacion');
-        const cabanasOcupadas = cabanas.filter(c => Number(c.Estado) === 2).length;
-        const cabanasTotales = cabanas.length || 1;
-        const tasaOcupacion = Math.round((cabanasOcupadas / cabanasTotales) * 100);
-        if (elOcu) { elOcu.classList.remove('loading-num'); elOcu.textContent = tasaOcupacion + '%'; }
+        if (elOcu) { elOcu.classList.remove('loading-num'); elOcu.textContent = (statsRes.tasaOcupacion ?? 0) + '%'; }
         const subOcu = document.getElementById('kpi-ocupacion-trend');
-        if (subOcu) { subOcu.textContent = '+5%'; subOcu.className = 'kpi-trend kpi-trend--positive'; }
+        if (subOcu) { subOcu.textContent = ''; }
 
-        // ── KPI 2: Ingresos Mensuales ──
+        // ── KPI 2: Ingresos Totales (confirmados + completados) ──
         const elIng = document.getElementById('kpi-ingresos');
-        const ingresos = 12500000; // Mockeado por ahora
+        const ingresos = Number(statsRes.totalIngresos || 0);
         if (elIng) { elIng.classList.remove('loading-num'); elIng.textContent = '$' + ingresos.toLocaleString('es-CO'); }
         const subIng = document.getElementById('kpi-ingresos-trend');
-        if (subIng) { subIng.textContent = '+12%'; subIng.className = 'kpi-trend kpi-trend--positive'; }
+        if (subIng) { subIng.textContent = ''; subIng.className = 'kpi-trend'; }
 
-
-        // ── KPI 4: Reservas Activas ──
+        // ── KPI 3: Reservas Activas (pendientes, confirmadas, procesando) ──
         const elRes = document.getElementById('kpi-reservas');
-        if (elRes) animarNumero(elRes, reservas.length);
+        if (elRes) animarNumero(elRes, statsRes.reservasActivas ?? 0);
         const subRes = document.getElementById('kpi-reservas-trend');
-        if (subRes) { subRes.textContent = '+3'; subRes.className = 'kpi-trend kpi-trend--positive'; }
+        if (subRes) { subRes.textContent = ''; subRes.className = 'kpi-trend'; }
+
+        // ── KPI 4: Clientes Activos ──
+        const elCli = document.getElementById('kpi-clientes');
+        if (elCli) animarNumero(elCli, statsRes.clientesActivos ?? 0);
+        const subCli = document.getElementById('kpi-clientes-trend');
+        if (subCli) { subCli.textContent = ''; subCli.className = 'kpi-trend'; }
 
         // Renderizar gráficas
         renderGraficaCabanas(cabanas);
@@ -2092,11 +2116,11 @@ window.verDetalleUsuario = async (id) => {
                     <div class="det-avatar"><i data-lucide="user"></i></div>
                     <div class="det-header-info">
                         <h3>${nombre} ${apellido}</h3>
-                        <p>Rol: <strong>${idRol === 2 ? 'Administrador' : 'Usuario General'}</strong></p>
+                        <p>ID: <strong>${data.IDUsuario || data.idUsuario || id}</strong> &bull; Rol: <strong>${idRol === 2 ? 'Administrador' : 'Usuario General'}</strong></p>
                     </div>
                     <span class="det-badge ${badgeClass}">${estadoTxt}</span>
                 </div>
-                <div class="det-grid det-grid--3">
+                <div class="det-grid det-grid--2">
                     <div class="det-card det-card--full">
                         <i data-lucide="mail"></i>
                         <p class="det-card__label">EMAIL</p>
@@ -2108,14 +2132,14 @@ window.verDetalleUsuario = async (id) => {
                         <span class="det-card__value">${telefono}</span>
                     </div>
                     <div class="det-card">
-                        <i data-lucide="fingerprint"></i>
-                        <p class="det-card__label">DOCUMENTO</p>
-                        <span class="det-card__value">${documento}</span>
-                    </div>
-                    <div class="det-card">
                         <i data-lucide="globe"></i>
                         <p class="det-card__label">PAÍS</p>
                         <span class="det-card__value">${pais}</span>
+                    </div>
+                    <div class="det-card det-card--full">
+                        <i data-lucide="fingerprint"></i>
+                        <p class="det-card__label">DOCUMENTO</p>
+                        <span class="det-card__value">${documento}</span>
                     </div>
                     <div class="det-card det-card--full">
                         <i data-lucide="map-pin"></i>
