@@ -59,10 +59,48 @@
       background: #EBF4FB !important;
       background-image: none !important;
     }
-    /* Forzar cards de nr- a fondo blanco sobre fondo claro */
-    .nr-card,
-    .nr-resumen {
+    /* Forzar cards de formulario a fondo blanco */
+    .nr-card {
       background: #ffffff !important;
+    }
+
+    /* Resumen de pago — fondo oscuro con texto claramente visible */
+    .nr-resumen {
+      background: linear-gradient(135deg, #1A2B4A 0%, #0F1D36 100%) !important;
+      border-color: rgba(255,255,255,0.12) !important;
+    }
+    .nr-resumen__titulo {
+      border-bottom-color: rgba(255,255,255,0.15) !important;
+    }
+    .nr-resumen__fila {
+      color: rgba(255,255,255,0.8) !important;
+    }
+    .nr-resumen__fila span:last-child {
+      color: #ffffff !important;
+    }
+    .nr-resumen__item-name {
+      color: rgba(255,255,255,0.85) !important;
+    }
+    .nr-resumen__item.accommodation-item .nr-resumen__item-name {
+      color: #ffffff !important;
+    }
+    .nr-resumen__item-details {
+      color: rgba(255,255,255,0.55) !important;
+    }
+    .nr-resumen__item-val {
+      color: #ffffff !important;
+    }
+    .nr-resumen__separador {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+    }
+    .nr-resumen__total {
+      color: #ffffff !important;
+      border-top-color: rgba(255,255,255,0.2) !important;
+    }
+    .nr-resumen__helper {
+      background: rgba(49,130,206,0.2) !important;
+      border-color: rgba(49,130,206,0.4) !important;
+      color: #93C5FD !important;
     }
 
     /* Breadcrumb / header superior del área principal */
@@ -251,6 +289,36 @@
             <!-- COLUMNA IZQUIERDA: formulario -->
             <form id="reservationForm" class="nr-form">
 
+              <!-- PASO 0: SELECCIONAR CLIENTE -->
+              <div class="nr-card" style="border-color: rgba(16,185,129,0.25);">
+                <div class="nr-card__titulo nr-card__titulo--flex">
+                  <span>👤 Cliente de la Reserva</span>
+                  <span id="clienteSeleccionadoBadge" style="display:none; font-size:0.72rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); padding:0.2rem 0.7rem; border-radius:999px; letter-spacing:0.02em;">✓ Seleccionado</span>
+                </div>
+                <div style="display:flex; gap:0.75rem; align-items:flex-end;">
+                  <div class="nr-field" style="flex:1;">
+                    <label class="nr-label" for="buscarDocumento">🔍 Número de Documento</label>
+                    <input type="text" id="buscarDocumento" placeholder="Ej: 1234567890" autocomplete="off"
+                           style="width:100%;padding:0.65rem 0.9rem;height:2.4rem;background:#f0f7ff;border:1.5px solid rgba(49,130,206,0.2);border-radius:10px;font-family:var(--fuente-secundaria);font-size:0.85rem;color:#1A2B4A;outline:none;box-sizing:border-box;transition:border-color 0.2s;">
+                  </div>
+                  <button type="button" id="btnBuscarCliente"
+                          style="padding:0 1.2rem;height:2.4rem;background:linear-gradient(135deg,#2B6CB0,#3182CE);color:#fff;border:none;border-radius:10px;font-size:0.82rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity 0.2s;flex-shrink:0;">
+                    Buscar
+                  </button>
+                </div>
+                <div id="clienteEncontrado" style="display:none;margin-top:0.85rem;padding:0.85rem 1rem;background:rgba(16,185,129,0.07);border:1.5px solid rgba(16,185,129,0.3);border-radius:10px;">
+                  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+                    <span>✅</span>
+                    <strong style="color:#1A2B4A;font-size:0.9rem;" id="clienteNombreDisplay"></strong>
+                  </div>
+                  <div style="color:rgba(26,43,74,0.65);font-size:0.8rem;margin-top:0.15rem;" id="clienteEmailDisplay"></div>
+                  <div style="color:rgba(26,43,74,0.65);font-size:0.8rem;margin-top:0.1rem;" id="clienteDocDisplay"></div>
+                </div>
+                <div id="clienteNoEncontrado" style="display:none;margin-top:0.85rem;padding:0.75rem 1rem;background:rgba(239,68,68,0.07);border:1.5px solid rgba(239,68,68,0.25);border-radius:10px;color:#dc2626;font-size:0.82rem;">
+                  ⚠ No se encontró ningún usuario registrado con ese número de documento.
+                </div>
+              </div>
+
               <!-- PASO 1: FECHAS -->
               <div class="nr-card nr-card--step1">
                 <div class="nr-card__titulo">Selecciona tus Fechas</div>
@@ -343,9 +411,9 @@
               <div class="nr-resumen__titulo">💰 Resumen de Pago</div>
 
               <!-- Detalles de Check-in y Check-out -->
-              <div id="resumenFechas" style="display:none; font-size: 0.85rem; color: rgba(26,43,74,0.8); margin-bottom: 1rem; background: rgba(49,130,206,0.06); padding: 10px; border-radius: 8px; border: 1px solid rgba(49,130,206,0.15);">
-                <div style="margin-bottom: 5px;">🕒 <strong>Check-in:</strong> <span id="resumenCheckin"></span> (3:00 PM)</div>
-                <div>🕒 <strong>Check-out:</strong> <span id="resumenCheckout"></span> (12:00 PM)</div>
+              <div id="resumenFechas" style="display:none; font-size: 0.85rem; color: rgba(255,255,255,0.85); margin-bottom: 1rem; background: rgba(255,255,255,0.07); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);">
+                <div style="margin-bottom: 5px;">🕒 <strong style="color:#fff;">Check-in:</strong> <span id="resumenCheckin"></span> (3:00 PM)</div>
+                <div>🕒 <strong style="color:#fff;">Check-out:</strong> <span id="resumenCheckout"></span> (12:00 PM)</div>
               </div>
 
               <div id="resumenDesglose" class="nr-resumen__desglose"></div>

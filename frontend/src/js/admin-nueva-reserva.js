@@ -53,13 +53,63 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
 }
 
 // ─── DATA GLOBAL ───────────────────────────────────
-let habitacionesData = [];
-let cabanasData      = [];
-let paquetesData     = [];
-let serviciosData    = [];
-let allReservations  = [];
-let fpStart          = null;
-let fpEnd            = null;
+let habitacionesData    = [];
+let cabanasData         = [];
+let paquetesData        = [];
+let serviciosData       = [];
+let allReservations     = [];
+let fpStart             = null;
+let fpEnd               = null;
+let selectedClienteUserId = null;
+
+/* ──────────────────────────────────────────────────
+   BÚSQUEDA DE CLIENTE POR DOCUMENTO
+────────────────────────────────────────────────── */
+async function buscarClientePorDocumento() {
+    const docInput = document.getElementById('buscarDocumento');
+    const doc = (docInput?.value || '').trim();
+    const encontradoEl     = document.getElementById('clienteEncontrado');
+    const noEncontradoEl   = document.getElementById('clienteNoEncontrado');
+    const badgeEl          = document.getElementById('clienteSeleccionadoBadge');
+    const btn              = document.getElementById('btnBuscarCliente');
+
+    if (!doc) {
+        mostrarNotificacion('Ingresa un número de documento para buscar.', 'warning');
+        return;
+    }
+
+    // Resetear estado anterior
+    selectedClienteUserId = null;
+    if (encontradoEl)   encontradoEl.style.display   = 'none';
+    if (noEncontradoEl) noEncontradoEl.style.display = 'none';
+    if (badgeEl)        badgeEl.style.display        = 'none';
+    if (btn) { btn.textContent = 'Buscando...'; btn.disabled = true; }
+
+    try {
+        const r = await fetch(`/api/usuarios/documento/${encodeURIComponent(doc)}`);
+        if (r.ok) {
+            const cliente = await r.json();
+            selectedClienteUserId = cliente.IDUsuario;
+            const nombreCompleto = `${cliente.NombreUsuario || ''}${cliente.Apellido ? ' ' + cliente.Apellido : ''}`.trim();
+            const nombreEl = document.getElementById('clienteNombreDisplay');
+            const emailEl  = document.getElementById('clienteEmailDisplay');
+            const docEl    = document.getElementById('clienteDocDisplay');
+            if (nombreEl) nombreEl.textContent = nombreCompleto;
+            if (emailEl)  emailEl.textContent  = cliente.Email ? `📧 ${cliente.Email}` : '';
+            if (docEl)    docEl.textContent    = `🪪 Documento: ${cliente.NumeroDocumento}`;
+            if (encontradoEl)   encontradoEl.style.display   = 'block';
+            if (noEncontradoEl) noEncontradoEl.style.display = 'none';
+            if (badgeEl)        badgeEl.style.display        = 'inline-flex';
+        } else {
+            if (noEncontradoEl) noEncontradoEl.style.display = 'block';
+            if (encontradoEl)   encontradoEl.style.display   = 'none';
+        }
+    } catch(e) {
+        mostrarNotificacion('Error de conexión al buscar el cliente.', 'error');
+    } finally {
+        if (btn) { btn.textContent = 'Buscar'; btn.disabled = false; }
+    }
+}
 
 /* ──────────────────────────────────────────────────
    UTILIDADES DE FECHA
@@ -222,7 +272,7 @@ function actualizarDesglose() {
     });
 
     if (items.length===0) {
-        container.innerHTML='<p style="font-size:0.78rem;color:rgba(255,255,255,0.3);margin:0;">Selecciona un alojamiento para ver el desglose.</p>';
+        container.innerHTML='<p style="font-size:0.78rem;color:rgba(255,255,255,0.65);margin:0;">Selecciona un alojamiento para ver el desglose.</p>';
     } else {
         container.innerHTML = items.map((i,idx)=>`
             <div class="nr-resumen__item ${i.type==='accommodation'?'accommodation-item':'service-item'}">
@@ -626,6 +676,14 @@ function toggleServicioDetails(servicioId,isActive) {
 /* ──────────────────────────────────────────────────
    EVENTOS
 ────────────────────────────────────────────────── */
+// Búsqueda de cliente
+const btnBuscarCliente = document.getElementById('btnBuscarCliente');
+if (btnBuscarCliente) btnBuscarCliente.addEventListener('click', buscarClientePorDocumento);
+const buscarDocumentoInput = document.getElementById('buscarDocumento');
+if (buscarDocumentoInput) buscarDocumentoInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); buscarClientePorDocumento(); }
+});
+
 const habitacionInput        = document.getElementById('IDHabitacion');
 const paqueteInput           = document.getElementById('IDPaquete');
 const cabanaInput            = document.getElementById('IDCabana');
@@ -706,6 +764,11 @@ document.getElementById('reservationForm').addEventListener('submit', async(e)=>
     const paqueteVal    = document.getElementById('IDPaquete').value;
     const metodoPagoVal = document.getElementById('MetodoPago').value;
 
+    if (!selectedClienteUserId) {
+        mostrarNotificacion('Debes buscar y seleccionar un cliente por su número de documento.','warning');
+        document.getElementById('buscarDocumento')?.focus();
+        return;
+    }
     if (!habitacionVal && !cabanaVal && !paqueteVal) {
         mostrarNotificacion('Debes seleccionar un alojamiento (habitación, cabaña o paquete).','warning');
         return;
@@ -728,7 +791,7 @@ document.getElementById('reservationForm').addEventListener('submit', async(e)=>
         FechaInicio:        document.getElementById('FechaInicio').value,
         FechaFinalizacion:  document.getElementById('FechaFinalizacion').value,
         MetodoPago:         metodoPagoVal ? parseInt(metodoPagoVal) : null,
-        UsuarioIdusuario:   user.IDUsuario
+        UsuarioIdusuario:   selectedClienteUserId
     };
 
     const submitBtn = document.querySelector('.nr-btn-confirmar');

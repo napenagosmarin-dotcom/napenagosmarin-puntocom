@@ -67,4 +67,14 @@ const updateStatus = async (req, res, next) => {
   }
 };
 
-module.exports = { getAll, getById, create, update, updateStatus, remove };
+const getByDocumento = async (req, res, next) => {
+  try {
+    const usuario = await usuariosService.getByDocumento(req.params.numero);
+    if (!usuario) return res.status(404).json({ message: 'No se encontró ningún usuario registrado con ese número de documento.' });
+    res.status(200).json(usuario);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getAll, getById, create, update, updateStatus, remove, getByDocumento };

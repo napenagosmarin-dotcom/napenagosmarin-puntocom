@@ -65,4 +65,16 @@ const remove = async (id) => {
   }
 };
 
-module.exports = { getAll, getById, create, update, updateStatus, remove };
+const getByDocumento = async (numero) => {
+  try {
+    const [results] = await db.query(
+      'SELECT IDUsuario, NombreUsuario, Apellido, Email, NumeroDocumento, Telefono FROM usuarios WHERE NumeroDocumento = ? AND Estado = 1 AND IDRol = 1 LIMIT 1',
+      [numero]
+    );
+    return results[0] || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+module.exports = { getAll, getById, create, update, updateStatus, remove, getByDocumento };

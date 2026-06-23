@@ -4,6 +4,7 @@ const usuariosController = require('../controllers/usuarios.controller');
 
 router.get('/', usuariosController.getAll);
 router.post('/', usuariosController.create);
+router.get('/documento/:numero', usuariosController.getByDocumento);
 router.get('/:id', usuariosController.getById);
 router.put('/:id', usuariosController.update);
 router.put('/:id/estado', usuariosController.updateStatus);
