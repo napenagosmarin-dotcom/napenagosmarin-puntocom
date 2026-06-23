@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS habitacion (
     numero INT,
     imagen VARCHAR(255),
     Costo DECIMAL(10,2),
+    CapacidadPersonas INT DEFAULT 1,
     IDCabana INT,
     FOREIGN KEY (IDCabana) REFERENCES cabanas(IDCabana)
 );

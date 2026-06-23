@@ -16,9 +16,10 @@ const create = async (data) => {
     const descripcion = data.descripcion || data.Descripcion || '';
     const imagen = data.imagen || '';
     const Estado = data.Estado !== undefined ? Number(data.Estado) : 1;
+    const capacidad = data.CapacidadPersonas || data.capacidad || 1;
     const [result] = await db.query(
-        "INSERT INTO habitacion (NombreHabitacion, precio, Descripcion, imagen, Estado) VALUES (?, ?, ?, ?, ?)",
-        [nombre, precio, descripcion, imagen, Estado]
+        "INSERT INTO habitacion (NombreHabitacion, precio, Descripcion, imagen, Estado, CapacidadPersonas) VALUES (?, ?, ?, ?, ?, ?)",
+        [nombre, precio, descripcion, imagen, Estado, capacidad]
     );
     return result;
 };
@@ -29,9 +30,10 @@ const update = async (id, data) => {
     const descripcion = data.descripcion || data.Descripcion || '';
     const imagen = data.imagen || '';
     const Estado = data.Estado !== undefined ? Number(data.Estado) : 1;
+    const capacidad = data.CapacidadPersonas || data.capacidad || 1;
     const [result] = await db.query(
-        "UPDATE habitacion SET NombreHabitacion=?, precio=?, Descripcion=?, imagen=?, Estado=? WHERE IDHabitacion=?",
-        [nombre, precio, descripcion, imagen, Estado, id]
+        "UPDATE habitacion SET NombreHabitacion=?, precio=?, Descripcion=?, imagen=?, Estado=?, CapacidadPersonas=? WHERE IDHabitacion=?",
+        [nombre, precio, descripcion, imagen, Estado, capacidad, id]
     );
     return result;
 };

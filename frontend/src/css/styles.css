@@ -2114,7 +2114,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 100% !important;
   padding: 1rem 1.25rem 1rem 3.5rem !important;
   background: #f0f7ff !important;
-  border: 1px solid rgba(49, 130, 206, 0.25) !important;
+  border: 1.5px solid rgba(43, 108, 176, 0.45) !important;
   border-radius: 14px !important;
   color: var(--color-texto) !important;
   font-size: 1rem !important;

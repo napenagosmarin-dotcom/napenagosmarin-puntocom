@@ -9,16 +9,37 @@ const getAllHabitaciones = async (req, res) => {
     }
 };
 
+function traducirErrorMySQL(error) {
+    if (error.code === 'ER_DUP_ENTRY' || error.errno === 1062) {
+        return 'Ya existe una habitación con ese nombre.';
+    }
+    if (error.code === 'ER_BAD_FIELD_ERROR') {
+        return 'Error de configuración en la base de datos. Es posible que falte ejecutar la migración de la columna CapacidadPersonas. Consulta al administrador del sistema.';
+    }
+    if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+        return 'El registro referenciado no existe en la base de datos.';
+    }
+    if (error.code === 'ER_DATA_TOO_LONG') {
+        return 'Uno de los campos supera el límite de caracteres permitido.';
+    }
+    if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+        return 'Acceso denegado a la base de datos.';
+    }
+    if (error.code === 'ECONNREFUSED') {
+        return 'No se pudo conectar con la base de datos. Verifica que el servidor esté activo.';
+    }
+    return 'Ocurrió un error interno. Intenta de nuevo más tarde.';
+}
+
 const createHabitacion = async (req, res) => {
     try {
         const habitacion = await create(req.body);
         res.status(201).json(habitacion);
     } catch (error) {
-        // Validación para no repetir nombres
         if (error.code === 'ER_DUP_ENTRY' || error.errno === 1062) {
             return res.status(400).json({ message: "¡Error! Ya existe una habitación con ese nombre." });
         }
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: traducirErrorMySQL(error) });
     }
 };
 
@@ -31,7 +52,7 @@ const updateHabitacion = async (req, res) => {
             res.status(404).json({ message: "Habitación no encontrada" });
         }
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: traducirErrorMySQL(error) });
     }
 };
 

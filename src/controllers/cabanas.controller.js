@@ -7,11 +7,12 @@ const Cabana = require('../models/models.cabanas.js');
 
 
 const letrasEspaciosRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+const descripcionRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,;:!?¡¿\-()'"\-&]+$/;
 const numerosRegex = /^\d+$/;
 
 function validarCabana(data) {
     if (data.NombreCabana && !letrasEspaciosRegex.test(data.NombreCabana.toString())) return 'El nombre de la cabaña solo debe contener letras y espacios.';
-    if (data.Descripcion && !letrasEspaciosRegex.test(data.Descripcion.toString())) return 'La descripción solo debe contener letras y espacios.';
+    if (data.Descripcion && !descripcionRegex.test(data.Descripcion.toString())) return 'La descripción contiene caracteres no permitidos.';
     if (data.CapacidadPersonas && !numerosRegex.test(data.CapacidadPersonas.toString())) return 'La capacidad solo debe contener números.';
     if (data.NumeroHabitaciones && !numerosRegex.test(data.NumeroHabitaciones.toString())) return 'El número de habitaciones solo debe contener números.';
     if (data.PrecioNoche && !numerosRegex.test(data.PrecioNoche.toString())) return 'El precio solo debe contener números.';

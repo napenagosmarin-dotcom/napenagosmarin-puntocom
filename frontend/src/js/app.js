@@ -357,7 +357,7 @@ function templateHabitacion(hab) {
           <button class="btn icon-btn btn-secundario" title="Ver detalle" onclick="mostrarDetalles(${itemJson}, 'Habitación')">
             <i data-lucide="eye"></i>
           </button>
-          <button class="btn btn-primario" onclick="editarHabitacion('${hab.IDHabitacion}', '${hab.NombreHabitacion || hab.tipo || ''}', ${hab.precio || hab.Precio || 0}, '${hab.descripcion || hab.Descripcion || ''}', '${hab.imagen || ''}')">Editar</button>
+          <button class="btn btn-primario" onclick="editarHabitacion('${hab.IDHabitacion}', '${hab.NombreHabitacion || hab.tipo || ''}', ${hab.precio || hab.Precio || 0}, '${hab.descripcion || hab.Descripcion || ''}', '${hab.imagen || ''}', ${hab.CapacidadPersonas || 1})">Editar</button>
           <button class="btn btn-peligro" onclick="eliminarHabitacion('${hab.IDHabitacion}')">Borrar</button>
         </div>
       </div>
@@ -654,12 +654,18 @@ window.mostrarDetalles = (item, tipo) => {
     estadoEl.style.display = 'inline-block';
   }
 
+  const capacidadEl = document.getElementById('detalle-capacidad');
+  const capacidadVal = item.CapacidadPersonas || item.capacidad;
+  if (capacidadEl) {
+    capacidadEl.textContent = capacidadVal ? `${capacidadVal} Pers.` : '—';
+  }
+
   const extraDiv = document.getElementById('detalle-extra');
-  if (extraDiv) {
-    if (tipo === 'Habitación' && item.capacidad) {
+  if (extraDiv && !capacidadEl) {
+    if (tipo === 'Habitación' && capacidadVal) {
       extraDiv.innerHTML = `
         <span style="display: block; color: #6b7280; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">Capacidad</span>
-        <span style="color: #111827; font-size: 1.4rem; font-weight: 800;">${item.capacidad} Pers.</span>`;
+        <span style="color: #111827; font-size: 1.4rem; font-weight: 800;">${capacidadVal} Pers.</span>`;
     } else {
       extraDiv.innerHTML = '';
     }
@@ -727,6 +733,7 @@ function validarHabitacion() {
   const nombre = document.getElementById('habitacion-nombre').value.trim();
   const precio = document.getElementById('habitacion-precio').value;
   const descripcion = document.getElementById('habitacion-descripcion').value.trim();
+  const capacidad = document.getElementById('habitacion-capacidad')?.value;
 
   if (!nombre) {
     mostrarError('habitacion-nombre', 'error-habitacion-nombre', 'El nombre es obligatorio.');
@@ -737,6 +744,11 @@ function validarHabitacion() {
     mostrarError('habitacion-precio', 'error-habitacion-precio', 'Ingresa un precio válido mayor a 0.');
     valido = false;
   } else { limpiarError('habitacion-precio', 'error-habitacion-precio'); }
+
+  if (!capacidad || Number(capacidad) <= 0) {
+    mostrarError('habitacion-capacidad', 'error-habitacion-capacidad', 'Ingresa una capacidad válida mayor a 0.');
+    valido = false;
+  } else { limpiarError('habitacion-capacidad', 'error-habitacion-capacidad'); }
 
   if (!descripcion) {
     mostrarError('habitacion-descripcion', 'error-habitacion-descripcion', 'La descripción es obligatoria.');
@@ -853,6 +865,7 @@ function configurarEventosHabitaciones() {
   const camposHab = [
     { campoId: 'habitacion-nombre',      errorId: 'error-habitacion-nombre' },
     { campoId: 'habitacion-precio',      errorId: 'error-habitacion-precio' },
+    { campoId: 'habitacion-capacidad',   errorId: 'error-habitacion-capacidad' },
     { campoId: 'habitacion-descripcion', errorId: 'error-habitacion-descripcion' },
   ];
 
@@ -883,6 +896,7 @@ function configurarEventosHabitaciones() {
     const data = {
       tipo: nombreInput,
       precio: document.getElementById('habitacion-precio').value,
+      CapacidadPersonas: document.getElementById('habitacion-capacidad')?.value || 1,
       descripcion: document.getElementById('habitacion-descripcion').value.trim(),
       imagen: document.getElementById('habitacion-imagen').value || '',
       Estado: 1
@@ -908,15 +922,18 @@ function configurarEventosHabitaciones() {
   });
 }
 
-window.editarHabitacion = (id, nombre, precio, descripcion, imagen) => {
+window.editarHabitacion = (id, nombre, precio, descripcion, imagen, capacidad) => {
   document.getElementById('habitacion-id').value = id;
   document.getElementById('habitacion-nombre').value = nombre;
   document.getElementById('habitacion-precio').value = precio;
   document.getElementById('habitacion-descripcion').value = descripcion;
   document.getElementById('habitacion-imagen').value = imagen;
+  const capEl = document.getElementById('habitacion-capacidad');
+  if (capEl) capEl.value = capacidad || '';
   limpiarTodosLosErrores([
     { campoId: 'habitacion-nombre',      errorId: 'error-habitacion-nombre' },
     { campoId: 'habitacion-precio',      errorId: 'error-habitacion-precio' },
+    { campoId: 'habitacion-capacidad',   errorId: 'error-habitacion-capacidad' },
     { campoId: 'habitacion-descripcion', errorId: 'error-habitacion-descripcion' },
   ]);
   abrirModal('Editar Habitación');
