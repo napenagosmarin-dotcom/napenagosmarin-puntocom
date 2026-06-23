@@ -27,7 +27,6 @@
       min-height: 100vh;
     }
 
-    /* El sidebar viene del admin.css — solo aseguramos que esté fijo */
     .admin-sidebar {
       position: sticky;
       top: 0;
@@ -35,85 +34,25 @@
       flex-shrink: 0;
     }
 
-    /* Contenido principal */
+    /* Sin overflow-y:auto — el body hace scroll para que el sticky del resumen funcione */
     .anr-main {
       flex: 1;
       min-width: 0;
-      overflow-y: auto;
-      position: relative;
+      background: #EBF4FB;
     }
 
-    /* Background sin imágenes para el panel admin */
-    .anr-bg {
-      position: fixed;
-      inset: 0;
-      left: var(--admin-sidebar-width, 240px);
-      background: #EBF4FB !important;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .admin-layout .main-content--premium,
-    .admin-layout .main-content--premium::before,
-    .admin-layout .main-content--premium::after {
-      background: #EBF4FB !important;
-      background-image: none !important;
-    }
-    /* Forzar cards de formulario a fondo blanco */
-    .nr-card {
-      background: #ffffff !important;
-    }
-
-    /* Resumen de pago — fondo oscuro con texto claramente visible */
-    .nr-resumen {
-      background: linear-gradient(135deg, #1A2B4A 0%, #0F1D36 100%) !important;
-      border-color: rgba(255,255,255,0.12) !important;
-    }
-    .nr-resumen__titulo {
-      border-bottom-color: rgba(255,255,255,0.15) !important;
-    }
-    .nr-resumen__fila {
-      color: rgba(255,255,255,0.8) !important;
-    }
-    .nr-resumen__fila span:last-child {
-      color: #ffffff !important;
-    }
-    .nr-resumen__item-name {
-      color: rgba(255,255,255,0.85) !important;
-    }
-    .nr-resumen__item.accommodation-item .nr-resumen__item-name {
-      color: #ffffff !important;
-    }
-    .nr-resumen__item-details {
-      color: rgba(255,255,255,0.55) !important;
-    }
-    .nr-resumen__item-val {
-      color: #ffffff !important;
-    }
-    .nr-resumen__separador {
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
-    }
-    .nr-resumen__total {
-      color: #ffffff !important;
-      border-top-color: rgba(255,255,255,0.2) !important;
-    }
-    .nr-resumen__helper {
-      background: rgba(49,130,206,0.2) !important;
-      border-color: rgba(49,130,206,0.4) !important;
-      color: #93C5FD !important;
-    }
-
-    /* Breadcrumb / header superior del área principal */
+    /* Topbar pegajosa: queda visible mientras el usuario hace scroll */
     .anr-topbar {
-      position: relative;
-      z-index: 2;
+      position: sticky;
+      top: 0;
+      z-index: 20;
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 1.25rem 2rem 0.5rem;
-      border-bottom: 1px solid rgba(49,130,206,0.12);
-      background: rgba(235,244,251,0.85);
-      backdrop-filter: blur(10px);
+      padding: 0.9rem 2rem;
+      border-bottom: 1px solid rgba(49,130,206,0.15);
+      background: rgba(235,244,251,0.95);
+      backdrop-filter: blur(12px);
     }
 
     .anr-topbar__back {
@@ -147,11 +86,61 @@
     }
     .anr-topbar__breadcrumb span { color: rgba(26,43,74,0.75); }
 
-    /* Contenido de la reserva (reutiliza estilos nr-*) */
+    /* Contenido de la reserva */
     .anr-content {
       position: relative;
       z-index: 2;
       padding: 2rem;
+    }
+
+    /* ── Cards del formulario: estilo admin blanco ── */
+    .nr-card {
+      background: #ffffff !important;
+      border-color: rgba(49,130,206,0.18) !important;
+      color: #1A2B4A !important;
+    }
+    .nr-card__titulo { color: #1A2B4A !important; }
+    .nr-label        { color: rgba(26,43,74,0.55) !important; }
+    .nr-field select,
+    .nr-field input[type="date"],
+    .nr-field input[type="text"] {
+      background: #f0f7ff !important;
+      border-color: rgba(49,130,206,0.2) !important;
+      color: #1A2B4A !important;
+    }
+    .servicio-label {
+      background: #f8fafc !important;
+      border-color: rgba(49,130,206,0.15) !important;
+    }
+    .servicio-name  { color: #1A2B4A !important; }
+    .servicio-price { color: #2B6CB0 !important; }
+    .nr-card__aclaracion { color: #D97706 !important; }
+    .nr-aviso            { color: rgba(26,43,74,0.55) !important; }
+
+    /* ── Resumen de pago: fondo oscuro, texto legible ── */
+    .nr-resumen {
+      background: linear-gradient(160deg, #1A2B4A 0%, #0F1D36 100%) !important;
+      border-color: rgba(255,255,255,0.1) !important;
+      top: 4rem !important;   /* compensa el topbar sticky (~3.5rem) */
+    }
+    .nr-resumen__titulo    { color: #D4902B !important; border-bottom-color: rgba(255,255,255,0.12) !important; }
+    .nr-resumen__fila      { color: rgba(255,255,255,0.75) !important; }
+    .nr-resumen__fila span:last-child { color: #ffffff !important; }
+    .nr-resumen__item-name { color: rgba(255,255,255,0.85) !important; }
+    .nr-resumen__item.accommodation-item .nr-resumen__item-name { color: #ffffff !important; }
+    .nr-resumen__item-details { color: rgba(255,255,255,0.5) !important; }
+    .nr-resumen__item-val     { color: #ffffff !important; }
+    .nr-resumen__separador {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent) !important;
+    }
+    .nr-resumen__total {
+      color: #ffffff !important;
+      border-top-color: rgba(255,255,255,0.15) !important;
+    }
+    .nr-resumen__helper {
+      background: rgba(49,130,206,0.18) !important;
+      border-color: rgba(49,130,206,0.35) !important;
+      color: #93C5FD !important;
     }
   </style>
 </head>
@@ -251,10 +240,7 @@
     <!-- ══════════════════════════════════════════
          ÁREA PRINCIPAL
     ══════════════════════════════════════════ -->
-    <main class="anr-main main-content--premium">
-
-      <!-- Fondo decorativo -->
-      <div class="anr-bg"></div>
+    <main class="anr-main">
 
       <!-- Barra superior con breadcrumb -->
       <div class="anr-topbar">
