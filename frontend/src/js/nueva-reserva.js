@@ -614,32 +614,34 @@ function getDisabledDatesForRoom(roomId) {
 }
 
 async function updateDatePickerRestrictions() {
+    // Guardar valores del DOM ANTES del await: el onChange interno de flatpickr
+    // puede borrar fpEnd cuando fpStart.set() dispara la cascada de eventos.
+    const savedStartValue = document.getElementById('FechaInicio')?.value;
+    const savedEndValue   = document.getElementById('FechaFinalizacion')?.value;
+
     const roomId = getSelectedRoomId();
     const accommodationType = getSelectedAccommodationType();
-    
+
     // Cargar reservas confirmadas solo para el alojamiento seleccionado
-    const confirmedReservations = roomId 
+    const confirmedReservations = roomId
         ? await cargarReservasConfirmadasPorAlojamiento(roomId, accommodationType)
         : [];
-    
+
     // Actualizar la variable global para uso en validaciones
     allReservations = confirmedReservations;
-    
+
     const disabledDates = getDisabledDatesForRoom(roomId);
     const today = getTodayInputValue();
-    
+
     if (fpStart) {
-        const savedStart = fpStart.selectedDates[0];
         fpStart.set('disable', disabledDates);
         fpStart.set('minDate', today);
-        // flatpickr puede borrar el input visual al recalcular con set(); restaurar si la fecha sigue siendo válida
-        if (savedStart) fpStart.setDate(savedStart, false);
+        if (savedStartValue) fpStart.setDate(savedStartValue, false);
     }
     if (fpEnd) {
-        const savedEnd = fpEnd.selectedDates[0];
         fpEnd.set('disable', disabledDates);
         fpEnd.set('minDate', today);
-        if (savedEnd) fpEnd.setDate(savedEnd, false);
+        if (savedEndValue) fpEnd.setDate(savedEndValue, false);
     }
 }
 
