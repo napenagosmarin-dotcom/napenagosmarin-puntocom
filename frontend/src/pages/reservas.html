@@ -45,95 +45,129 @@
   </div>
 
   <!-- MODAL EDITAR -->
+  <style>
+    /* Inputs con fondo lavanda + borde morado — igual que el panel admin */
+    #editReservationForm input:not([type="hidden"]):not([type="checkbox"]):not([type="number"]):not([readonly]),
+    #editReservationForm select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.65rem 0.9rem;
+      border-radius: 10px;
+      border: 1.5px solid rgba(123, 82, 171, 0.58);
+      background: #F5F0FF;
+      color: #1A2B4A;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color .18s, background .18s;
+    }
+    #editReservationForm input:not([type="hidden"]):not([type="checkbox"]):not([type="number"]):not([readonly]):hover,
+    #editReservationForm select:hover { border-color: rgba(123,82,171,0.78); background: #EDE9FE; }
+    #editReservationForm input:focus,
+    #editReservationForm select:focus { border-color: #7B52AB; box-shadow: 0 0 0 3.5px rgba(123,82,171,0.15); background: #EDE9FE; }
+    #editReservationForm .er-label {
+      display: block;
+      font-size: 0.71rem;
+      font-weight: 700;
+      letter-spacing: 0.075em;
+      text-transform: uppercase;
+      color: rgba(26,43,74,0.55);
+      margin-bottom: 0.3rem;
+      user-select: none;
+    }
+    #editReservationForm .er-group { display:flex; flex-direction:column; gap:0.45rem; }
+  </style>
+
   <div id="editModal" class="modal-overlay" style="display:none;">
-    <div class="modal-content modal-content--wide">
-      <div class="modal-header">
-        <h2 id="editModalTitle">Editar Reserva</h2>
-        <button class="btn-close" onclick="cerrarModal()">×</button>
+    <div style="background:#fff;border-radius:16px;width:95%;max-width:760px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(26,43,74,0.18);">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem 1rem;border-bottom:1.5px solid rgba(49,130,206,0.1);">
+        <h2 id="editModalTitle" style="margin:0;font-size:1.2rem;font-weight:700;color:#1A2B4A;">Editar Reserva</h2>
+        <button onclick="cerrarModal()" style="background:none;border:none;font-size:1.4rem;color:rgba(26,43,74,0.45);cursor:pointer;line-height:1;padding:0.2rem 0.4rem;border-radius:6px;transition:background .15s;" onmouseover="this.style.background='rgba(26,43,74,0.07)'" onmouseout="this.style.background='none'">×</button>
       </div>
 
-      <form id="editReservationForm" class="nr-layout">
+      <!-- Body -->
+      <div style="padding:1.1rem 1.5rem 1.5rem;">
+        <form id="editReservationForm" style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;">
 
-        <!-- Lado Izquierdo: Formulario -->
-        <div class="nr-form">
+          <!-- FECHAS -->
+          <div class="er-group">
+            <label class="er-label">📅 Fecha Check-in</label>
+            <input type="date" id="editFechaInicio" required onchange="calcularTotalEdicion()">
+          </div>
+          <div class="er-group">
+            <label class="er-label">📅 Fecha Check-out</label>
+            <input type="date" id="editFechaFinalizacion" required onchange="calcularTotalEdicion()">
+          </div>
 
-          <!-- Tabs tipo de alojamiento -->
-          <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+          <!-- MÉTODO DE PAGO -->
+          <div class="er-group" style="grid-column:1/-1;">
+            <label class="er-label">💳 Método de Pago</label>
+            <select id="editMetodoPago" required>
+              <option value="">Selecciona un método</option>
+            </select>
+          </div>
+
+          <!-- SEPARADOR ALOJAMIENTO -->
+          <div style="grid-column:1/-1;display:flex;align-items:center;gap:0.5rem;margin:0.35rem 0 0.1rem;padding-bottom:0.4rem;border-bottom:1.5px solid rgba(49,130,206,0.15);">
+            <span style="font-size:1rem;">🏨</span>
+            <span style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;color:#2B6CB0;text-transform:uppercase;">Alojamiento</span>
+          </div>
+
+          <!-- TABS TIPO -->
+          <div style="grid-column:1/-1;display:flex;gap:0.45rem;">
             <button type="button" id="editTabHab" onclick="clientSwitchTipo('habitacion')"
-              style="flex:1;padding:0.55rem;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .2s;">
+              style="flex:1;padding:0.45rem 0;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .2s;">
               🛏 Habitación
             </button>
             <button type="button" id="editTabCab" onclick="clientSwitchTipo('cabana')"
-              style="flex:1;padding:0.55rem;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .2s;">
+              style="flex:1;padding:0.45rem 0;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .2s;">
               🏕 Cabaña
             </button>
             <button type="button" id="editTabPaq" onclick="clientSwitchTipo('paquete')"
-              style="flex:1;padding:0.55rem;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .2s;">
+              style="flex:1;padding:0.45rem 0;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .2s;">
               📦 Paquete
             </button>
           </div>
 
-          <!-- Select único de alojamiento -->
-          <div class="nr-field" style="margin-bottom:0.75rem;">
-            <label id="editAlojLabel">Selecciona una habitación</label>
-            <select id="editAlojamiento" onchange="calcularTotalEdicion()" style="width:100%;">
+          <!-- SELECT ALOJAMIENTO -->
+          <div class="er-group" style="grid-column:1/-1;">
+            <label class="er-label" id="editAlojLabel">Selecciona una habitación</label>
+            <select id="editAlojamiento" onchange="calcularTotalEdicion()">
               <option value="">Seleccione una opción</option>
             </select>
           </div>
 
-          <!-- Servicios -->
-          <div style="border-top:1.5px solid rgba(49,130,206,0.15);padding-top:0.75rem;">
-            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.65rem;">
-              <span style="font-size:1rem;">⭐</span>
-              <span style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;color:#2B6CB0;text-transform:uppercase;">Servicios Adicionales</span>
-            </div>
-            <div id="editServiciosContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;"></div>
+          <!-- SEPARADOR SERVICIOS -->
+          <div style="grid-column:1/-1;display:flex;align-items:center;gap:0.5rem;margin:0.35rem 0 0.1rem;padding-bottom:0.4rem;border-bottom:1.5px solid rgba(49,130,206,0.15);">
+            <span style="font-size:1rem;">⭐</span>
+            <span style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;color:#2B6CB0;text-transform:uppercase;">Servicios Adicionales</span>
+          </div>
+          <div id="editServiciosContainer" style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;"></div>
+
+          <!-- SEPARADOR RESUMEN -->
+          <div style="grid-column:1/-1;display:flex;align-items:center;gap:0.5rem;margin:0.35rem 0 0.1rem;padding-bottom:0.4rem;border-bottom:1.5px solid rgba(49,130,206,0.15);">
+            <span style="font-size:1rem;">💰</span>
+            <span style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;color:#2B6CB0;text-transform:uppercase;">Resumen</span>
+          </div>
+          <div class="er-group" style="grid-column:1/-1;">
+            <label class="er-label">Monto Total Estimado</label>
+            <input type="text" id="editMontoTotal" readonly
+              title="Calculado automáticamente según alojamiento, noches y servicios seleccionados."
+              style="width:100%;box-sizing:border-box;padding:0.65rem 0.9rem;border-radius:10px;border:1.5px solid rgba(43,108,176,0.2);background:rgba(43,108,176,0.05);color:#1A2B4A;font-size:1.05rem;font-weight:700;cursor:not-allowed;outline:none;">
           </div>
 
-          <!-- Fechas y método de pago -->
-          <div class="nr-grid-3">
-            <div class="nr-field">
-              <label for="editFechaInicio">Fecha Inicio</label>
-              <input type="date" id="editFechaInicio" required onchange="calcularTotalEdicion()">
-            </div>
-            <div class="nr-field">
-              <label for="editFechaFinalizacion">Fecha Fin</label>
-              <input type="date" id="editFechaFinalizacion" required onchange="calcularTotalEdicion()">
-            </div>
-            <div class="nr-field">
-              <label for="editMetodoPago">Pago</label>
-              <select id="editMetodoPago" required>
-                <option value="">Método de pago</option>
-              </select>
-            </div>
+          <!-- ACCIONES -->
+          <div style="grid-column:1/-1;display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.35rem;">
+            <button type="button" onclick="cerrarModal()" class="btn btn-secundario">Cancelar</button>
+            <button type="button" onclick="guardarEdicion()" class="btn btn-primario">💾 Guardar Cambios</button>
           </div>
 
-          <div class="actions-row" style="margin-top:1rem;">
-            <button type="button" class="btn btn-primario" onclick="guardarEdicion()">Guardar Cambios</button>
-            <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
-          </div>
-        </div>
-
-        <!-- Lado Derecho: Resumen -->
-        <div class="nr-resumen" id="editResumen">
-          <div class="nr-resumen__titulo">Resumen de Pago</div>
-          <div class="nr-resumen__fila">
-            <span>Subtotal</span>
-            <span id="editSubtotal">$0</span>
-          </div>
-          <div class="nr-resumen__fila">
-            <span>IVA (19%)</span>
-            <span id="editIva">$0</span>
-          </div>
-          <div class="nr-resumen__total">
-            <span>Total</span>
-            <span id="editTotal">$0</span>
-          </div>
-        </div>
-
-        <input type="hidden" id="editIdReserva">
-        <input type="hidden" id="editTipoAloj" value="habitacion">
-      </form>
+          <input type="hidden" id="editIdReserva">
+          <input type="hidden" id="editTipoAloj" value="habitacion">
+        </form>
+      </div>
+    </div>
     </div>
   </div>
 

@@ -143,9 +143,9 @@ function updateTabStyles(tipoActivo) {
         const btn = document.getElementById(id);
         if (!btn) return;
         const active = tipo === tipoActivo;
-        btn.style.background   = active ? '#1A2B4A' : 'transparent';
-        btn.style.color        = active ? '#fff'    : '#1A2B4A';
-        btn.style.borderColor  = active ? '#1A2B4A' : 'rgba(26,43,74,0.3)';
+        btn.style.background  = active ? '#2B6CB0' : '#fff';
+        btn.style.color       = active ? '#fff'    : '#2B6CB0';
+        btn.style.borderColor = active ? '#2B6CB0' : 'rgba(43,108,176,0.3)';
     });
 }
 
@@ -466,13 +466,10 @@ function calcularTotalEdicion() {
     });
 
     const subtotal = alojPrecio * noches + totalServicios;
-    const iva      = subtotal * 0.19;
-    const total    = subtotal + iva;
+    const total    = subtotal + subtotal * 0.19;
 
-    const fmt = v => formatCurrency(v);
-    if (document.getElementById('editSubtotal')) document.getElementById('editSubtotal').textContent = fmt(subtotal);
-    if (document.getElementById('editIva'))      document.getElementById('editIva').textContent      = fmt(iva);
-    if (document.getElementById('editTotal'))    document.getElementById('editTotal').textContent    = fmt(total);
+    const el = document.getElementById('editMontoTotal');
+    if (el) el.value = `$${total.toLocaleString('es-CO')}`;
 }
 
 async function guardarEdicion() {
