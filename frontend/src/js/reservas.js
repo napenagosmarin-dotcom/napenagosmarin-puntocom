@@ -10,6 +10,7 @@ if (!user.IDUsuario) {
 // El nombre del usuario se inyecta en app.js → cargarComponentes() al insertar el header
 
 let habitacionesData = [];
+let cabanasData = [];
 let paquetesData = [];
 let serviciosData = [];
 
@@ -32,14 +33,14 @@ function formatDateForInput(value) {
 }
 
 function getEditSelectedRoomId() {
-    const habitacionSelect = document.getElementById('editIDHabitacion');
-    const paqueteSelect = document.getElementById('editIDPaquete');
-    if (habitacionSelect.value !== '') return habitacionSelect.value;
-    if (paqueteSelect.value !== '') {
-        const paquete = paquetesData.find(p => String(p.IDPaquete) === String(paqueteSelect.value));
-        return paquete ? paquete.IDHabitacion : null;
+    const alojSelect = document.getElementById('editAlojamiento');
+    if (!alojSelect || !alojSelect.value) return null;
+    const tipo = document.getElementById('editTipoAloj')?.value || 'habitacion';
+    if (tipo === 'paquete') {
+        const paq = paquetesData.find(p => String(p.IDPaquete) === String(alojSelect.value));
+        return paq ? paq.IDHabitacion : alojSelect.value;
     }
-    return null;
+    return alojSelect.value;
 }
 
 function getRoomBlockedRanges(roomId, excludeResId) {
@@ -68,21 +69,7 @@ function getDisabledDatesForRoom(roomId, excludeResId) {
 }
 
 function updateEditDatePickerRestrictions() {
-    const roomId = getEditSelectedRoomId();
-    const currentResId = document.getElementById('editIdReserva').value;
-    const disabledDates = getDisabledDatesForRoom(roomId, currentResId);
-    
-    const currentStartInput = document.getElementById('editFechaInicio').value;
-    const today = new Date();
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-    
-    let minStartDate = todayStr;
-    if (currentStartInput && currentStartInput < todayStr) {
-        minStartDate = currentStartInput;
-    }
-    
-    if (fpEditStart) { fpEditStart.set('disable', disabledDates); fpEditStart.set('minDate', minStartDate); }
-    if (fpEditEnd)   { fpEditEnd.set('disable', disabledDates);   fpEditEnd.set('minDate', minStartDate); }
+    // No se usa flatpickr en el modal de edición del cliente (usa <input type="date"> nativo)
 }
 
 function isRangeOverlapping(start, end, range) {
@@ -118,35 +105,58 @@ function validateEditDateSelection() {
 async function cargarHabitaciones() {
     const response = await fetch('/api/habitaciones');
     habitacionesData = await response.json();
-    const select = document.getElementById('editIDHabitacion');
-    select.innerHTML = '<option value="">Seleccione una habitación</option>';
-    habitacionesData.forEach(h => {
-        if (h.Estado === 1) {
-            const option = document.createElement('option');
-            option.value = h.IDHabitacion;
-            const costo = Number(h.Costo || h.precio || h.Precio || 0);
-            option.textContent = `${h.NombreHabitacion} - $${costo.toLocaleString()}`;
-            option.dataset.costo = costo;
-            select.appendChild(option);
-        }
-    });
+}
+
+async function cargarCabanas() {
+    const response = await fetch('/api/cabanas');
+    cabanasData = await response.json();
 }
 
 async function cargarPaquetes() {
     const response = await fetch('/api/paquetes');
     paquetesData = await response.json();
-    const select = document.getElementById('editIDPaquete');
-    select.innerHTML = '<option value="">Seleccione un paquete</option>';
-    paquetesData.forEach(p => {
-        const option = document.createElement('option');
-        option.value = p.IDPaquete;
-        const nombre = p.NombrePaquete || p.nombre || 'Paquete';
-        const precio = Number(p.Precio || p.precio || 0);
-        option.textContent = `${nombre} - $${precio.toLocaleString()}`;
-        option.dataset.precio = precio;
-        select.appendChild(option);
+}
+
+function renderOpcionesEdicion(tipo, selId) {
+    const cfg = {
+        habitacion: { list: habitacionesData, id: 'IDHabitacion', name: 'NombreHabitacion', price: h => Number(h.Costo || h.precio || h.Precio || 0) },
+        cabana:     { list: cabanasData,      id: 'IDCabana',     name: 'NombreCabana',     price: c => Number(c.PrecioNoche || c.precio || 0) },
+        paquete:    { list: paquetesData,     id: 'IDPaquete',    name: 'NombrePaquete',     price: p => Number(p.Precio || p.precio || 0) },
+    }[tipo];
+    if (!cfg) return '<option value="">Seleccione una opción</option>';
+    const activos = cfg.list.filter(i => (i.Estado ?? 1) !== 0);
+    return '<option value="">Seleccione una opción</option>' +
+        activos.map(item => {
+            const precio = cfg.price(item);
+            const sel = selId && String(item[cfg.id]) === String(selId) ? ' selected' : '';
+            return `<option value="${item[cfg.id]}" data-precio="${precio}"${sel}>${item[cfg.name]} — $${precio.toLocaleString('es-CO')}/noche</option>`;
+        }).join('');
+}
+
+function updateTabStyles(tipoActivo) {
+    const tabs = [
+        { id: 'editTabHab', tipo: 'habitacion' },
+        { id: 'editTabCab', tipo: 'cabana' },
+        { id: 'editTabPaq', tipo: 'paquete' },
+    ];
+    tabs.forEach(({ id, tipo }) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        const active = tipo === tipoActivo;
+        btn.style.background   = active ? '#1A2B4A' : 'transparent';
+        btn.style.color        = active ? '#fff'    : '#1A2B4A';
+        btn.style.borderColor  = active ? '#1A2B4A' : 'rgba(26,43,74,0.3)';
     });
 }
+
+window.clientSwitchTipo = function(tipo) {
+    document.getElementById('editTipoAloj').value = tipo;
+    document.getElementById('editAlojamiento').innerHTML = renderOpcionesEdicion(tipo, null);
+    const labels = { habitacion: 'Selecciona una habitación', cabana: 'Selecciona una cabaña', paquete: 'Selecciona un paquete' };
+    document.getElementById('editAlojLabel').textContent = labels[tipo];
+    updateTabStyles(tipo);
+    calcularTotalEdicion();
+};
 
 async function cargarServicios() {
     try {
@@ -342,10 +352,17 @@ function ocultarDetalles() {
 
 async function abrirEdicion(id) {
     try {
-        const response = await fetch(`/api/reservas/${id}`);
-        if (!response.ok) return;
-        const reservation = await response.json();
-        await Promise.all([cargarHabitaciones(), cargarPaquetes(), cargarServicios(), cargarMetodosPagoModal()]);
+        const [resR] = await Promise.all([
+            fetch(`/api/reservas/${id}`),
+            cargarHabitaciones(),
+            cargarCabanas(),
+            cargarPaquetes(),
+            cargarServicios(),
+            cargarMetodosPagoModal(),
+        ]);
+        if (!resR.ok) return;
+        const reservation = await resR.json();
+        document.getElementById('editModalTitle').textContent = `Editar Reserva #${id}`;
         populateEditForm(reservation);
         document.getElementById('editModal').style.display = 'flex';
     } catch (error) {
@@ -355,29 +372,25 @@ async function abrirEdicion(id) {
 
 function populateEditForm(reservation) {
     document.getElementById('editIdReserva').value = reservation.IdReserva;
-    document.getElementById('editIDPaquete').value = reservation.IDPaquete || '';
-    document.getElementById('editIDHabitacion').value = reservation.IDPaquete ? '' : (reservation.IDHabitacion || '');
+
+    let tipoActual = 'habitacion';
+    let idAlojActual = null;
+    if (reservation.IDPaquete)         { tipoActual = 'paquete';    idAlojActual = reservation.IDPaquete;    }
+    else if (reservation.IDCabana)     { tipoActual = 'cabana';     idAlojActual = reservation.IDCabana;     }
+    else if (reservation.IDHabitacion) { tipoActual = 'habitacion'; idAlojActual = reservation.IDHabitacion; }
+
+    document.getElementById('editTipoAloj').value = tipoActual;
+    document.getElementById('editAlojamiento').innerHTML = renderOpcionesEdicion(tipoActual, idAlojActual);
+    const labels = { habitacion: 'Selecciona una habitación', cabana: 'Selecciona una cabaña', paquete: 'Selecciona un paquete' };
+    document.getElementById('editAlojLabel').textContent = labels[tipoActual];
+    updateTabStyles(tipoActual);
+
     document.getElementById('editFechaInicio').value = reservation.FechaInicio ? reservation.FechaInicio.split('T')[0] : '';
     document.getElementById('editFechaFinalizacion').value = reservation.FechaFinalizacion ? reservation.FechaFinalizacion.split('T')[0] : '';
     document.getElementById('editMetodoPago').value = reservation.MetodoPago || '';
+
     renderServiciosCheckboxes(reservation.servicios || []);
-    updateEditSelectStates();    calcularTotalEdicion();
-}
-
-function updateEditSelectStates() {
-    const habitacionSelect = document.getElementById('editIDHabitacion');
-    const paqueteSelect = document.getElementById('editIDPaquete');
-    const habitacionSelected = habitacionSelect.value !== '';
-    const paqueteSelected = paqueteSelect.value !== '';
-
-    if (habitacionSelected) {
-        paqueteSelect.disabled = true;
-    } else if (paqueteSelected) {
-        habitacionSelect.disabled = true;
-    } else {
-        habitacionSelect.disabled = false;
-        paqueteSelect.disabled = false;
-    }
+    calcularTotalEdicion();
 }
 
 function renderServiciosCheckboxes(selectedServices = []) {
@@ -405,37 +418,49 @@ function renderServiciosCheckboxes(selectedServices = []) {
 }
 
 function calcularTotalEdicion() {
-    const habitacionSelect = document.getElementById('editIDHabitacion');
-    const paqueteSelect = document.getElementById('editIDPaquete');
-    const habitacionCost = parseFloat(habitacionSelect.selectedOptions[0]?.dataset.costo || 0);
-    const paquetePrice = parseFloat(paqueteSelect.selectedOptions[0]?.dataset.precio || 0);
-    const serviciosSeleccionados = Array.from(document.querySelectorAll('.edit-servicio-check:checked'));
-    const totalServicios = serviciosSeleccionados.reduce((sum, s) => sum + parseFloat(s.dataset.costo), 0);
-    const subtotal = paquetePrice + habitacionCost + totalServicios;
-    const iva = subtotal * 0.19;
-    const total = subtotal + iva;
+    const inicio = document.getElementById('editFechaInicio')?.value;
+    const fin    = document.getElementById('editFechaFinalizacion')?.value;
+    const noches = (inicio && fin && new Date(fin) > new Date(inicio))
+        ? Math.round((new Date(fin) - new Date(inicio)) / 86400000) : 1;
 
-    document.getElementById('editSubtotal').textContent = formatCurrency(subtotal);
-    document.getElementById('editIva').textContent = formatCurrency(iva);
-    document.getElementById('editTotal').textContent = formatCurrency(total);
+    const alojSelect = document.getElementById('editAlojamiento');
+    const alojPrecio = alojSelect ? Number(alojSelect.selectedOptions[0]?.dataset.precio || 0) : 0;
+
+    const totalServicios = Array.from(document.querySelectorAll('.edit-servicio-check:checked'))
+        .reduce((sum, cb) => sum + Number(cb.dataset.costo || 0), 0);
+
+    const subtotal = alojPrecio * noches + totalServicios;
+    const iva      = subtotal * 0.19;
+    const total    = subtotal + iva;
+
+    const fmt = v => formatCurrency(v);
+    if (document.getElementById('editSubtotal')) document.getElementById('editSubtotal').textContent = fmt(subtotal);
+    if (document.getElementById('editIva'))      document.getElementById('editIva').textContent      = fmt(iva);
+    if (document.getElementById('editTotal'))    document.getElementById('editTotal').textContent    = fmt(total);
 }
 
 async function guardarEdicion() {
-    const id = document.getElementById('editIdReserva').value;
-    const servicioIds = Array.from(document.querySelectorAll('.edit-servicio-check:checked')).map(el => parseInt(el.value));
+    const id      = document.getElementById('editIdReserva').value;
+    const tipo    = document.getElementById('editTipoAloj').value;
+    const idAloj  = document.getElementById('editAlojamiento').value;
+    const servicioIds = Array.from(document.querySelectorAll('.edit-servicio-check:checked'))
+        .map(el => parseInt(el.value));
+
     const data = {
-        IDHabitacion: parseInt(document.getElementById('editIDHabitacion').value),
-        IDPaquete: parseInt(document.getElementById('editIDPaquete').value),
         serviciosAdicionales: servicioIds,
-        FechaInicio: document.getElementById('editFechaInicio').value,
+        FechaInicio:       document.getElementById('editFechaInicio').value,
         FechaFinalizacion: document.getElementById('editFechaFinalizacion').value,
-        MetodoPago: parseInt(document.getElementById('editMetodoPago').value)
+        MetodoPago: parseInt(document.getElementById('editMetodoPago').value),
     };
+    if (tipo === 'habitacion') data.IDHabitacion = parseInt(idAloj);
+    else if (tipo === 'cabana')   data.IDCabana    = parseInt(idAloj);
+    else if (tipo === 'paquete')  data.IDPaquete   = parseInt(idAloj);
+
     try {
         const response = await fetch(`/api/reservas/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
         });
         if (response.ok) {
             cerrarModal();
@@ -446,7 +471,8 @@ async function guardarEdicion() {
             alert(error.message || 'Error al actualizar la reserva');
         }
     } catch (error) {
-        alert('Error de conexión');    }
+        alert('Error de conexión');
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -622,22 +648,7 @@ function cerrarModal() {
 }
 
 function handleFormChange(event) {
-    if (event.target.matches('#editIDHabitacion')) {
-        if (event.target.value !== '') {
-            document.getElementById('editIDPaquete').value = '';
-        }
-        updateEditSelectStates();        calcularTotalEdicion();
-    }
-    
-    if (event.target.matches('#editIDPaquete')) {
-        if (event.target.value !== '') {
-            document.getElementById('editIDHabitacion').value = '';
-        }
-        updateEditSelectStates();
-        calcularTotalEdicion();
-    }
-
-    if (event.target.matches('.edit-servicio-check')) {
+    if (event.target.matches('#editAlojamiento') || event.target.matches('.edit-servicio-check')) {
         calcularTotalEdicion();
     }
 }
@@ -645,6 +656,6 @@ function handleFormChange(event) {
 document.getElementById('editReservationForm').addEventListener('change', handleFormChange);
 
 (async function initializePage() {
-    await Promise.all([cargarHabitaciones(), cargarPaquetes(), cargarServicios(), cargarMetodosPagoModal()]);    await loadReservations();
+    await loadReservations();
 })();
 
