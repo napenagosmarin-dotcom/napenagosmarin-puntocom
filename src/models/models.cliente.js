@@ -7,26 +7,50 @@ const pool = require('../config/db.js');
 
 const Cliente = {
 
+    // Sincroniza en clientes todos los usuarios con IDRol=1 que no tengan registro previo.
+    // Usa Email como clave de deduplicación (invariante entre ambas tablas).
+    async syncFromUsuarios() {
+        await pool.query(`
+            INSERT INTO clientes (NroDocumento, Nombre, Apellido, Direccion, Email, Telefono, Estado, IDRol)
+            SELECT
+                u.NumeroDocumento,
+                u.NombreUsuario,
+                u.Apellido,
+                u.Direccion,
+                u.Email,
+                u.Telefono,
+                u.Estado,
+                1
+            FROM usuarios u
+            WHERE u.IDRol = 1
+              AND NOT EXISTS (
+                SELECT 1 FROM clientes c WHERE c.Email = u.Email
+              )
+        `);
+    },
+
     // Obtener todos los clientes
     async getAll() {
+        await this.syncFromUsuarios();
         const [rows] = await pool.query('SELECT * FROM clientes ORDER BY Nombre ASC');
         return rows.map(this.mapCliente);
     },
 
     // Obtener clientes paginados y con búsqueda
     async getPaginated(limit, offset, search = '') {
+        await this.syncFromUsuarios();
         let query = 'SELECT * FROM clientes';
         let params = [];
-        
+
         if (search) {
             query += ' WHERE Nombre LIKE ? OR Apellido LIKE ? OR NroDocumento LIKE ? OR Email LIKE ?';
             const searchParam = `%${search}%`;
             params.push(searchParam, searchParam, searchParam, searchParam);
         }
-        
+
         query += ' ORDER BY Nombre ASC LIMIT ? OFFSET ?';
         params.push(limit, offset);
-        
+
         const [rows] = await pool.query(query, params);
         return rows.map(this.mapCliente);
     },
@@ -35,13 +59,13 @@ const Cliente = {
     async count(search = '') {
         let query = 'SELECT COUNT(*) as total FROM clientes';
         let params = [];
-        
+
         if (search) {
             query += ' WHERE Nombre LIKE ? OR Apellido LIKE ? OR NroDocumento LIKE ? OR Email LIKE ?';
             const searchParam = `%${search}%`;
             params.push(searchParam, searchParam, searchParam, searchParam);
         }
-        
+
         const [rows] = await pool.query(query, params);
         return rows[0].total;
     },
