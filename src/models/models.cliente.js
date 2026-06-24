@@ -7,26 +7,30 @@ const pool = require('../config/db.js');
 
 const Cliente = {
 
-    // Sincroniza en clientes todos los usuarios con IDRol=1 que no tengan registro previo.
-    // Usa Email como clave de deduplicación (invariante entre ambas tablas).
+    // Sincroniza en clientes los usuarios con IDRol=1 que no tengan registro previo.
+    // INSERT IGNORE + try/catch: nunca rompe la carga aunque haya constraint o columna inexistente.
     async syncFromUsuarios() {
-        await pool.query(`
-            INSERT INTO clientes (NroDocumento, Nombre, Apellido, Direccion, Email, Telefono, Estado, IDRol)
-            SELECT
-                u.NumeroDocumento,
-                u.NombreUsuario,
-                u.Apellido,
-                u.Direccion,
-                u.Email,
-                u.Telefono,
-                u.Estado,
-                1
-            FROM usuarios u
-            WHERE u.IDRol = 1
-              AND NOT EXISTS (
-                SELECT 1 FROM clientes c WHERE c.Email = u.Email
-              )
-        `);
+        try {
+            await pool.query(`
+                INSERT IGNORE INTO clientes (NroDocumento, Nombre, Apellido, Direccion, Email, Telefono, Estado)
+                SELECT
+                    u.NumeroDocumento,
+                    u.NombreUsuario,
+                    u.Apellido,
+                    u.Direccion,
+                    u.Email,
+                    u.Telefono,
+                    COALESCE(u.Estado, 1)
+                FROM usuarios u
+                WHERE u.IDRol = 1
+                  AND u.Email IS NOT NULL
+                  AND NOT EXISTS (
+                      SELECT 1 FROM clientes c WHERE c.Email = u.Email
+                  )
+            `);
+        } catch (err) {
+            console.error('[syncFromUsuarios]', err.message);
+        }
     },
 
     // Obtener todos los clientes
