@@ -1970,6 +1970,27 @@ body:has(.admin-layout) {
   letter-spacing: 0.05em;
 }
 
+/* ── Tarjeta Completada: solo lectura / historial ── */
+.reserva-card--completada {
+  opacity: 0.88;
+}
+.reserva-card--completada .reserva-card__header {
+  background: rgba(49,130,206,0.04);
+}
+.reserva-card__historial-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: rgba(43,108,176,0.1);
+  color: #2B6CB0;
+  border: 1px solid rgba(43,108,176,0.2);
+}
+
 .reserva-card__select-wrap { flex-shrink: 0; }
 
 .reserva-estado-select {
@@ -2741,68 +2762,226 @@ a.admin-nav-item.active {
   transform: scale(1.05);
 }
 
-.sidebar-toggle-btn i {
-  width: 20px;
-  height: 20px;
-}
+.sidebar-toggle-btn i { width: 20px; height: 20px; }
 
-/* ── Estado colapsado del sidebar ── */
-.admin-sidebar {
-  transition: width 0.3s ease, padding 0.3s ease;
-  overflow: hidden;
-}
-
-.admin-sidebar.sidebar-collapsed {
-  width: 72px;
-  padding: 2rem 0.6rem;
-}
-
-/* Ocultar textos cuando está colapsado */
+.admin-sidebar { transition: width 0.3s ease, padding 0.3s ease; overflow: hidden; }
+.admin-sidebar.sidebar-collapsed { width: 72px; padding: 2rem 0.6rem; }
 .admin-sidebar.sidebar-collapsed .admin-sidebar__logo-nombre,
 .admin-sidebar.sidebar-collapsed .admin-sidebar__logo-rol,
 .admin-sidebar.sidebar-collapsed .admin-nav-item span,
 .admin-sidebar.sidebar-collapsed .admin-sidebar__welcome,
-.admin-sidebar.sidebar-collapsed .admin-sidebar__logout span {
-  display: none;
+.admin-sidebar.sidebar-collapsed .admin-sidebar__logout span { display: none; }
+.admin-sidebar.sidebar-collapsed .admin-nav-item { justify-content: center; padding: 0.85rem 0.5rem; }
+.admin-sidebar.sidebar-collapsed .admin-sidebar__logout { padding: 0.8rem 0.5rem; justify-content: center; }
+.admin-main { transition: margin-left 0.3s ease, width 0.3s ease; }
+.admin-main.sidebar-collapsed { margin-left: 72px; width: calc(100% - 72px); }
+
+/* ═══════════════════════════════════════════════════════════════
+   FORMULARIOS DE MODALES — Sistema unificado de 3 estados
+   ═══════════════════════════════════════════════════════════════ */
+
+/* — Layout del contenedor de campo — */
+.modal-body .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0;
 }
 
-/* Centrar iconos cuando está colapsado */
-.admin-sidebar.sidebar-collapsed .admin-nav-item {
-  justify-content: center;
-  padding: 0.85rem 0.5rem;
+/* — Etiqueta uppercase legible — */
+.modal-body .form-group label,
+.modal-body label {
+  display: block;
+  font-size: 0.71rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  color: rgba(26, 43, 74, 0.55) !important;
+  font-family: var(--fuente-secundaria, 'Inter', sans-serif);
+  margin-bottom: 0.3rem;
+  user-select: none;
 }
 
-.admin-sidebar.sidebar-collapsed .admin-sidebar__logout {
-  padding: 0.8rem 0.5rem;
-  justify-content: center;
+/* — Fila de dos columnas — */
+.modal-body .form-row,
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
-/* Ajustar el main cuando el sidebar está colapsado */
-.admin-main {
-  transition: margin-left 0.3s ease, width 0.3s ease;
+/* ───────────────────────────────────────────────────────────────
+   ESTADO DEFAULT — fondo lavanda + borde morado siempre visible
+   Paleta: #7B52AB (purple-600 suave)
+     fondo default  #F5F0FF  (purple-50  ≈ lavanda muy suave)
+     borde default  rgba(123,82,171, 0.58)
+     fondo hover    #EDE9FE  (purple-100 suave)
+     borde hover    rgba(123,82,171, 0.78)
+     borde focus    #7B52AB  sólido + ring rgba(123,82,171,0.15)
+   ─────────────────────────────────────────────────────────────── */
+
+.modal-body input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([readonly]),
+.modal-body select,
+.modal-body textarea,
+.form-input {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 0.65rem 0.9rem !important;
+  border-radius: 10px !important;
+  border: 1.5px solid rgba(123, 82, 171, 0.58) !important;
+  background: #F5F0FF !important;
+  color: #1A2B4A !important;
+  font-size: 0.9rem;
+  font-family: var(--fuente-secundaria, 'Inter', sans-serif);
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+  appearance: auto;
 }
 
-.admin-main.sidebar-collapsed {
-  margin-left: 72px;
-  width: calc(100% - 72px);
+/* ESTADO HOVER — borde morado más intenso, fondo levemente más saturado */
+.modal-body input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([readonly]):hover,
+.modal-body select:hover,
+.modal-body textarea:hover,
+.form-input:hover:not(:disabled) {
+  border-color: rgba(123, 82, 171, 0.78) !important;
+  background: #EDE9FE !important;
 }
 
-/* Ajustes responsive para el sidebar colapsado */
-@media (max-width: 1280px) {
-  .admin-sidebar.sidebar-collapsed { width: 72px; }
-  .admin-main.sidebar-collapsed { margin-left: 72px; width: calc(100% - 72px); }
+/* ESTADO FOCUS — borde sólido + resplandor difuminado */
+.modal-body input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):focus,
+.modal-body select:focus,
+.modal-body textarea:focus,
+.form-input:focus {
+  border-color: #7B52AB !important;
+  box-shadow: 0 0 0 3.5px rgba(123, 82, 171, 0.15) !important;
+  background: #EDE9FE !important;
+  outline: none !important;
 }
-@media (max-width: 1100px) {
-  .admin-sidebar.sidebar-collapsed { width: 72px; }
-  .admin-main.sidebar-collapsed { margin-left: 72px; width: calc(100% - 72px); }
+
+/* Opciones de select */
+.modal-body select option,
+.form-input option {
+  background: #ffffff;
+  color: #1A2B4A;
 }
-@media (max-width: 900px) {
-  .admin-sidebar.sidebar-collapsed {
-    width: 100%;
-    padding: 0.5rem;
+
+/* Textarea */
+.modal-body textarea,
+textarea.form-input {
+  resize: vertical;
+  min-height: 84px;
+  line-height: 1.55;
+}
+
+/* Disabled */
+.modal-body input:disabled,
+.modal-body select:disabled,
+.modal-body textarea:disabled,
+.form-input:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  border-color: rgba(26, 43, 74, 0.12) !important;
+  background: rgba(26, 43, 74, 0.04) !important;
+}
+
+/* Input readonly (precio calculado en Paquetes) */
+.modal-body input[readonly] {
+  background: #f0f7ff !important;
+  border-color: rgba(49, 130, 206, 0.3) !important;
+  cursor: default !important;
+  color: #10b981 !important;
+  font-weight: 700 !important;
+}
+
+/* Error — override de validación */
+.modal-body .input-error,
+.modal-body input.input-error,
+.modal-body select.input-error,
+.modal-body textarea.input-error,
+.form-input.input-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.14) !important;
+  background: #fff1f2 !important;
+}
+
+/* Responsive — una columna en móvil */
+@media (max-width: 540px) {
+  .modal-body .form-row,
+  .form-row {
+    grid-template-columns: 1fr;
   }
-  .admin-main.sidebar-collapsed {
-    margin-left: 0;
-    width: 100%;
-  }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MEJORA GLOBAL DE CONTRASTE DE TEXTO
+   Problema: textos con rgba(26,43,74, 0.4-0.6) son difíciles
+   de leer sobre el fondo claro #EBF4FB / blanco del panel.
+   Solución: bloque de overrides con !important al final del CSS,
+   asegura mayor opacidad en todos los módulos sin tocar bordes,
+   fondos ni sombras.
+   Escala aplicada:
+     0.35-0.40 → 0.65  (decorativos / placeholders)
+     0.42-0.50 → 0.75  (etiquetas secondary)
+     0.55-0.60 → 0.85  (texto de apoyo principal)
+     0.65-0.75 → 0.90  (texto casi primario)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Sidebar ── */
+.admin-sidebar__logo-rol          { color: rgba(26, 43, 74, 0.80) !important; }
+.admin-nav-item                   { color: rgba(26, 43, 74, 0.85) !important; }
+a.admin-nav-item                  { color: rgba(26, 43, 74, 0.85) !important; }
+.admin-sidebar__welcome           { color: rgba(26, 43, 74, 0.80) !important; }
+
+/* ── Header ── */
+.admin-header__eyebrow            { opacity: 1 !important; }
+.admin-search input::placeholder  { color: rgba(26, 43, 74, 0.65) !important; }
+
+/* ── Paginación ── */
+.pagination-info                  { color: rgba(26, 43, 74, 0.82) !important; }
+.pagination-dots                  { color: rgba(26, 43, 74, 0.62) !important; }
+
+/* ── Cards de contenido (Habitaciones, Cabañas, Paquetes, Servicios) ── */
+.room-card-body p                 { color: rgba(26, 43, 74, 0.82) !important; }
+
+/* ── Dashboard ── */
+.dashboard-loading                { color: rgba(26, 43, 74, 0.80) !important; }
+.stat-card__label                 { color: rgba(26, 43, 74, 0.80) !important; }
+
+/* ── Modales — botón cerrar ── */
+.modal-close                      { color: rgba(26, 43, 74, 0.70) !important; }
+
+/* ── Modales de detalle (det-*) — etiquetas ── */
+.det-header-info p                { color: rgba(26, 43, 74, 0.82) !important; }
+.det-card__label                  { color: rgba(26, 43, 74, 0.75) !important; }
+
+/* ── Toast ── */
+.toast__message                   { color: rgba(26, 43, 74, 0.88) !important; }
+
+/* ── Módulo Reservas ── */
+.reservas-kpi__label              { color: rgba(26, 43, 74, 0.82) !important; }
+.reservas-filtro                  { color: rgba(26, 43, 74, 0.82) !important; }
+.reserva-card__doc                { color: rgba(26, 43, 74, 0.75) !important; }
+.reserva-card__detalle-label      { color: rgba(26, 43, 74, 0.70) !important; }
+.reserva-det-card p               { color: rgba(43, 108, 176, 0.90) !important; }
+
+/* ── Módulo Clientes ── */
+.cliente-detalle__header-info span { color: rgba(26, 43, 74, 0.85) !important; }
+.cliente-detalle__card p          { color: rgba(43, 108, 176, 0.90) !important; }
+
+/* ── Módulo Cabañas ── */
+.cabana-detalle__desc             { color: rgba(26, 43, 74, 0.90) !important; }
+
+/* ── Modal detalle Reserva (rd-*) ── */
+.rd-hero__id                      { color: rgba(26, 43, 74, 0.75) !important; }
+.rd-hero__label                   { color: rgba(26, 43, 74, 0.75) !important; }
+.rd-hero__date                    { color: rgba(26, 43, 74, 0.90) !important; }
+.rd-card__label                   { color: rgba(26, 43, 74, 0.72) !important; }
+.rd-card__sub                     { color: rgba(26, 43, 74, 0.75) !important; }
+.rd-dates span                    { color: rgba(26, 43, 74, 0.90) !important; }
+.rd-amounts span                  { color: rgba(26, 43, 74, 0.80) !important; }
+.rd-amounts b                     { color: rgba(26, 43, 74, 0.92) !important; }
+
+/* ── Etiquetas de formularios en modales ── */
+.modal-body .form-group label,
+.modal-body label                 { color: rgba(26, 43, 74, 0.72) !important; }

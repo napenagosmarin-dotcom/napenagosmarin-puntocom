@@ -6,9 +6,9 @@
   <title>Nueva Reserva - Panel Admin | Aura Travel</title>
   <link rel="stylesheet" href="../css/reset.css" />
   <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/styles.css?v=1.1" />
-  <link rel="stylesheet" href="../css/admin.css?v=2.0" />
-  <link rel="stylesheet" href="../css/nueva-reserva.css?v=2.0" />
+  <link rel="stylesheet" href="../css/styles.css?v=2.2" />
+  <link rel="stylesheet" href="../css/admin.css?v=3.7" />
+  <link rel="stylesheet" href="../css/nueva-reserva.css?v=2.2" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="../css/calendar-customization.css?v=2.0" />
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -112,40 +112,87 @@
       border-color: rgba(49,130,206,0.2) !important;
       color: #1A2B4A !important;
     }
-    .servicio-label {
-      background: #f8fafc !important;
-      border-color: rgba(49,130,206,0.15) !important;
-    }
+    .servicio-label { background: #f8fafc !important; border-color: rgba(49,130,206,0.15) !important; }
     .servicio-name  { color: #1A2B4A !important; }
     .servicio-price { color: #2B6CB0 !important; }
     .nr-card__aclaracion { color: #D97706 !important; }
     .nr-aviso            { color: rgba(26,43,74,0.55) !important; }
 
-    /* ── Resumen de pago: fondo oscuro, texto legible ── */
-    .nr-resumen {
-      background: linear-gradient(160deg, #1A2B4A 0%, #0F1D36 100%) !important;
-      border-color: rgba(255,255,255,0.1) !important;
-      top: 4rem !important;   /* compensa el topbar sticky (~3.5rem) */
+    /* ── Buscador de cliente por documento ── */
+    .nr-doc-search { position: relative; }
+    .nr-doc-search input[type="text"] {
+      width: 100%;
+      padding: 0.78rem 1rem 0.78rem 2.6rem;
+      border: 1.5px solid rgba(49,130,206,0.25);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: #1A2B4A;
+      background: #f8fbff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+      font-family: var(--fuente-secundaria, 'Inter', sans-serif);
     }
-    .nr-resumen__titulo    { color: #D4902B !important; border-bottom-color: rgba(255,255,255,0.12) !important; }
-    .nr-resumen__fila      { color: rgba(255,255,255,0.75) !important; }
-    .nr-resumen__fila span:last-child { color: #ffffff !important; }
-    .nr-resumen__item-name { color: rgba(255,255,255,0.85) !important; }
-    .nr-resumen__item.accommodation-item .nr-resumen__item-name { color: #ffffff !important; }
-    .nr-resumen__item-details { color: rgba(255,255,255,0.5) !important; }
-    .nr-resumen__item-val     { color: #ffffff !important; }
-    .nr-resumen__separador {
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent) !important;
+    .nr-doc-search input[type="text"]:focus {
+      border-color: #3182CE;
+      box-shadow: 0 0 0 3px rgba(49,130,206,0.12);
+      outline: none;
+      background: #ffffff;
     }
-    .nr-resumen__total {
-      color: #ffffff !important;
-      border-top-color: rgba(255,255,255,0.15) !important;
+    .nr-doc-search__icon {
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(49,130,206,0.55);
+      font-size: 1rem;
+      pointer-events: none;
     }
-    .nr-resumen__helper {
-      background: rgba(49,130,206,0.18) !important;
-      border-color: rgba(49,130,206,0.35) !important;
-      color: #93C5FD !important;
+    .nr-doc-results {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: #ffffff;
+      border: 1.5px solid rgba(49,130,206,0.2);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(26,43,74,0.12);
+      z-index: 200;
+      max-height: 220px;
+      overflow-y: auto;
     }
+    .nr-doc-result-item {
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(49,130,206,0.08);
+      transition: background 0.15s;
+    }
+    .nr-doc-result-item:last-child { border-bottom: none; }
+    .nr-doc-result-item:hover { background: rgba(49,130,206,0.07); }
+    .nr-doc-result-item__name { font-weight: 600; color: #1A2B4A; font-size: 0.88rem; }
+    .nr-doc-result-item__doc  { color: rgba(26,43,74,0.55); font-size: 0.78rem; margin-top: 2px; }
+    .nr-cliente-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 0.65rem;
+      padding: 0.65rem 0.9rem;
+      background: rgba(49,130,206,0.06);
+      border: 1.5px solid rgba(49,130,206,0.18);
+      border-radius: 10px;
+    }
+    .nr-cliente-chip__info { flex: 1; min-width: 0; }
+    .nr-cliente-chip__name { font-weight: 600; color: #1A2B4A; font-size: 0.88rem; }
+    .nr-cliente-chip__doc  { color: rgba(26,43,74,0.5); font-size: 0.78rem; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nr-cliente-chip__clear {
+      cursor: pointer;
+      color: rgba(26,43,74,0.35);
+      font-size: 1.2rem;
+      line-height: 1;
+      padding: 2px 7px;
+      border-radius: 6px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .nr-cliente-chip__clear:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
   </style>
 </head>
 <body>
@@ -279,33 +326,18 @@
             <!-- COLUMNA IZQUIERDA: formulario -->
             <form id="reservationForm" class="nr-form">
 
-              <!-- PASO 0: SELECCIONAR CLIENTE -->
-              <div class="nr-card" style="border-color: rgba(16,185,129,0.25);">
-                <div class="nr-card__titulo nr-card__titulo--flex">
-                  <span>👤 Cliente de la Reserva</span>
-                  <span id="clienteSeleccionadoBadge" style="display:none; font-size:0.72rem; font-weight:700; color:#10b981; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); padding:0.2rem 0.7rem; border-radius:999px; letter-spacing:0.02em;">✓ Seleccionado</span>
-                </div>
-                <div style="display:flex; gap:0.75rem; align-items:flex-end;">
-                  <div class="nr-field" style="flex:1;">
-                    <label class="nr-label" for="buscarDocumento">🔍 Número de Documento</label>
-                    <input type="text" id="buscarDocumento" placeholder="Ej: 1234567890" autocomplete="off"
-                           style="width:100%;padding:0.65rem 0.9rem;height:2.4rem;background:#f0f7ff;border:1.5px solid rgba(49,130,206,0.2);border-radius:10px;font-family:var(--fuente-secundaria);font-size:0.85rem;color:#1A2B4A;outline:none;box-sizing:border-box;transition:border-color 0.2s;">
+              <!-- CARD CLIENTE (solo admin) -->
+              <div class="nr-card nr-card--cliente">
+                <div class="nr-card__titulo">👤 ¿Para quién es la reserva?</div>
+                <div class="nr-field">
+                  <label class="nr-label" for="buscarDocumento">Número de Documento del Cliente</label>
+                  <div class="nr-doc-search">
+                    <span class="nr-doc-search__icon">🔍</span>
+                    <input type="text" id="buscarDocumento" placeholder="Escribe el número de documento…" autocomplete="off">
+                    <div id="docSearchResults" class="nr-doc-results" style="display:none;"></div>
                   </div>
-                  <button type="button" id="btnBuscarCliente"
-                          style="padding:0 1.2rem;height:2.4rem;background:linear-gradient(135deg,#2B6CB0,#3182CE);color:#fff;border:none;border-radius:10px;font-size:0.82rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity 0.2s;flex-shrink:0;">
-                    Buscar
-                  </button>
-                </div>
-                <div id="clienteEncontrado" style="display:none;margin-top:0.85rem;padding:0.85rem 1rem;background:rgba(16,185,129,0.07);border:1.5px solid rgba(16,185,129,0.3);border-radius:10px;">
-                  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
-                    <span>✅</span>
-                    <strong style="color:#1A2B4A;font-size:0.9rem;" id="clienteNombreDisplay"></strong>
-                  </div>
-                  <div style="color:rgba(26,43,74,0.65);font-size:0.8rem;margin-top:0.15rem;" id="clienteEmailDisplay"></div>
-                  <div style="color:rgba(26,43,74,0.65);font-size:0.8rem;margin-top:0.1rem;" id="clienteDocDisplay"></div>
-                </div>
-                <div id="clienteNoEncontrado" style="display:none;margin-top:0.85rem;padding:0.75rem 1rem;background:rgba(239,68,68,0.07);border:1.5px solid rgba(239,68,68,0.25);border-radius:10px;color:#dc2626;font-size:0.82rem;">
-                  ⚠ No se encontró ningún usuario registrado con ese número de documento.
+                  <div id="clienteSeleccionado" class="nr-cliente-chip" style="display:none;"></div>
+                  <input type="hidden" id="IDClienteReserva">
                 </div>
               </div>
 
@@ -440,7 +472,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="../js/api.js"></script>
-  <script src="../js/admin-nueva-reserva.js"></script>
+  <script src="../js/admin-nueva-reserva.js?v=1.5"></script>
   <script>lucide.createIcons();</script>
 </body>
 </html>

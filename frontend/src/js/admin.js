@@ -255,11 +255,11 @@ function renderReservas(reservas, kpis) {
     const totalPages = Math.ceil(reservasTotal / reservasLimit);
 
     const estadoConfig = {
-        pendiente:   { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.3)',  icon: 'clock' },
-        confirmada:  { color: '#10b981', bg: 'rgba(16,185,129,0.12)',  border: 'rgba(16,185,129,0.3)',  icon: 'check-circle-2' },
-        cancelada:   { color: '#ef4444', bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.3)',   icon: 'x-circle' },
-        completada:  { color: '#2B6CB0', bg: 'rgba(49,130,206,0.12)',   border: 'rgba(49,130,206,0.3)',   icon: 'check-circle' },
-        procesando:  { color: '#1A2B4A', bg: 'rgba(26,43,74,0.12)', border: 'rgba(26,43,74,0.3)', icon: 'loader' },
+        pendiente:    { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.3)',  icon: 'clock' },
+        confirmada:   { color: '#10b981', bg: 'rgba(16,185,129,0.12)',  border: 'rgba(16,185,129,0.3)',  icon: 'check-circle-2' },
+        cancelada:    { color: '#ef4444', bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.3)',   icon: 'x-circle' },
+        completada:   { color: '#2B6CB0', bg: 'rgba(49,130,206,0.12)',  border: 'rgba(49,130,206,0.3)',  icon: 'check-circle' },
+        'en proceso': { color: '#0D9488', bg: 'rgba(13,148,136,0.12)',  border: 'rgba(13,148,136,0.3)',  icon: 'door-open' },
     };
 
     function getEstado(nombre) {
@@ -314,7 +314,8 @@ function renderReservas(reservas, kpis) {
         <!-- CARDS DE RESERVAS -->
         <div class="reservas-grid" id="reservasGrid">
             ${reservas.map(r => {
-                const cfg   = getEstado(r.NombreEstadoReserva);
+                const cfg        = getEstado(r.NombreEstadoReserva);
+                const esCompletada = (r.NombreEstadoReserva || '').toLowerCase() === 'completada';
                 const dias  = diasRestantes(r.FechaFinalizacion);
                 const diasTxt = dias !== null
                     ? dias > 0
@@ -325,7 +326,7 @@ function renderReservas(reservas, kpis) {
                     : '';
 
                 return `
-                <div class="reserva-card" data-estado="${r.NombreEstadoReserva?.toLowerCase()}">
+                <div class="reserva-card${esCompletada ? ' reserva-card--completada' : ''}" data-estado="${r.NombreEstadoReserva?.toLowerCase()}">
                     <div class="reserva-card__header" style="border-left: 4px solid ${cfg.color};">
                         <div class="reserva-card__id-wrap">
                             <span class="reserva-card__id">#${r.IdReserva}</span>
@@ -333,10 +334,11 @@ function renderReservas(reservas, kpis) {
                                 <i data-lucide="${cfg.icon}" style="width:12px; height:12px;"></i>
                                 ${r.NombreEstadoReserva}
                             </span>
+                            ${esCompletada ? '<span class="reserva-card__historial-tag">🔒 Historial</span>' : ''}
                         </div>
                         <div class="reserva-card__select-wrap">
-                            <select class="reserva-estado-select" onchange="cambiarEstado(${r.IdReserva}, this.value)"
-                                style="border-color: ${cfg.border}; color: ${cfg.color};">
+                            <select class="reserva-estado-select" ${esCompletada ? 'disabled title="Las reservas completadas son de solo lectura"' : `onchange="cambiarEstado(${r.IdReserva}, this.value)"`}
+                                style="border-color: ${cfg.border}; color: ${cfg.color}; ${esCompletada ? 'opacity:0.5; cursor:not-allowed;' : ''}">
                                 ${reservasEstados.map(e => `
                                     <option value="${e.IdEstadoReserva}"
                                         ${e.IdEstadoReserva === r.IdEstadoReserva ? 'selected' : ''}>
@@ -383,12 +385,13 @@ function renderReservas(reservas, kpis) {
                             <button onclick="verDetalleReserva(${r.IdReserva})" class="btn-icon-admin btn-view" title="Ver Detalle">
                                 <i data-lucide="eye" style="width:15px;"></i>
                             </button>
+                            ${esCompletada ? '' : `
                             <button onclick="editarReserva(${r.IdReserva})" class="btn-icon-admin btn-edit" title="Editar Reserva">
                                 <i data-lucide="edit-2" style="width:15px;"></i>
                             </button>
                             <button onclick="eliminarReserva(${r.IdReserva})" class="btn-icon-admin btn-delete" title="Eliminar Reserva">
                                 <i data-lucide="trash-2" style="width:15px;"></i>
-                            </button>
+                            </button>`}
                         </div>
                     </div>
                 </div>`;
@@ -457,11 +460,11 @@ window.verDetalleReserva = async (id) => {
         const r = await res.json();
 
         const estadoConfig = {
-            pendiente:   { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)',  icon: 'clock' },
-            confirmada:  { color: '#10b981', bg: 'rgba(16,185,129,0.15)',  icon: 'check-circle-2' },
-            cancelada:   { color: '#ef4444', bg: 'rgba(239,68,68,0.15)',   icon: 'x-circle' },
-            completada:  { color: '#2B6CB0', bg: 'rgba(49,130,206,0.15)',   icon: 'check-circle' },
-            procesando:  { color: '#1A2B4A', bg: 'rgba(26,43,74,0.15)', icon: 'loader' },
+            pendiente:    { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)',  icon: 'clock' },
+            confirmada:   { color: '#10b981', bg: 'rgba(16,185,129,0.15)',  icon: 'check-circle-2' },
+            cancelada:    { color: '#ef4444', bg: 'rgba(239,68,68,0.15)',   icon: 'x-circle' },
+            completada:   { color: '#2B6CB0', bg: 'rgba(49,130,206,0.15)',  icon: 'check-circle' },
+            'en proceso': { color: '#0D9488', bg: 'rgba(13,148,136,0.15)', icon: 'door-open' },
         };
         const key = (r.NombreEstadoReserva || '').toLowerCase();
         const cfg = estadoConfig[key] || { color: '#6b7280', bg: 'rgba(107,114,128,0.15)', icon: 'help-circle' };
@@ -619,8 +622,14 @@ window.editarReserva = async (id) => {
                     </select>
                 </div>
                 <div class="form-group" style="grid-column:1/-1;">
-                    <label>💰 MONTO TOTAL ($)</label>
-                    <input type="number" id="er_monto" value="${r.MontoTotal || 0}" min="0" class="form-input">
+                    <label style="display:flex;align-items:center;gap:0.4rem;">
+                        💰 MONTO TOTAL ($)
+                        <span style="font-size:0.68rem;font-weight:600;color:#2B6CB0;background:rgba(43,108,176,0.1);border:1px solid rgba(43,108,176,0.2);border-radius:999px;padding:0.1rem 0.55rem;letter-spacing:0.03em;">SOLO LECTURA</span>
+                    </label>
+                    <input type="text" id="er_monto" value="$${Number(r.MontoTotal || 0).toLocaleString('es-CO')}"
+                        readonly
+                        title="El monto total es calculado automáticamente por el sistema y no puede modificarse manualmente."
+                        style="background:rgba(26,43,74,0.04);border-color:rgba(26,43,74,0.1);color:rgba(26,43,74,0.55);cursor:not-allowed;user-select:none;font-weight:600;">
                 </div>
                 <div style="grid-column:1/-1; display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.25rem;">
                     <button type="button" onclick="cerrarModal()" class="btn btn-secundario">Cancelar</button>
@@ -639,7 +648,6 @@ window.guardarReserva = async (id) => {
     const fechaFin    = document.getElementById('er_fechaFin')?.value;
     const idEstado    = document.getElementById('er_estado')?.value;
     const idMetodo    = document.getElementById('er_metodoPago')?.value;
-    const monto       = document.getElementById('er_monto')?.value;
 
     if (!fechaInicio || !fechaFin) {
         mostrarNotificacion('Las fechas de check-in y check-out son obligatorias.', 'warning');
@@ -658,8 +666,7 @@ window.guardarReserva = async (id) => {
                 FechaInicio:       fechaInicio,
                 FechaFinalizacion: fechaFin,
                 IdEstadoReserva:   Number(idEstado),
-                IdMetodoPago:      Number(idMetodo),
-                MontoTotal:        Number(monto)
+                IdMetodoPago:      Number(idMetodo)
             })
         });
         if (res.ok) {

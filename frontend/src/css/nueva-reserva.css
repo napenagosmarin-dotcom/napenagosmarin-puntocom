@@ -429,44 +429,50 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 
 .servicio-extra {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-top: 0.75rem;
+  gap: 0.75rem;
+  flex-wrap: nowrap;
   max-height: 0;
+  margin-top: 0;
+  padding-top: 0;
   opacity: 0;
   visibility: hidden;
   overflow: hidden;
-  transition: max-height 0.25s ease, opacity 0.25s ease, visibility 0.25s ease;
+  transition: max-height 0.25s ease, opacity 0.25s ease, visibility 0.25s ease,
+              padding-top 0.25s ease, margin-top 0.25s ease;
 }
 
 .servicio-item.active .servicio-extra {
-  max-height: 320px;
+  max-height: 48px;
   opacity: 1;
   visibility: visible;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(49,130,206,0.12);
 }
 
 .servicio-controls {
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-width: 220px;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45rem;
   flex: 1;
+  min-width: 0;
 }
 
 .servicio-control-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #1A2B4A;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(26,43,74,0.65);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .servicio-input-row {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.35rem;
 }
 
 .servicio-input-row input,
@@ -484,42 +490,48 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 }
 
 .servicio-quantity-input {
-  width: 4.5rem;
-  min-width: 4.5rem;
-  padding: 0.55rem 0.75rem;
-  border-radius: 12px;
-  border: 1px solid rgba(49,130,206,0.25);
+  width: 3.2rem;
+  min-width: 3.2rem;
+  padding: 0.28rem 0.4rem;
+  border-radius: 8px;
+  border: 1px solid rgba(49,130,206,0.3);
   background: #f0f7ff;
   color: #1A2B4A;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+  font-weight: 700;
   text-align: center;
   outline: none;
 }
 
+.servicio-quantity-input:focus {
+  border-color: #2B6CB0;
+  box-shadow: 0 0 0 2px rgba(49,130,206,0.15);
+}
+
 .servicio-quantity-input:disabled {
-  opacity: 0.6;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 .servicio-input-suffix {
-  color: rgba(26,43,74,0.7);
-  font-size: 0.82rem;
+  color: rgba(26,43,74,0.6);
+  font-size: 0.78rem;
   white-space: nowrap;
 }
 
 .servicio-help {
-  font-size: 0.78rem;
-  color: rgba(26,43,74,0.6);
-  min-height: 1rem;
+  font-size: 0.72rem;
+  color: rgba(26,43,74,0.55);
+  white-space: nowrap;
 }
 
 .servicio-total {
-  font-size: 0.86rem;
+  font-size: 0.83rem;
   color: #2B6CB0;
-  font-weight: 700;
+  font-weight: 800;
   white-space: nowrap;
-  min-width: 8rem;
   text-align: right;
+  flex-shrink: 0;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.25s ease, visibility 0.25s ease;
@@ -1069,3 +1081,48 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
     font-size: 0.85rem;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTRASTE DE TEXTO — Vista cliente nueva-reserva
+   Problema: textos con opacity 0.40–0.60 son ilegibles sobre
+   el fondo #EBF4FB / blanco del layout claro.
+   Escala: 0.40-0.50 → 0.75 | 0.55-0.60 → 0.82 | 0.65+ → 0.88
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Mensaje de disponibilidad de fechas — era casi invisible */
+.nr-aviso                         { color: rgba(26, 43, 74, 0.80) !important; }
+
+/* Subtítulo de página */
+.nr-subtitulo                     { color: #3A526E !important; }
+
+/* Labels de campo */
+.nr-label                         { color: rgba(26, 43, 74, 0.75) !important; }
+
+/* Badge de noches */
+.nr-noches-badge__label           { color: rgba(26, 43, 74, 0.82) !important; }
+
+/* Detalle de alojamiento seleccionado */
+.nr-detalle p                     { color: #3A526E !important; }
+
+/* Preview card */
+.nr-preview-desc                  { color: rgba(26, 43, 74, 0.85) !important; }
+.nr-preview-meta                  { color: rgba(26, 43, 74, 0.80) !important; }
+
+/* Servicios */
+.servicio-help                    { color: rgba(26, 43, 74, 0.80) !important; }
+.servicio-input-suffix            { color: rgba(26, 43, 74, 0.82) !important; }
+.nr-servicios-subtotal            { color: rgba(26, 43, 74, 0.82) !important; }
+
+/* Términos y condiciones */
+.nr-tc-row-body p                 { color: rgba(26, 43, 74, 0.82) !important; }
+.nr-tc-small li                   { color: rgba(26, 43, 74, 0.80) !important; }
+.nr-tc-small li strong            { color: rgba(26, 43, 74, 0.90) !important; }
+.nr-tc-check-text                 { color: rgba(26, 43, 74, 0.88) !important; }
+
+/* Botón cancelar */
+.nr-btn-cancelar                  { color: rgba(26, 43, 74, 0.75) !important; }
+
+/* Resumen de pago */
+.nr-resumen__item-name            { color: rgba(26, 43, 74, 0.85) !important; }
+.nr-resumen__item-details         { color: rgba(26, 43, 74, 0.72) !important; }
+.nr-resumen__fila                 { color: rgba(26, 43, 74, 0.82) !important; }

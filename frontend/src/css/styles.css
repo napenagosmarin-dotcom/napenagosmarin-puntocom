@@ -101,15 +101,15 @@ img { max-width: 100%; display: block; }
 .sidebar {
   width: var(--sidebar-ancho);
   min-height: 100vh;
-  background: var(--color-primario);
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 100;
-  box-shadow: 4px 0 24px rgba(123, 47, 247, 0.2);
-  border-right: 1px solid rgba(0, 212, 255, 0.1);
+  box-shadow: 4px 0 20px rgba(26, 43, 74, 0.08);
+  border-right: 1px solid rgba(49, 130, 206, 0.12);
   transition: width 0.3s ease;
   overflow: hidden;
 }
@@ -150,9 +150,9 @@ img { max-width: 100%; display: block; }
   top: 18px;
   right: 10px;
   z-index: 10;
-  background: rgba(123, 47, 247, 0.25);
-  border: 1px solid rgba(0, 212, 255, 0.2);
-  color: var(--color-acento);
+  background: rgba(49, 130, 206, 0.10);
+  border: 1px solid rgba(49, 130, 206, 0.20);
+  color: #2B6CB0;
   border-radius: 8px;
   width: 28px;
   height: 28px;
@@ -166,8 +166,8 @@ img { max-width: 100%; display: block; }
 }
 
 .sidebar__colapsar:hover {
-  background: rgba(123, 47, 247, 0.45);
-  color: #fff;
+  background: rgba(49, 130, 206, 0.22);
+  color: #1A2B4A;
 }
 
 .sidebar__logo {
@@ -175,7 +175,7 @@ img { max-width: 100%; display: block; }
   align-items: center;
   gap: 10px;
   padding: 28px 20px 24px;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  border-bottom: 1px solid rgba(49, 130, 206, 0.12);
   position: relative;
   transition: var(--transicion);
 }
@@ -190,14 +190,14 @@ img { max-width: 100%; display: block; }
 .sidebar__logo-img {
   object-fit: contain;
   border-radius: 50%;
-  border: 1.5px solid rgba(0, 212, 255, 0.35);
+  border: 1.5px solid rgba(49, 130, 206, 0.30);
 }
 
 .sidebar__logo-texto {
   font-family: var(--fuente-principal);
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-acento);
+  color: #1A2B4A;
   letter-spacing: 1.5px;
   transition: opacity 0.25s ease, width 0.25s ease;
   white-space: nowrap;
@@ -222,7 +222,7 @@ img { max-width: 100%; display: block; }
   gap: 13px;
   padding: 12px 14px;
   border-radius: 10px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(26, 43, 74, 0.72);
   font-size: 0.9rem;
   transition: var(--transicion);
   border: 1px solid transparent;
@@ -241,29 +241,29 @@ img { max-width: 100%; display: block; }
 }
 
 .sidebar__menu .nav-link:hover {
-  background: rgba(123, 47, 247, 0.2);
-  color: rgba(255, 255, 255, 0.95);
-  border-color: rgba(0, 212, 255, 0.18);
+  background: rgba(49, 130, 206, 0.10);
+  color: #1A2B4A;
+  border-color: rgba(49, 130, 206, 0.20);
   transform: translateX(3px);
 }
 
 .sidebar__menu .nav-link.activo {
-  background: linear-gradient(90deg, rgba(123,47,247,0.45), rgba(0,212,255,0.15));
-  color: #fff;
-  border-color: rgba(0, 212, 255, 0.3);
-  font-weight: 500;
-  box-shadow: 0 0 14px rgba(0, 212, 255, 0.1);
+  background: linear-gradient(90deg, rgba(43,108,176,0.18), rgba(49,130,206,0.10));
+  color: #1A2B4A;
+  border-color: rgba(49, 130, 206, 0.25);
+  font-weight: 600;
+  box-shadow: 0 0 14px rgba(49, 130, 206, 0.10);
 }
 
 .sidebar__footer {
   padding: 18px;
-  border-top: 1px solid rgba(0, 212, 255, 0.08);
+  border-top: 1px solid rgba(49, 130, 206, 0.10);
   text-align: center;
 }
 
 .sidebar__footer-texto {
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(26, 43, 74, 0.62);
   letter-spacing: 0.5px;
   white-space: nowrap;
   transition: opacity 0.25s ease;
@@ -1040,12 +1040,19 @@ img { max-width: 100%; display: block; }
   width: 90% !important;
 }
 
+.modal-content {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(49, 130, 206, 0.15);
+  box-shadow: 0 20px 60px rgba(26, 43, 74, 0.18);
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(123, 47, 247, 0.1);
+  border-bottom: 1px solid rgba(49, 130, 206, 0.12);
   padding-bottom: 1rem;
 }
 
@@ -1585,9 +1592,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .servicio-info-btn {
-  border: 1px solid rgba(123, 47, 247, 0.18);
-  background: rgba(123, 47, 247, 0.08);
-  color: var(--color-blanco);
+  border: 1px solid rgba(49, 130, 206, 0.30);
+  background: rgba(49, 130, 206, 0.10);
+  color: #2B6CB0;
   width: 34px;
   height: 34px;
   border-radius: 999px;
@@ -1595,15 +1602,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   align-items: center;
   justify-content: center;
   font-weight: 700;
+  font-size: 0.9rem;
   cursor: pointer;
+  flex-shrink: 0;
   transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
 .servicio-info-btn:hover,
 .servicio-info-btn:focus-visible {
   transform: translateY(-1px);
-  background: rgba(123, 47, 247, 0.16);
-  border-color: rgba(123, 47, 247, 0.28);
+  background: rgba(49, 130, 206, 0.20);
+  border-color: rgba(49, 130, 206, 0.50);
   outline: none;
 }
 
@@ -1630,18 +1639,26 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   mix-blend-mode: normal;
 }
 
-.servicio-item:hover,
 .servicio-item.tooltip-open,
 .servicio-item.active {
   z-index: 20;
 }
 
-.servicio-item:hover .servicio-tooltip,
-.servicio-item.tooltip-open .servicio-tooltip {
+/* Elevar todo el ítem cuando su botón "!" está activo,
+   para que el tooltip supere el stacking context del grid */
+.servicio-item:has(.servicio-info-btn:hover),
+.servicio-item:has(.servicio-info-btn:focus-visible) {
+  z-index: 500;
+  position: relative;
+}
+
+/* Tooltip solo se activa al pasar el mouse sobre el botón "!" */
+.servicio-info-btn:hover ~ .servicio-tooltip,
+.servicio-info-btn:focus-visible ~ .servicio-tooltip {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
-  z-index: 99999;
+  z-index: 1000;
 }
 
 .servicio-tooltip::before {

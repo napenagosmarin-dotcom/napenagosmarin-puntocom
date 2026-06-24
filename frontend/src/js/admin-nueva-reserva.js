@@ -196,18 +196,29 @@ function renderServicioTooltip(info) {
    CONTADOR DE NOCHES
 ────────────────────────────────────────────────── */
 function actualizarContadorNoches() {
-    const inicio = document.getElementById('FechaInicio').value;
-    const fin    = document.getElementById('FechaFinalizacion').value;
+    let inicio, fin;
+    if (fpStart && fpStart.selectedDates.length > 0) {
+        const d = fpStart.selectedDates[0];
+        inicio = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    } else {
+        inicio = document.getElementById('FechaInicio').value;
+    }
+    if (fpEnd && fpEnd.selectedDates.length > 0) {
+        const d = fpEnd.selectedDates[0];
+        fin = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    } else {
+        fin = document.getElementById('FechaFinalizacion').value;
+    }
     const badge  = document.getElementById('contadorNoches');
     const numEl  = document.getElementById('numNoches');
     const resumenFechas = document.getElementById('resumenFechas');
     const resumenCheckin = document.getElementById('resumenCheckin');
     const resumenCheckout = document.getElementById('resumenCheckout');
 
-    if (!inicio||!fin||fin<=inicio) { 
-        if (badge) badge.style.display='none'; 
+    if (!inicio||!fin||fin<=inicio) {
+        if (badge) badge.style.display='none';
         if (resumenFechas) resumenFechas.style.display='none';
-        return 0; 
+        return 0;
     }
     const noches = Math.round((new Date(fin)-new Date(inicio))/(1000*60*60*24));
     if (noches>=1&&badge&&numEl) { 
@@ -272,7 +283,7 @@ function actualizarDesglose() {
     });
 
     if (items.length===0) {
-        container.innerHTML='<p style="font-size:0.78rem;color:rgba(255,255,255,0.65);margin:0;">Selecciona un alojamiento para ver el desglose.</p>';
+        container.innerHTML='<p style="font-size:0.78rem;color:rgba(26,43,74,0.45);margin:0;">Selecciona un alojamiento para ver el desglose.</p>';
     } else {
         container.innerHTML = items.map((i,idx)=>`
             <div class="nr-resumen__item ${i.type==='accommodation'?'accommodation-item':'service-item'}">
@@ -282,7 +293,7 @@ function actualizarDesglose() {
                 </div>
                 <span class="nr-resumen__item-val">$${formatCurrency(i.val)}</span>
             </div>
-            ${idx<items.length-1&&items[idx+1].type!==i.type?'<div style="border-bottom:1px solid rgba(255,255,255,0.1);margin:0.5rem 0;"></div>':''}
+            ${idx<items.length-1&&items[idx+1].type!==i.type?'<div style="border-bottom:1px solid rgba(49,130,206,0.15);margin:0.5rem 0;"></div>':''}
         `).join('');
     }
 }
@@ -300,6 +311,76 @@ function actualizarSubtotalServicios() {
 /* ──────────────────────────────────────────────────
    CARGA DE DATOS
 ────────────────────────────────────────────────── */
+let clientesCache = [];
+
+async function cargarClientes() {
+    try {
+        const r = await fetch('/api/usuarios');
+        if (!r.ok) throw new Error('Error al cargar clientes');
+        const todos = await r.json();
+        clientesCache = todos.filter(u => u.IDRol !== 2 && u.Estado === 1);
+    } catch(e) {
+        console.error('cargarClientes:', e);
+    }
+}
+
+function seleccionarCliente(idUsuario) {
+    const c = clientesCache.find(u => u.IDUsuario === idUsuario);
+    if (!c) return;
+    document.getElementById('IDClienteReserva').value = idUsuario;
+    document.getElementById('buscarDocumento').value = '';
+    document.getElementById('docSearchResults').style.display = 'none';
+    const chip = document.getElementById('clienteSeleccionado');
+    chip.style.display = 'flex';
+    chip.innerHTML = `
+        <span style="font-size:1.15rem;">👤</span>
+        <div class="nr-cliente-chip__info">
+            <div class="nr-cliente-chip__name">${c.NombreUsuario} ${c.Apellido}</div>
+            <div class="nr-cliente-chip__doc">${c.TipoDocumento || 'Doc'}: ${c.NumeroDocumento} &bull; ${c.Email}</div>
+        </div>
+        <span class="nr-cliente-chip__clear" onclick="limpiarCliente()" title="Cambiar cliente">&times;</span>
+    `;
+}
+
+function limpiarCliente() {
+    document.getElementById('IDClienteReserva').value = '';
+    document.getElementById('clienteSeleccionado').style.display = 'none';
+    const inp = document.getElementById('buscarDocumento');
+    inp.value = '';
+    inp.focus();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('buscarDocumento');
+    const resultsEl = document.getElementById('docSearchResults');
+    if (!inp) return;
+
+    inp.addEventListener('input', function() {
+        const q = this.value.trim();
+        if (q.length < 2) { resultsEl.style.display = 'none'; return; }
+        const matches = clientesCache.filter(c =>
+            c.NumeroDocumento && c.NumeroDocumento.toLowerCase().includes(q.toLowerCase())
+        );
+        if (matches.length === 0) {
+            resultsEl.innerHTML = '<div class="nr-doc-result-item"><span class="nr-doc-result-item__name">No se encontró ningún cliente con ese documento.</span></div>';
+        } else {
+            resultsEl.innerHTML = matches.map(c => `
+                <div class="nr-doc-result-item" onclick="seleccionarCliente(${c.IDUsuario})">
+                    <div class="nr-doc-result-item__name">${c.NombreUsuario} ${c.Apellido}</div>
+                    <div class="nr-doc-result-item__doc">${c.TipoDocumento || 'Doc'}: ${c.NumeroDocumento} &bull; ${c.Email}</div>
+                </div>
+            `).join('');
+        }
+        resultsEl.style.display = 'block';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.nr-doc-search')) {
+            resultsEl.style.display = 'none';
+        }
+    });
+});
+
 async function cargarHabitaciones() {
     try {
         const r = await fetch('/api/habitaciones');
@@ -466,7 +547,7 @@ function getSelectedRoomId() {
     const pSel=document.getElementById('IDPaquete');
     const cSel=document.getElementById('IDCabana');
     if (hSel.value!=='') return hSel.value;
-    if (pSel.value!=='') { const p=paquetesData.find(p=>String(p.IDPaquete)===String(pSel.value)); return p?p.IDHabitacion:null; }
+    if (pSel.value!=='') return pSel.value;
     if (cSel.value!=='') return cSel.value;
     return null;
 }
@@ -478,7 +559,7 @@ function getSelectedAccommodationType() {
 }
 function getRoomBlockedRanges(roomId) {
     if (!roomId) return [];
-    return allReservations.filter(r=>String(r.IDHabitacion||r.IDAccommodation)===String(roomId)&&r.FechaInicio&&r.FechaFinalizacion)
+    return allReservations.filter(r=>r.FechaInicio&&r.FechaFinalizacion)
         .map(r=>({start:formatDateForInput(r.FechaInicio),end:formatDateForInput(r.FechaFinalizacion)}));
 }
 function isRangeOverlapping(start,end,range) { return !(end<range.start||start>range.end); }
@@ -512,15 +593,15 @@ function updateAvailabilityMessage() {
     const roomId = getSelectedRoomId();
     const el = document.getElementById('dateAvailabilityMessage');
     if (!el) return;
-    if (!roomId) { el.innerHTML='<em>Selecciona una habitación, cabaña o paquete para ver las fechas disponibles.</em>'; el.style.color='rgba(26,43,74,0.5)'; return; }
+    if (!roomId) { el.innerHTML='<em>Selecciona una habitación, cabaña o paquete para ver las fechas disponibles.</em>'; el.style.color='rgba(26,43,74,0.65)'; return; }
     const blocked = getRoomBlockedRanges(roomId);
-    if (!blocked.length) { el.innerHTML='<strong style="color:#16A34A;">✓ Disponible:</strong> Esta habitación está completamente disponible.'; el.style.color='rgba(26,43,74,0.75)'; return; }
+    if (!blocked.length) { el.innerHTML='<strong style="color:#16a34a;">✓ Disponible:</strong> El alojamiento seleccionado está completamente disponible.'; el.style.color='rgba(26,43,74,0.8)'; return; }
     const txt=blocked.map(r=>{
         const s=new Date(r.start).toLocaleDateString('es-CO',{month:'short',day:'numeric'});
         const e=new Date(r.end).toLocaleDateString('es-CO',{month:'short',day:'numeric'});
         return `${s} - ${e}`;
     }).join('; ');
-    el.innerHTML=`<strong style="color:#DC2626;">⚠ Fechas ocupadas:</strong> ${txt}`; el.style.color='rgba(26,43,74,0.75)';
+    el.innerHTML=`<strong style="color:#dc2626;">⚠ Fechas ocupadas:</strong> ${txt}`; el.style.color='rgba(26,43,74,0.8)';
 }
 function validateDateSelection() {
     const roomId = getSelectedRoomId();
@@ -741,15 +822,8 @@ document.addEventListener('change',(e)=>{
     }
 });
 document.addEventListener('click',(e)=>{
-    const btn=e.target.closest('.servicio-info-btn');
-    const servicioItem=e.target.closest('.servicio-item');
-    if (btn) {
-        const item=btn.closest('.servicio-item');
-        if (!item) return;
-        document.querySelectorAll('.servicio-item.tooltip-open').forEach(a=>{ if(a!==item) a.classList.remove('tooltip-open'); });
-        item.classList.toggle('tooltip-open'); return;
-    }
-    if (!servicioItem) document.querySelectorAll('.servicio-item.tooltip-open').forEach(i=>i.classList.remove('tooltip-open'));
+    // El botón "!" solo muestra el tooltip al pasar el mouse (hover CSS).
+    if (e.target.closest('.servicio-info-btn')) e.stopPropagation();
 });
 
 /* ──────────────────────────────────────────────────
@@ -764,9 +838,9 @@ document.getElementById('reservationForm').addEventListener('submit', async(e)=>
     const paqueteVal    = document.getElementById('IDPaquete').value;
     const metodoPagoVal = document.getElementById('MetodoPago').value;
 
-    if (!selectedClienteUserId) {
-        mostrarNotificacion('Debes buscar y seleccionar un cliente por su número de documento.','warning');
-        document.getElementById('buscarDocumento')?.focus();
+    const clienteId = document.getElementById('IDClienteReserva').value;
+    if (!clienteId) {
+        mostrarNotificacion('Debes seleccionar el cliente para quien es la reserva.','warning');
         return;
     }
     if (!habitacionVal && !cabanaVal && !paqueteVal) {
@@ -791,7 +865,7 @@ document.getElementById('reservationForm').addEventListener('submit', async(e)=>
         FechaInicio:        document.getElementById('FechaInicio').value,
         FechaFinalizacion:  document.getElementById('FechaFinalizacion').value,
         MetodoPago:         metodoPagoVal ? parseInt(metodoPagoVal) : null,
-        UsuarioIdusuario:   selectedClienteUserId
+        UsuarioIdusuario:   parseInt(clienteId)
     };
 
     const submitBtn = document.querySelector('.nr-btn-confirmar');
@@ -822,6 +896,7 @@ document.getElementById('reservationForm').addEventListener('submit', async(e)=>
 ────────────────────────────────────────────────── */
 (async function init() {
     await Promise.allSettled([
+        cargarClientes(),
         cargarHabitaciones(),
         cargarCabanas(),
         cargarPaquetes(),

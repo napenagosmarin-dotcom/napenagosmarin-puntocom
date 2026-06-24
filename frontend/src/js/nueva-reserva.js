@@ -196,8 +196,22 @@ function renderServicioTooltip(info) {
    CONTADOR DE NOCHES (nuevo)
    ----------------------------------------------- */
 function actualizarContadorNoches() {
-    const inicio = document.getElementById('FechaInicio').value;
-    const fin = document.getElementById('FechaFinalizacion').value;
+    // Preferir las fechas del calendario flatpickr (fuente de verdad)
+    // porque el input nativo puede estar vacío aunque flatpickr ya tenga fecha.
+    let inicio, fin;
+    if (fpStart && fpStart.selectedDates.length > 0) {
+        const d = fpStart.selectedDates[0];
+        inicio = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    } else {
+        inicio = document.getElementById('FechaInicio').value;
+    }
+    if (fpEnd && fpEnd.selectedDates.length > 0) {
+        const d = fpEnd.selectedDates[0];
+        fin = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    } else {
+        fin = document.getElementById('FechaFinalizacion').value;
+    }
+
     const badge = document.getElementById('contadorNoches');
     const numEl = document.getElementById('numNoches');
     const resumenFechas = document.getElementById('resumenFechas');
@@ -300,7 +314,7 @@ function actualizarDesglose() {
 
     // Renderizar desglose
     if (items.length === 0) {
-        container.innerHTML = '<p style="font-size:0.78rem;color:rgba(255,255,255,0.3);margin:0;">Selecciona un alojamiento para ver el desglose.</p>';
+        container.innerHTML = '<p style="font-size:0.78rem;color:rgba(26,43,74,0.45);margin:0;">Selecciona un alojamiento para ver el desglose.</p>';
     } else {
         container.innerHTML = items.map((i, idx) => `
             <div class="nr-resumen__item ${i.type === 'accommodation' ? 'accommodation-item' : 'service-item'}">
@@ -310,7 +324,7 @@ function actualizarDesglose() {
                 </div>
                 <span class="nr-resumen__item-val">$${formatCurrency(i.val)}</span>
             </div>
-            ${idx < items.length - 1 && items[idx + 1].type !== i.type ? '<div style="border-bottom: 1px solid rgba(255,255,255,0.1); margin: 0.5rem 0;"></div>' : ''}
+            ${idx < items.length - 1 && items[idx + 1].type !== i.type ? '<div style="border-bottom: 1px solid rgba(49,130,206,0.15); margin: 0.5rem 0;"></div>' : ''}
         `).join('');
     }
 }
@@ -634,12 +648,9 @@ function getSelectedRoomId() {
     const habitacionSelect = document.getElementById('IDHabitacion');
     const paqueteSelect = document.getElementById('IDPaquete');
     const cabanaSelect = document.getElementById('IDCabana');
-    
+
     if (habitacionSelect.value !== '') return habitacionSelect.value;
-    if (paqueteSelect.value !== '') {
-        const paquete = paquetesData.find(p => String(p.IDPaquete) === String(paqueteSelect.value));
-        return paquete ? paquete.IDHabitacion : null;
-    }
+    if (paqueteSelect.value !== '') return paqueteSelect.value;
     if (cabanaSelect.value !== '') return cabanaSelect.value;
     return null;
 }
@@ -658,10 +669,10 @@ function getSelectedAccommodationType() {
 function getRoomBlockedRanges(roomId) {
     if (!roomId) return [];
     return allReservations
-        .filter(r => String(r.IDHabitacion || r.IDAccommodation) === String(roomId) && r.FechaInicio && r.FechaFinalizacion)
-        .map(r => ({ 
-            start: formatDateForInput(r.FechaInicio), 
-            end: formatDateForInput(r.FechaFinalizacion) 
+        .filter(r => r.FechaInicio && r.FechaFinalizacion)
+        .map(r => ({
+            start: formatDateForInput(r.FechaInicio),
+            end: formatDateForInput(r.FechaFinalizacion)
         }));
 }
 
@@ -684,13 +695,13 @@ function updateAvailabilityMessage() {
 
     if (!roomId) {
         messageEl.innerHTML = '<em>Selecciona una habitación, cabaña o paquete para ver las fechas disponibles.</em>';
-        messageEl.style.color = 'rgba(255, 255, 255, 0.6)';
+        messageEl.style.color = 'rgba(26, 43, 74, 0.65)';
         return;
     }
 
     if (blockedRanges.length === 0) {
-        messageEl.innerHTML = '<strong style="color: #7BFF4F;">✓ Disponible:</strong> Esta habitación está completamente disponible para el período seleccionado.';
-        messageEl.style.color = '#ffffff';
+        messageEl.innerHTML = '<strong style="color: #16a34a;">✓ Disponible:</strong> El alojamiento seleccionado está completamente disponible.';
+        messageEl.style.color = 'rgba(26, 43, 74, 0.8)';
         return;
     }
 
@@ -702,8 +713,8 @@ function updateAvailabilityMessage() {
         return `${startFormatted} - ${endFormatted}`;
     }).join('; ');
 
-    messageEl.innerHTML = `<strong style="color: #FF6B6B;">⚠ Fechas ocupadas:</strong> ${rangesText}`;
-    messageEl.style.color = '#ffffff';
+    messageEl.innerHTML = `<strong style="color: #dc2626;">⚠ Fechas ocupadas:</strong> ${rangesText}`;
+    messageEl.style.color = 'rgba(26, 43, 74, 0.8)';
 }
 
 function validateDateSelection() {
@@ -1117,21 +1128,10 @@ document.addEventListener('change', (e) => {
 });
 
 document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.servicio-info-btn');
-    const servicioItem = e.target.closest('.servicio-item');
-
-    if (btn) {
-        const item = btn.closest('.servicio-item');
-        if (!item) return;
-        document.querySelectorAll('.servicio-item.tooltip-open').forEach(activeItem => {
-            if (activeItem !== item) activeItem.classList.remove('tooltip-open');
-        });
-        item.classList.toggle('tooltip-open');
-        return;
-    }
-
-    if (!servicioItem) {
-        document.querySelectorAll('.servicio-item.tooltip-open').forEach(item => item.classList.remove('tooltip-open'));
+    // El botón "!" solo muestra el tooltip al pasar el mouse (hover CSS).
+    // Bloqueamos el clic para que no propague ni active comportamientos no deseados.
+    if (e.target.closest('.servicio-info-btn')) {
+        e.stopPropagation();
     }
 });
 
