@@ -215,22 +215,20 @@ function actualizarContadorNoches() {
     const resumenCheckin = document.getElementById('resumenCheckin');
     const resumenCheckout = document.getElementById('resumenCheckout');
 
+    // El bloque de check-in/check-out es siempre visible (horas fijas del glamping)
+    // Solo actualizamos las fechas cuando están disponibles
+    if (resumenCheckin) resumenCheckin.textContent = (inicio && fin && fin > inicio) ? inicio : '';
+    if (resumenCheckout) resumenCheckout.textContent = (inicio && fin && fin > inicio) ? fin : '';
+
     if (!inicio||!fin||fin<=inicio) {
         if (badge) badge.style.display='none';
-        if (resumenFechas) resumenFechas.style.display='none';
         return 0;
     }
     const noches = Math.round((new Date(fin)-new Date(inicio))/(1000*60*60*24));
-    if (noches>=1&&badge&&numEl) { 
-        numEl.textContent=noches; badge.style.display='inline-flex'; 
-        if (resumenFechas && resumenCheckin && resumenCheckout) {
-            resumenCheckin.textContent = inicio;
-            resumenCheckout.textContent = fin;
-            resumenFechas.style.display = 'block';
-        }
+    if (noches>=1&&badge&&numEl) {
+        numEl.textContent=noches; badge.style.display='inline-flex';
     } else {
-        if (badge) badge.style.display='none'; 
-        if (resumenFechas) resumenFechas.style.display='none';
+        if (badge) badge.style.display='none';
     }
     return noches>=1?noches:0;
 }
