@@ -2618,15 +2618,15 @@ function renderForm(section, data = null, extra = {}) {
                     <input type="number" name="precio" value="${data?.precio || data?.Precio || ''}" min="1" required>
                 </div>
                 <div class="form-group">
-                    <label>👥 CAPACIDAD PERSONAS</label>
-                    <input type="number" name="CapacidadPersonas" value="${data?.CapacidadPersonas || ''}" min="1" placeholder="Ej: 2" required>
-                </div>
-                <div class="form-group">
                     <label>⚙️ ESTADO</label>
                     <select name="Estado">
                         <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Disponible</option>
                         <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Mantenimiento</option>
                     </select>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label>👥 CAPACIDAD PERSONAS</label>
+                    <input type="number" name="CapacidadPersonas" value="${data?.CapacidadPersonas || ''}" min="1" placeholder="Ej: 2" required>
                 </div>
                 <div class="form-group" style="grid-column:1/-1;">
                     <label>📝 DESCRIPCIÓN</label>
@@ -2850,10 +2850,6 @@ function renderForm(section, data = null, extra = {}) {
                     <input type="number" name="precio" value="${data?.precio || data?.Costo || ''}" required>
                 </div>
                 <div class="form-group">
-                    <label>⏱️ DURACIÓN</label>
-                    <input type="text" name="Duracion" value="${data?.Duracion || ''}" placeholder="Ej: 2 horas">
-                </div>
-                <div class="form-group">
                     <label>👥 MÁX. PERSONAS</label>
                     <input type="number" name="CantidadMaximaPersonas" value="${data?.CantidadMaximaPersonas || ''}">
                 </div>
@@ -2863,6 +2859,10 @@ function renderForm(section, data = null, extra = {}) {
                         <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Activo</option>
                         <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Inactivo</option>
                     </select>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label>⏱️ DURACIÓN</label>
+                    <input type="text" name="Duracion" value="${data?.Duracion || ''}" placeholder="Ej: 2 horas">
                 </div>
                 <div class="form-group" style="grid-column:1/-1;">
                     <label>📝 DESCRIPCIÓN</label>
