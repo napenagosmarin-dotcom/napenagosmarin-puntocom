@@ -2618,26 +2618,26 @@ function renderForm(section, data = null, extra = {}) {
                     <input type="number" name="precio" value="${data?.precio || data?.Precio || ''}" min="1" required>
                 </div>
                 <div class="form-group">
+                    <label>👥 CAPACIDAD PERSONAS</label>
+                    <input type="number" name="CapacidadPersonas" value="${data?.CapacidadPersonas || ''}" min="1" placeholder="Ej: 2" required>
+                </div>
+                <div class="form-group">
                     <label>⚙️ ESTADO</label>
                     <select name="Estado">
                         <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Disponible</option>
                         <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Mantenimiento</option>
                     </select>
                 </div>
-                <div class="form-group" style="grid-column:1/-1;">
-                    <label>👥 CAPACIDAD PERSONAS</label>
-                    <input type="number" name="CapacidadPersonas" value="${data?.CapacidadPersonas || ''}" min="1" placeholder="Ej: 2" required>
+                <div class="form-group">
+                    <label>🖼️ IMAGEN URL</label>
+                    <input type="text" name="imagen" value="${data?.imagen || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80'">
                 </div>
                 <div class="form-group" style="grid-column:1/-1;">
                     <label>📝 DESCRIPCIÓN</label>
                     <textarea name="Descripcion" rows="2">${data?.Descripcion || ''}</textarea>
                 </div>
-                <div class="form-group">
-                    <label>🖼️ IMAGEN URL</label>
-                    <input type="text" name="imagen" value="${data?.imagen || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80'">
-                </div>
-                <div style="display:flex;align-items:center;">
-                    <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width:100%;height:68px;object-fit:cover;border-radius:8px;border:1px solid rgba(49,130,206,0.15);">
+                <div style="grid-column:1/-1;">
+                    <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width:100%;height:60px;object-fit:cover;border-radius:8px;border:1px solid rgba(49,130,206,0.15);">
                 </div>`;
             break;
         case 'clientes':
@@ -2695,24 +2695,24 @@ function renderForm(section, data = null, extra = {}) {
                     <input type="text" name="PrecioNoche" value="${data?.PrecioNoche || ''}" pattern="\\d+" title="Solo debe contener números." required>
                     <span class="field-error" id="err-PrecioNoche"></span>
                 </div>
-                <div class="form-group" style="grid-column:1/-1;">
+                <div class="form-group">
                     <label>⚙️ ESTADO</label>
                     <select name="Estado">
                         <option value="1" ${data?.Estado == 1 || !isEdit ? 'selected' : ''}>Disponible</option>
                         <option value="0" ${data?.Estado == 0 && isEdit ? 'selected' : ''}>No disponible</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>🖼️ IMAGEN URL</label>
+                    <input type="text" name="ImagenCabana" value="${data?.ImagenCabana || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'">
+                </div>
                 <div class="form-group" style="grid-column:1/-1;">
                     <label>📝 DESCRIPCIÓN</label>
                     <textarea name="Descripcion" rows="2" title="Puede contener letras, números, puntos, comas y signos de puntuación.">${data?.Descripcion || ''}</textarea>
                     <span class="field-error" id="err-Descripcion"></span>
                 </div>
-                <div class="form-group">
-                    <label>🖼️ IMAGEN URL</label>
-                    <input type="text" name="ImagenCabana" value="${data?.ImagenCabana || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'">
-                </div>
-                <div style="display:flex;align-items:center;">
-                    <img id="preview-img-modal" src="${data?.ImagenCabana || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width:100%;height:68px;object-fit:cover;border-radius:8px;border:1px solid rgba(49,130,206,0.15);">
+                <div style="grid-column:1/-1;">
+                    <img id="preview-img-modal" src="${data?.ImagenCabana || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width:100%;height:60px;object-fit:cover;border-radius:8px;border:1px solid rgba(49,130,206,0.15);">
                 </div>`;
             break;
         case 'usuarios':
@@ -2868,12 +2868,12 @@ function renderForm(section, data = null, extra = {}) {
                     <label>📝 DESCRIPCIÓN</label>
                     <textarea name="Descripcion" rows="2">${data?.Descripcion || ''}</textarea>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="grid-column:1/-1;">
                     <label>🖼️ IMAGEN URL</label>
                     <input type="text" name="imagen" value="${data?.imagen || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'">
                 </div>
-                <div style="display:flex;align-items:center;">
-                    <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width:100%;height:68px;object-fit:cover;border-radius:8px;border:1px solid rgba(49,130,206,0.15);">
+                <div style="grid-column:1/-1;">
+                    <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width:100%;height:60px;object-fit:cover;border-radius:8px;border:1px solid rgba(49,130,206,0.15);">
                 </div>`;
             break;
     }
