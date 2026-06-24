@@ -25,6 +25,10 @@
     .admin-layout {
       display: flex;
       min-height: 100vh;
+      /* clip en lugar de hidden: evita scroll horizontal sin crear un
+         scroll-container, lo que permite que position:sticky funcione
+         en .nr-resumen sin quedar bloqueado por el overflow del ancestro */
+      overflow-x: clip;
     }
 
     /* Sidebar usa position:fixed de admin.css — no se sobreescribe aquí */
@@ -95,6 +99,11 @@
       position: relative;
       z-index: 2;
       padding: 2rem;
+    }
+
+    /* Resumen de pago fijo: se pega justo debajo de la topbar sticky */
+    .nr-resumen {
+      top: 4.5rem !important;
     }
 
     /* ── Cards del formulario: estilo admin blanco ── */
