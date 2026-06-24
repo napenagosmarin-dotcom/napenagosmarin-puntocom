@@ -2609,7 +2609,7 @@ function renderForm(section, data = null, extra = {}) {
     switch(section) {
         case 'habitaciones':
             fields = `
-                <div class="form-group" style="grid-column:1/-1;">
+                <div class="form-group">
                     <label>🏨 NOMBRE HABITACIÓN</label>
                     <input type="text" name="NombreHabitacion" value="${data?.NombreHabitacion || ''}" required>
                 </div>
