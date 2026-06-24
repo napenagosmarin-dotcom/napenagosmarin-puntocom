@@ -2731,14 +2731,14 @@ function renderForm(section, data = null, extra = {}) {
                 </div>
                 <div class="form-group">
                     <label>🪪 NÚMERO DE DOCUMENTO <span style="color:#c0392b;font-size:0.7rem;">*</span></label>
-                    <div style="display:flex;gap:0.4rem;">
-                        <select name="TipoDocumento" style="width:90px;flex-shrink:0;padding:0.45rem 0.4rem;font-size:0.78rem;border:1.5px solid rgba(123,82,171,0.58);background:#F5F0FF;border-radius:7px;color:#1A2B4A;">
+                    <div style="display:flex;gap:0.5rem;align-items:stretch;">
+                        <select name="TipoDocumento" style="width:72px;min-width:72px;max-width:72px;flex-shrink:0;padding:0.45rem 0.3rem;font-size:0.8rem;font-weight:600;border:1.5px solid rgba(123,82,171,0.58);background:#F5F0FF;border-radius:7px;color:#1A2B4A;cursor:pointer;appearance:auto;">
                             <option value="CC"  ${data?.TipoDocumento === 'CC'  ? 'selected' : ''}>CC</option>
                             <option value="CE"  ${data?.TipoDocumento === 'CE'  ? 'selected' : ''}>CE</option>
                             <option value="PA"  ${data?.TipoDocumento === 'PA'  ? 'selected' : ''}>PA</option>
                             <option value="NIT" ${data?.TipoDocumento === 'NIT' ? 'selected' : ''}>NIT</option>
                         </select>
-                        <input type="text" name="NumeroDocumento" value="${data?.NumeroDocumento || ''}" placeholder="Ej. 1234567890" style="flex:1;" required>
+                        <input type="text" name="NumeroDocumento" value="${data?.NumeroDocumento || ''}" placeholder="Ej. 1234567890" style="flex:1;min-width:0;" required>
                     </div>
                 </div>
                 <div class="form-group">
