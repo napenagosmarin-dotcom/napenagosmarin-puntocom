@@ -584,23 +584,92 @@ window.verDetalleReserva = async (id) => {
 };
 
 
+// ── Recalcula el monto total visible en el modal de edición ──────────────────
+function erRecalcular() {
+    const inicio = document.getElementById('er_fechaInicio')?.value;
+    const fin    = document.getElementById('er_fechaFin')?.value;
+    const noches = (inicio && fin && new Date(fin) > new Date(inicio))
+        ? Math.round((new Date(fin) - new Date(inicio)) / 86400000)
+        : 1;
+    const alojSelect = document.getElementById('er_alojamiento');
+    const alojPrecio = alojSelect ? Number(alojSelect.selectedOptions[0]?.dataset.precio || 0) : 0;
+    const totalServicios = [...document.querySelectorAll('#er_servicios_grid input[type=checkbox]:checked')]
+        .reduce((sum, cb) => sum + Number(cb.dataset.precio || 0), 0);
+    const total = alojPrecio * noches + totalServicios;
+    const el = document.getElementById('er_monto');
+    if (el) el.value = `$${total.toLocaleString('es-CO')}`;
+}
+
 window.editarReserva = async (id) => {
     try {
-        const [resR, resEstados, resMetodos] = await Promise.all([
+        const [resR, resEstados, resMetodos, resHab, resCab, resPaq, resSrv] = await Promise.all([
             fetch(`/api/reservas/${id}`),
             fetch('/api/estadosreserva'),
-            fetch('/api/metodopago')
+            fetch('/api/metodopago'),
+            fetch('/api/habitaciones'),
+            fetch('/api/cabanas'),
+            fetch('/api/paquetes'),
+            fetch('/api/servicios'),
         ]);
         if (!resR.ok) throw new Error('No se pudo cargar la reserva');
-        const r = await resR.json();
-        const estados = await resEstados.json();
-        const metodos = await resMetodos.json();
+        const r        = await resR.json();
+        const estados  = await resEstados.json();
+        const metodos  = await resMetodos.json();
+        const habitaciones = (await resHab.json()).filter(h => h.Estado !== 0);
+        const cabanas      = (await resCab.json()).filter(c => c.Estado !== 0);
+        const paquetes     = (await resPaq.json()).filter(p => p.Estado !== 0);
+        const servicios    = (await resSrv.json()).filter(s => s.Estado !== 0);
 
         const fmt = f => f ? new Date(f).toISOString().split('T')[0] : '';
 
+        // Determinar tipo y alojamiento preseleccionado
+        // Comprobar IDPaquete primero para no confundir con la habitación del paquete
+        let tipoActual = 'habitacion';
+        let idAlojActual = null;
+        if (r.IDPaquete)    { tipoActual = 'paquete';    idAlojActual = r.IDPaquete;    }
+        else if (r.IDCabana){ tipoActual = 'cabana';     idAlojActual = r.IDCabana;     }
+        else if (r.IDHabitacion) { tipoActual = 'habitacion'; idAlojActual = r.IDHabitacion; }
+
+        const serviciosActivos = new Set((r.servicios || []).map(s => Number(s.IDServicio)));
+
+        // Genera <option> para el tipo de alojamiento pedido
+        const renderOpciones = (tipo, selId) => {
+            const cfg = {
+                habitacion: { list: habitaciones, id: 'IDHabitacion', name: 'NombreHabitacion', price: 'precio' },
+                cabana:     { list: cabanas,      id: 'IDCabana',     name: 'NombreCabana',     price: 'PrecioNoche' },
+                paquete:    { list: paquetes,     id: 'IDPaquete',    name: 'nombre',            price: 'precio' },
+            }[tipo];
+            return cfg.list.map(item =>
+                `<option value="${item[cfg.id]}" data-precio="${item[cfg.price]}"${item[cfg.id] == selId ? ' selected' : ''}>` +
+                `${item[cfg.name]} — $${Number(item[cfg.price]).toLocaleString('es-CO')}/noche</option>`
+            ).join('');
+        };
+
+        const separador = (icono, texto) =>
+            `<div style="grid-column:1/-1;display:flex;align-items:center;gap:0.5rem;margin:0.55rem 0 0.1rem;padding-bottom:0.4rem;border-bottom:1.5px solid rgba(49,130,206,0.15);">
+                <span style="font-size:1rem;">${icono}</span>
+                <span style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;color:#2B6CB0;text-transform:uppercase;">${texto}</span>
+            </div>`;
+
+        const tipoBtns = ['habitacion','cabana','paquete'].map(t => {
+            const labels = { habitacion:'🛏 Habitación', cabana:'🏕 Cabaña', paquete:'📦 Paquete' };
+            const activo = t === tipoActual;
+            return `<button type="button" class="er-tipo-btn${activo?' er-tipo-btn--activo':''}" data-tipo="${t}"
+                        style="flex:1;padding:0.45rem 0;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;border:1.5px solid;
+                               ${activo?'background:#2B6CB0;color:#fff;border-color:#2B6CB0':'background:#fff;color:#2B6CB0;border-color:rgba(43,108,176,0.3)'};">
+                        ${labels[t]}</button>`;
+        }).join('');
+
         document.getElementById('modalTitle').textContent = `✏️ Editar Reserva #${r.IdReserva}`;
-        document.getElementById('modalContent').innerHTML = `
-            <form id="formEditarReserva" style="display:grid; grid-template-columns:1fr 1fr; gap:0.55rem;">
+        const modalContent = document.getElementById('modalContent');
+        modalContent.style.maxHeight = '72vh';
+        modalContent.style.overflowY = 'auto';
+
+        modalContent.innerHTML = `
+            <form id="formEditarReserva" style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;">
+                <input type="hidden" id="er_tipoAloj" value="${tipoActual}">
+
+                <!-- Fechas -->
                 <div class="form-group">
                     <label>📅 FECHA CHECK-IN</label>
                     <input type="date" id="er_fechaInicio" value="${fmt(r.FechaInicio)}" class="form-input" required>
@@ -609,33 +678,89 @@ window.editarReserva = async (id) => {
                     <label>📅 FECHA CHECK-OUT</label>
                     <input type="date" id="er_fechaFin" value="${fmt(r.FechaFinalizacion)}" class="form-input" required>
                 </div>
+
+                <!-- Estado / Método -->
                 <div class="form-group">
                     <label>⚙️ ESTADO RESERVA</label>
                     <select id="er_estado" class="form-input">
-                        ${estados.map(e => `<option value="${e.IdEstadoReserva}" ${e.IdEstadoReserva === r.IdEstadoReserva ? 'selected' : ''}>${e.NombreEstadoReserva}</option>`).join('')}
+                        ${estados.map(e => `<option value="${e.IdEstadoReserva}"${e.IdEstadoReserva===r.IdEstadoReserva?' selected':''}>${e.NombreEstadoReserva}</option>`).join('')}
                     </select>
                 </div>
                 <div class="form-group">
                     <label>💳 MÉTODO DE PAGO</label>
                     <select id="er_metodoPago" class="form-input">
-                        ${metodos.map(m => `<option value="${m.IdMetodoPago || m.IDMetodoPago}" ${(m.IdMetodoPago || m.IDMetodoPago) === r.IdMetodoPago ? 'selected' : ''}>${m.NomMetodoPago || m.Nombre || '—'}</option>`).join('')}
+                        ${metodos.map(m => { const mid=m.IdMetodoPago||m.IDMetodoPago; return `<option value="${mid}"${mid===r.MetodoPago?' selected':''}>${m.NomMetodoPago||m.Nombre||'—'}</option>`; }).join('')}
                     </select>
                 </div>
-                <div class="form-group" style="grid-column:1/-1;">
-                    <label style="display:flex;align-items:center;gap:0.4rem;">
-                        💰 MONTO TOTAL ($)
-                        <span style="font-size:0.68rem;font-weight:600;color:#2B6CB0;background:rgba(43,108,176,0.1);border:1px solid rgba(43,108,176,0.2);border-radius:999px;padding:0.1rem 0.55rem;letter-spacing:0.03em;">SOLO LECTURA</span>
-                    </label>
-                    <input type="text" id="er_monto" value="$${Number(r.MontoTotal || 0).toLocaleString('es-CO')}"
-                        readonly
-                        title="El monto total es calculado automáticamente por el sistema y no puede modificarse manualmente."
-                        style="background:rgba(26,43,74,0.04);border-color:rgba(26,43,74,0.1);color:rgba(26,43,74,0.55);cursor:not-allowed;user-select:none;font-weight:600;">
+
+                <!-- Alojamiento -->
+                ${separador('🏨','Alojamiento')}
+                <div style="grid-column:1/-1;display:flex;gap:0.45rem;margin-bottom:0.35rem;">
+                    ${tipoBtns}
                 </div>
-                <div style="grid-column:1/-1; display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.25rem;">
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label id="er_aloj_label" style="font-size:0.72rem;">Selecciona una opción</label>
+                    <select id="er_alojamiento" class="form-input">
+                        ${renderOpciones(tipoActual, idAlojActual)}
+                    </select>
+                </div>
+
+                <!-- Servicios -->
+                ${separador('⭐','Servicios Adicionales')}
+                <div id="er_servicios_grid" style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;">
+                    ${servicios.map(s => `
+                        <label style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0.65rem;border-radius:8px;border:1.5px solid rgba(49,130,206,0.15);background:#f8fbff;cursor:pointer;font-size:0.79rem;color:#1A2B4A;">
+                            <input type="checkbox" value="${s.IDServicio}" data-precio="${s.precio}"${serviciosActivos.has(s.IDServicio)?' checked':''} style="width:15px;height:15px;accent-color:#2B6CB0;flex-shrink:0;">
+                            <span style="flex:1;">${s.nombre}</span>
+                            <span style="color:#2B6CB0;font-weight:700;white-space:nowrap;">$${Number(s.precio).toLocaleString('es-CO')}</span>
+                        </label>`).join('')}
+                </div>
+
+                <!-- Monto total -->
+                ${separador('💰','Resumen')}
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label>MONTO TOTAL ESTIMADO</label>
+                    <input type="text" id="er_monto" readonly class="form-input"
+                        title="Calculado automáticamente según alojamiento, noches y servicios seleccionados."
+                        style="background:rgba(43,108,176,0.05);border-color:rgba(43,108,176,0.2);color:#1A2B4A;cursor:not-allowed;font-size:1.05rem;font-weight:700;letter-spacing:0.01em;">
+                </div>
+
+                <!-- Acciones -->
+                <div style="grid-column:1/-1;display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.35rem;">
                     <button type="button" onclick="cerrarModal()" class="btn btn-secundario">Cancelar</button>
                     <button type="button" onclick="guardarReserva(${r.IdReserva})" class="btn btn-primario">💾 Guardar Cambios</button>
                 </div>
             </form>`;
+
+        // Recalcular monto inicial
+        erRecalcular();
+
+        // Tabs de tipo de alojamiento
+        document.querySelectorAll('.er-tipo-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tipo = btn.dataset.tipo;
+                document.getElementById('er_tipoAloj').value = tipo;
+                document.getElementById('er_alojamiento').innerHTML = renderOpciones(tipo, null);
+                const lbl = { habitacion:'🛏 Habitación', cabana:'🏕 Cabaña', paquete:'📦 Paquete' };
+                document.getElementById('er_aloj_label').textContent = lbl[tipo];
+                document.querySelectorAll('.er-tipo-btn').forEach(b => {
+                    const a = b.dataset.tipo === tipo;
+                    b.style.background     = a ? '#2B6CB0' : '#fff';
+                    b.style.color          = a ? '#fff'    : '#2B6CB0';
+                    b.style.borderColor    = a ? '#2B6CB0' : 'rgba(43,108,176,0.3)';
+                });
+                erRecalcular();
+            });
+        });
+
+        // Recalcular al cambiar fechas, alojamiento o servicios
+        ['er_fechaInicio','er_fechaFin','er_alojamiento'].forEach(elId =>
+            document.getElementById(elId)?.addEventListener('change', erRecalcular)
+        );
+        document.querySelectorAll('#er_servicios_grid input[type=checkbox]').forEach(cb =>
+            cb.addEventListener('change', erRecalcular)
+        );
+
         document.getElementById('modalOverlay').classList.add('activo');
     } catch(e) {
         console.error(e);
@@ -648,6 +773,11 @@ window.guardarReserva = async (id) => {
     const fechaFin    = document.getElementById('er_fechaFin')?.value;
     const idEstado    = document.getElementById('er_estado')?.value;
     const idMetodo    = document.getElementById('er_metodoPago')?.value;
+    const tipoAloj    = document.getElementById('er_tipoAloj')?.value;
+    const idAloj      = document.getElementById('er_alojamiento')?.value;
+
+    const serviciosAdicionales = [...document.querySelectorAll('#er_servicios_grid input[type=checkbox]:checked')]
+        .map(cb => ({ IDServicio: Number(cb.value), Cantidad: 1 }));
 
     if (!fechaInicio || !fechaFin) {
         mostrarNotificacion('Las fechas de check-in y check-out son obligatorias.', 'warning');
@@ -658,16 +788,22 @@ window.guardarReserva = async (id) => {
         return;
     }
 
+    const payload = {
+        FechaInicio:          fechaInicio,
+        FechaFinalizacion:    fechaFin,
+        IdEstadoReserva:      Number(idEstado),
+        MetodoPago:           Number(idMetodo),
+        serviciosAdicionales,
+    };
+    if (tipoAloj === 'habitacion') payload.IDHabitacion = Number(idAloj);
+    else if (tipoAloj === 'cabana')   payload.IDCabana    = Number(idAloj);
+    else if (tipoAloj === 'paquete')  payload.IDPaquete   = Number(idAloj);
+
     try {
         const res = await fetch(`/api/reservas/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                FechaInicio:       fechaInicio,
-                FechaFinalizacion: fechaFin,
-                IdEstadoReserva:   Number(idEstado),
-                IdMetodoPago:      Number(idMetodo)
-            })
+            body: JSON.stringify(payload)
         });
         if (res.ok) {
             cerrarModal();
