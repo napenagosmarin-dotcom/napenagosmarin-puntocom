@@ -2662,11 +2662,11 @@ function renderForm(section, data = null, extra = {}) {
                     <input type="text" name="Apellido" value="${data?.Apellido || ''}" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo debe contener letras y espacios.">
                     <span class="field-error" id="err-Apellido"></span>
                 </div>
-                <div class="form-group" style="grid-column:1/-1;">
+                <div class="form-group">
                     <label>📧 EMAIL</label>
                     <input type="email" name="Email" value="${data?.Email || data?.Correo || ''}" required>
                 </div>
-                <div class="form-group" style="grid-column:1/-1;">
+                <div class="form-group">
                     <label>📍 DIRECCIÓN</label>
                     <input type="text" name="Direccion" value="${data?.Direccion || ''}">
                 </div>
