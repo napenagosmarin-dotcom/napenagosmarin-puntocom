@@ -23,7 +23,18 @@ async function cargarComponentes() {
       const headerRes = await fetch(`${base}components/${headerFile}?v=` + Date.now());
       const headerHTML = await headerRes.text();
       headerContainer.innerHTML = headerHTML;
-      
+
+      // Mostrar nombre del usuario en el sidebar del cliente
+      if (isClientPage) {
+        try {
+          const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+          const userNameEl = document.getElementById('userName');
+          if (userNameEl && storedUser.NombreUsuario) {
+            userNameEl.textContent = storedUser.NombreUsuario;
+          }
+        } catch (_) {}
+      }
+
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {

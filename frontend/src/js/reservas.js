@@ -7,14 +7,7 @@ if (!user.IDUsuario) {
   window.location.href = '/src/pages/login.html';
 }
 
-// Set user name and logout after components are loaded
-document.addEventListener('DOMContentLoaded', () => {
-  // Wait a bit for components to load
-  setTimeout(() => {
-    const userNameEl = document.getElementById('userName');
-    if (userNameEl) userNameEl.textContent = `Hola, ${user.NombreUsuario}`;
-  }, 100);
-});
+// El nombre del usuario se inyecta en app.js → cargarComponentes() al insertar el header
 
 let habitacionesData = [];
 let paquetesData = [];

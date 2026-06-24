@@ -4,13 +4,7 @@ if (!userData) window.location.href = '/src/pages/login.html';
 const user = JSON.parse(userData);
 const isAdminEmbed = new URLSearchParams(window.location.search).get('admin') === '1';
 
-// Set user name and logout after components are loaded
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        const userNameEl = document.getElementById('userName');
-        if (userNameEl) userNameEl.textContent = `Hola, ${user.NombreUsuario}`;
-    }, 100);
-});
+// El nombre del usuario se inyecta en app.js → cargarComponentes() al insertar el header
 
 // Data global
 let habitacionesData = [];
