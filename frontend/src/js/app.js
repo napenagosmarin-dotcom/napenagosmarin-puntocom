@@ -30,7 +30,7 @@ async function cargarComponentes() {
           const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
           const userNameEl = document.getElementById('userName');
           if (userNameEl && storedUser.NombreUsuario) {
-            userNameEl.textContent = storedUser.NombreUsuario;
+            userNameEl.textContent = `Bienvenido, ${storedUser.NombreUsuario}`;
           }
         } catch (_) {}
       }

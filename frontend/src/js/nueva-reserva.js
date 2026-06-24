@@ -628,13 +628,18 @@ async function updateDatePickerRestrictions() {
     const disabledDates = getDisabledDatesForRoom(roomId);
     const today = getTodayInputValue();
     
-    if (fpStart) { 
-        fpStart.set('disable', disabledDates); 
-        fpStart.set('minDate', today); 
+    if (fpStart) {
+        const savedStart = fpStart.selectedDates[0];
+        fpStart.set('disable', disabledDates);
+        fpStart.set('minDate', today);
+        // flatpickr puede borrar el input visual al recalcular con set(); restaurar si la fecha sigue siendo válida
+        if (savedStart) fpStart.setDate(savedStart, false);
     }
-    if (fpEnd) { 
-        fpEnd.set('disable', disabledDates); 
-        fpEnd.set('minDate', today); 
+    if (fpEnd) {
+        const savedEnd = fpEnd.selectedDates[0];
+        fpEnd.set('disable', disabledDates);
+        fpEnd.set('minDate', today);
+        if (savedEnd) fpEnd.setDate(savedEnd, false);
     }
 }
 
