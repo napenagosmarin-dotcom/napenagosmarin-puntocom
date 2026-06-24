@@ -1,3 +1,13 @@
+// Orden lógico del flujo de una reserva: Pendiente → Confirmada → En Proceso → Cancelada → Completada
+const ORDEN_ESTADOS = [1, 2, 5, 3, 4];
+function ordenarEstados(lista) {
+    return [...lista].sort((a, b) => {
+        const ia = ORDEN_ESTADOS.indexOf(a.IdEstadoReserva);
+        const ib = ORDEN_ESTADOS.indexOf(b.IdEstadoReserva);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+}
+
 // Verificar sesión y rol
 const userData = localStorage.getItem('user');
 if (!userData) window.location.href = '/src/pages/login.html';
@@ -216,7 +226,7 @@ async function cargarReservas(page = 1) {
         if (!resEstados.ok)  throw new Error(`Error estados: ${resEstados.status}`);
 
         const responseData = await resReservas.json();
-        reservasEstados    = await resEstados.json();
+        reservasEstados    = ordenarEstados(await resEstados.json());
 
         // Manejar respuesta paginada
         reservasData  = responseData.data || [];
@@ -613,7 +623,7 @@ window.editarReserva = async (id) => {
         ]);
         if (!resR.ok) throw new Error('No se pudo cargar la reserva');
         const r        = await resR.json();
-        const estados  = await resEstados.json();
+        const estados  = ordenarEstados(await resEstados.json());
         const metodos  = await resMetodos.json();
         const habitaciones = (await resHab.json()).filter(h => h.Estado !== 0);
         const cabanas      = (await resCab.json()).filter(c => c.Estado !== 0);
