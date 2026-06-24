@@ -257,7 +257,8 @@ async function loadReservationDetails(id) {
 function buildReservationDetails(r) {
     const serviciosHtml = (r.servicios || []).length > 0
         ? `<div class="details-services-grid">${r.servicios.map(s => {
-            const costoS = s.Costo || s.precio || 0;
+            // La API devuelve PrecioUnitario (drs.Precio) y Subtotal (Cantidad × Precio)
+            const costoS = s.Subtotal || s.PrecioUnitario || s.Costo || s.precio || 0;
             return `
             <div class="detail-service-item">
                 <span class="service-name">${s.NombreServicio || s.nombre}</span>
