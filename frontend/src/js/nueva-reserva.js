@@ -613,11 +613,45 @@ function getDisabledDatesForRoom(roomId) {
     return disabledDates;
 }
 
+function initFlatpickrs(disabledDates, startDefault, endDefault) {
+    const today = getTodayInputValue();
+    if (fpStart) { fpStart.destroy(); fpStart = null; }
+    if (fpEnd)   { fpEnd.destroy();   fpEnd   = null; }
+
+    fpStart = flatpickr('#FechaInicio', {
+        minDate: today,
+        disable: disabledDates || [],
+        dateFormat: 'Y-m-d',
+        defaultDate: startDefault || today,
+        onChange: function (selectedDates) {
+            if (selectedDates.length > 0) {
+                const nextDay = new Date(selectedDates[0].getTime() + 86400000);
+                const startDateStr = formatDateForInput(nextDay.toISOString());
+                if (fpEnd) fpEnd.set('minDate', startDateStr);
+                actualizarContadorNoches();
+                calcularTotal();
+                validateDateSelection();
+            }
+        }
+    });
+
+    fpEnd = flatpickr('#FechaFinalizacion', {
+        minDate: today,
+        disable: disabledDates || [],
+        dateFormat: 'Y-m-d',
+        defaultDate: endDefault || getTomorrowInputValue(),
+        onChange: function () {
+            actualizarContadorNoches();
+            calcularTotal();
+            validateDateSelection();
+        }
+    });
+}
+
 async function updateDatePickerRestrictions() {
-    // Guardar valores del DOM ANTES del await: el onChange interno de flatpickr
-    // puede borrar fpEnd cuando fpStart.set() dispara la cascada de eventos.
-    const savedStartValue = document.getElementById('FechaInicio')?.value;
-    const savedEndValue   = document.getElementById('FechaFinalizacion')?.value;
+    // Leer fechas del DOM ANTES del await para no perderlas
+    const savedStart = document.getElementById('FechaInicio')?.value || getTodayInputValue();
+    const savedEnd   = document.getElementById('FechaFinalizacion')?.value || getTomorrowInputValue();
 
     const roomId = getSelectedRoomId();
     const accommodationType = getSelectedAccommodationType();
@@ -631,18 +665,11 @@ async function updateDatePickerRestrictions() {
     allReservations = confirmedReservations;
 
     const disabledDates = getDisabledDatesForRoom(roomId);
-    const today = getTodayInputValue();
 
-    if (fpStart) {
-        fpStart.set('disable', disabledDates);
-        fpStart.set('minDate', today);
-        if (savedStartValue) fpStart.setDate(savedStartValue, false);
-    }
-    if (fpEnd) {
-        fpEnd.set('disable', disabledDates);
-        fpEnd.set('minDate', today);
-        if (savedEndValue) fpEnd.setDate(savedEndValue, false);
-    }
+    // Reinicializar flatpickr con las fechas guardadas y las nuevas restricciones.
+    // Usar reinit en vez de set() porque set() provoca un redraw que vacía
+    // visualmente el input aunque selectedDates internamente siga intacto.
+    initFlatpickrs(disabledDates, savedStart, savedEnd);
 }
 
 function getSelectedRoomId() {
@@ -1224,39 +1251,7 @@ document.getElementById('reservationForm').addEventListener('submit', async (e) 
     updateAvailabilityMessage();
     updateSelectStates();
 
-    const today = getTodayInputValue();
-    const tomorrow = getTomorrowInputValue();
-    document.getElementById('FechaInicio').value = today;
-    document.getElementById('FechaFinalizacion').value = tomorrow;
-
-    fpStart = flatpickr('#FechaInicio', {
-        minDate: today,
-        disable: [],
-        dateFormat: 'Y-m-d',
-        defaultDate: today,
-        onChange: function (selectedDates) {
-            if (selectedDates.length > 0) {
-                const nextDay = new Date(selectedDates[0].getTime() + 86400000);
-                const startDateStr = formatDateForInput(nextDay.toISOString());
-                if (fpEnd) fpEnd.set('minDate', startDateStr);
-                actualizarContadorNoches();
-                calcularTotal();
-                validateDateSelection();
-            }
-        }
-    });
-
-    fpEnd = flatpickr('#FechaFinalizacion', {
-        minDate: today,
-        disable: [],
-        dateFormat: 'Y-m-d',
-        defaultDate: tomorrow,
-        onChange: function () {
-            actualizarContadorNoches();
-            calcularTotal();
-            validateDateSelection();
-        }
-    });
+    initFlatpickrs([], getTodayInputValue(), getTomorrowInputValue());
 
     // Inicializar contador con los valores por defecto
     actualizarContadorNoches();
