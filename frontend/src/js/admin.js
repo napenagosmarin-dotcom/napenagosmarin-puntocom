@@ -2711,7 +2711,13 @@ function renderForm(section, data = null, extra = {}) {
                         <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Inactivo</option>
                     </select>
                 </div>
-                ${!isEdit ? '<div class="form-group" style="grid-column:1/-1;"><label>🔒 CONTRASEÑA</label><input type="password" name="Contrasena" required></div>' : ''}`;
+                ${!isEdit
+                    ? '<div class="form-group" style="grid-column:1/-1;"><label>🔒 CONTRASEÑA</label><input type="password" name="Contrasena" required></div>'
+                    : `<div class="form-group" style="grid-column:1/-1;">
+                            <label>🔒 NUEVA CONTRASEÑA <span style="font-size:0.7rem;font-weight:400;color:rgba(26,43,74,0.5);">(dejar vacío para no cambiarla)</span></label>
+                            <input type="password" name="Contrasena" placeholder="Escribe una nueva contraseña…" autocomplete="new-password">
+                       </div>`
+                }`;
             break;
         case 'paquetes':
             const selectedServices = (data?.IDServicio || '').toString().split(',');

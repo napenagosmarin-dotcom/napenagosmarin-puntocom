@@ -37,11 +37,22 @@ const getById = async (id) => {
 
 const update = async (id, data) => {
   try {
-    const { NombreUsuario, Apellido, Email, Telefono, Pais, IDRol, Estado } = data;
-    await db.query(
-      'UPDATE usuarios SET NombreUsuario=?, Apellido=?, Email=?, Telefono=?, Pais=?, IDRol=?, Estado=? WHERE IDUsuario=?',
-      [NombreUsuario, Apellido, Email, Telefono, Pais, IDRol, Estado || 1, id]
-    );
+    const { NombreUsuario, Apellido, Email, Telefono, Pais, IDRol, Estado, Contrasena } = data;
+
+    if (Contrasena && Contrasena.trim() !== '') {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(Contrasena.trim(), salt);
+      await db.query(
+        'UPDATE usuarios SET NombreUsuario=?, Apellido=?, Email=?, Telefono=?, Pais=?, IDRol=?, Estado=?, Contrasena=? WHERE IDUsuario=?',
+        [NombreUsuario, Apellido, Email, Telefono, Pais, IDRol, Estado || 1, hashedPassword, id]
+      );
+    } else {
+      await db.query(
+        'UPDATE usuarios SET NombreUsuario=?, Apellido=?, Email=?, Telefono=?, Pais=?, IDRol=?, Estado=? WHERE IDUsuario=?',
+        [NombreUsuario, Apellido, Email, Telefono, Pais, IDRol, Estado || 1, id]
+      );
+    }
+
     return getById(id);
   } catch (error) {
     throw error;
