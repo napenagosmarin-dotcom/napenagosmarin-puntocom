@@ -410,38 +410,32 @@ function renderServiciosCheckboxes(selectedServices = []) {
 
     serviciosData.forEach(servicio => {
         const div = document.createElement('div');
-        div.className = 'servicio-item';
         const costoS = Number(servicio.Costo || servicio.precio || 0);
         const isChecked = selectedMap.has(servicio.IDServicio);
         const cantidad = selectedMap.get(servicio.IDServicio) || 1;
+        div.style.cssText = 'display:flex;flex-direction:column;gap:0.25rem;padding:0.45rem 0.65rem;border-radius:8px;border:1.5px solid rgba(49,130,206,0.15);background:#f8fbff;';
         div.innerHTML = `
-            <label class="servicio-label" style="padding:0.75rem 1rem;gap:0.5rem;flex-direction:column;align-items:flex-start;">
-                <div style="display:flex;align-items:center;gap:0.75rem;width:100%;">
-                    <input type="checkbox" class="edit-servicio-check" value="${servicio.IDServicio}"
-                           data-costo="${costoS}" ${isChecked ? 'checked' : ''}
-                           style="width:18px;height:18px;margin-top:2px;flex-shrink:0;"
-                           onchange="calcularTotalEdicion()">
-                    <div class="servicio-main" style="flex:1;">
-                        <div class="servicio-header" style="flex-direction:column;align-items:flex-start;gap:0.1rem;">
-                            <span class="servicio-name" style="font-size:0.9rem;font-weight:600;">${servicio.NombreServicio || servicio.nombre || 'Servicio'}</span>
-                            <span class="servicio-price" style="font-size:0.8rem;color:#00d4ff;">$${costoS.toLocaleString()}/persona</span>
-                        </div>
-                    </div>
-                </div>
-                <div style="display:flex;align-items:center;gap:0.4rem;padding-left:1.8rem;">
-                    <span style="font-size:0.72rem;opacity:0.6;">Cant:</span>
-                    <button type="button" onclick="editAjustarCantidad('${servicio.IDServicio}',-1)"
-                            style="width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);background:transparent;color:#00d4ff;cursor:pointer;font-weight:700;font-size:0.9rem;line-height:1;padding:0;">−</button>
-                    <input type="number" class="edit-srv-qty" data-servicio-id="${servicio.IDServicio}"
-                           min="1" max="20" value="${cantidad}"
-                           style="width:38px;text-align:center;background:rgba(255,255,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:4px;color:#fff;font-size:0.82rem;padding:2px 0;"
-                           oninput="calcularTotalEdicion()">
-                    <button type="button" onclick="editAjustarCantidad('${servicio.IDServicio}',1)"
-                            style="width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);background:transparent;color:#00d4ff;cursor:pointer;font-weight:700;font-size:0.9rem;line-height:1;padding:0;">+</button>
-                    <span class="edit-srv-total" data-servicio-id="${servicio.IDServicio}"
-                          style="font-size:0.78rem;color:#00d4ff;font-weight:700;margin-left:0.2rem;"></span>
-                </div>
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.79rem;color:#1A2B4A;margin:0;">
+                <input type="checkbox" class="edit-servicio-check" value="${servicio.IDServicio}"
+                       data-costo="${costoS}" ${isChecked ? 'checked' : ''}
+                       style="width:15px;height:15px;accent-color:#2B6CB0;flex-shrink:0;"
+                       onchange="calcularTotalEdicion()">
+                <span style="flex:1;font-weight:600;">${servicio.NombreServicio || servicio.nombre || 'Servicio'}</span>
+                <span style="color:#2B6CB0;font-weight:700;white-space:nowrap;font-size:0.75rem;">$${costoS.toLocaleString('es-CO')}/p</span>
             </label>
+            <div style="display:flex;align-items:center;gap:0.35rem;padding-left:1.4rem;">
+                <span style="font-size:0.68rem;color:rgba(26,43,74,0.5);">Cant:</span>
+                <button type="button" onclick="editAjustarCantidad('${servicio.IDServicio}',-1)"
+                        style="width:20px;height:20px;border-radius:50%;border:1px solid rgba(43,108,176,0.3);background:#fff;color:#2B6CB0;cursor:pointer;font-size:0.85rem;font-weight:700;line-height:1;padding:0;">−</button>
+                <input type="number" class="edit-srv-qty" data-servicio-id="${servicio.IDServicio}"
+                       min="1" max="20" value="${cantidad}"
+                       style="width:36px;text-align:center;border:1px solid rgba(43,108,176,0.25);border-radius:4px;font-size:0.78rem;padding:2px 0;color:#1A2B4A;"
+                       oninput="calcularTotalEdicion()">
+                <button type="button" onclick="editAjustarCantidad('${servicio.IDServicio}',1)"
+                        style="width:20px;height:20px;border-radius:50%;border:1px solid rgba(43,108,176,0.3);background:#fff;color:#2B6CB0;cursor:pointer;font-size:0.85rem;font-weight:700;line-height:1;padding:0;">+</button>
+                <span class="edit-srv-total" data-servicio-id="${servicio.IDServicio}"
+                      style="font-size:0.72rem;color:#2B6CB0;font-weight:700;margin-left:0.1rem;"></span>
+            </div>
         `;
         container.appendChild(div);
     });
@@ -468,7 +462,7 @@ function calcularTotalEdicion() {
         const qty = parseInt(document.querySelector(`.edit-srv-qty[data-servicio-id="${cb.value}"]`)?.value || 1);
         const t = Number(cb.dataset.costo || 0) * qty;
         const lbl = document.querySelector(`.edit-srv-total[data-servicio-id="${cb.value}"]`);
-        if (lbl) lbl.textContent = cb.checked && qty > 1 ? `= $${t.toLocaleString()}` : '';
+        if (lbl) { lbl.textContent = cb.checked && qty > 1 ? `= $${t.toLocaleString('es-CO')}` : ''; lbl.style.color = '#2B6CB0'; }
     });
 
     const subtotal = alojPrecio * noches + totalServicios;
