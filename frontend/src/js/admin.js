@@ -482,7 +482,12 @@ window.verDetalleReserva = async (id) => {
         const montoFmt = (v) => '$' + Number(v || 0).toLocaleString('es-CO');
         const alojamiento = r.NombreHabitacion || r.NombreCabana || r.NombrePaquete || '—';
         const serviciosHtml = (r.servicios && r.servicios.length > 0)
-            ? r.servicios.map(s => `<span class="rd-tag">${s.NombreServicio} x${s.Cantidad}</span>`).join('')
+            ? r.servicios.map(s => {
+                const precio = s.Subtotal || s.PrecioUnitario || s.Costo || s.precio || 0;
+                return `<span class="rd-tag">${s.NombreServicio} x${s.Cantidad}
+                    <span style="margin-left:0.35rem;font-weight:700;color:#2B6CB0;">$${Number(precio).toLocaleString('es-CO')}</span>
+                </span>`;
+            }).join('')
             : '<span style="color:rgba(26,43,74,0.45); font-size:0.8rem;">Sin servicios adicionales</span>';
 
         document.getElementById('detalleTitulo').textContent = `Detalle de Reserva #${r.IdReserva}`;
