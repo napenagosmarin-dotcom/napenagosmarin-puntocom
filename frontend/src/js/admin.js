@@ -2725,9 +2725,21 @@ function renderForm(section, data = null, extra = {}) {
                     <label>👤 APELLIDO</label>
                     <input type="text" name="Apellido" value="${data?.Apellido || ''}">
                 </div>
-                <div class="form-group" style="grid-column:1/-1;">
+                <div class="form-group">
                     <label>📧 EMAIL</label>
                     <input type="email" name="Email" value="${data?.Email || ''}" required>
+                </div>
+                <div class="form-group">
+                    <label>🪪 NÚMERO DE DOCUMENTO <span style="color:#c0392b;font-size:0.7rem;">*</span></label>
+                    <div style="display:flex;gap:0.4rem;">
+                        <select name="TipoDocumento" style="width:90px;flex-shrink:0;padding:0.45rem 0.4rem;font-size:0.78rem;border:1.5px solid rgba(123,82,171,0.58);background:#F5F0FF;border-radius:7px;color:#1A2B4A;">
+                            <option value="CC"  ${data?.TipoDocumento === 'CC'  ? 'selected' : ''}>CC</option>
+                            <option value="CE"  ${data?.TipoDocumento === 'CE'  ? 'selected' : ''}>CE</option>
+                            <option value="PA"  ${data?.TipoDocumento === 'PA'  ? 'selected' : ''}>PA</option>
+                            <option value="NIT" ${data?.TipoDocumento === 'NIT' ? 'selected' : ''}>NIT</option>
+                        </select>
+                        <input type="text" name="NumeroDocumento" value="${data?.NumeroDocumento || ''}" placeholder="Ej. 1234567890" style="flex:1;" required>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>📞 TELÉFONO</label>
