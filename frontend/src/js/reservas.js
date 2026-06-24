@@ -257,12 +257,14 @@ async function loadReservationDetails(id) {
 function buildReservationDetails(r) {
     const serviciosHtml = (r.servicios || []).length > 0
         ? `<div class="details-services-grid">${r.servicios.map(s => {
-            // La API devuelve PrecioUnitario (drs.Precio) y Subtotal (Cantidad × Precio)
-            const costoS = s.Subtotal || s.PrecioUnitario || s.Costo || s.precio || 0;
+            const precioUnit = s.PrecioUnitario || s.Costo || s.precio || 0;
+            const cant = s.Cantidad || 1;
+            const totalS = s.Subtotal || (precioUnit * cant);
+            const porPersonas = cant > 1 ? ` <span style="opacity:0.65;font-size:0.8em;">(x${cant} personas)</span>` : '';
             return `
             <div class="detail-service-item">
                 <span class="service-name">${s.NombreServicio || s.nombre}</span>
-                <span class="service-price">${formatCurrency(costoS)}</span>
+                <span class="service-price">$${Number(totalS).toLocaleString('es-CO')}${porPersonas}</span>
             </div>
           `;}).join('')}</div>`
         : '<p style="color: rgba(255,255,255,0.4); margin: 0;">No hay servicios adicionales.</p>';
@@ -394,28 +396,56 @@ function populateEditForm(reservation) {
     calcularTotalEdicion();
 }
 
+window.editAjustarCantidad = function(id, delta) {
+    const input = document.querySelector(`.edit-srv-qty[data-servicio-id="${id}"]`);
+    if (!input) return;
+    input.value = Math.max(1, Math.min(20, parseInt(input.value || 1) + delta));
+    calcularTotalEdicion();
+};
+
 function renderServiciosCheckboxes(selectedServices = []) {
     const container = document.getElementById('editServiciosContainer');
     container.innerHTML = '';
-    const selectedIds = selectedServices.map(s => s.IDServicio);
+    const selectedMap = new Map(selectedServices.map(s => [s.IDServicio, Number(s.Cantidad || 1)]));
 
     serviciosData.forEach(servicio => {
         const div = document.createElement('div');
         div.className = 'servicio-item';
-        const costoS = servicio.Costo || servicio.precio || 0;
+        const costoS = Number(servicio.Costo || servicio.precio || 0);
+        const isChecked = selectedMap.has(servicio.IDServicio);
+        const cantidad = selectedMap.get(servicio.IDServicio) || 1;
         div.innerHTML = `
-            <label class="servicio-label" style="padding: 1rem; gap: 0.75rem;">
-                <input type="checkbox" class="edit-servicio-check" value="${servicio.IDServicio}" data-costo="${Number(servicio.Costo || servicio.precio || 0)}" ${selectedIds.includes(servicio.IDServicio) ? 'checked' : ''} style="width: 18px; height: 18px; margin-top: 2px;">
-                <div class="servicio-main">
-                    <div class="servicio-header" style="flex-direction: column; align-items: flex-start; gap: 0.1rem;">
-                        <span class="servicio-name" style="font-size: 0.9rem; font-weight: 600;">${servicio.NombreServicio || servicio.nombre || 'Servicio'}</span>
-                        <span class="servicio-price" style="font-size: 0.8rem; color: #00d4ff;">$${Number(servicio.Costo || servicio.precio || 0).toLocaleString()}</span>
+            <label class="servicio-label" style="padding:0.75rem 1rem;gap:0.5rem;flex-direction:column;align-items:flex-start;">
+                <div style="display:flex;align-items:center;gap:0.75rem;width:100%;">
+                    <input type="checkbox" class="edit-servicio-check" value="${servicio.IDServicio}"
+                           data-costo="${costoS}" ${isChecked ? 'checked' : ''}
+                           style="width:18px;height:18px;margin-top:2px;flex-shrink:0;"
+                           onchange="calcularTotalEdicion()">
+                    <div class="servicio-main" style="flex:1;">
+                        <div class="servicio-header" style="flex-direction:column;align-items:flex-start;gap:0.1rem;">
+                            <span class="servicio-name" style="font-size:0.9rem;font-weight:600;">${servicio.NombreServicio || servicio.nombre || 'Servicio'}</span>
+                            <span class="servicio-price" style="font-size:0.8rem;color:#00d4ff;">$${costoS.toLocaleString()}/persona</span>
+                        </div>
                     </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.4rem;padding-left:1.8rem;">
+                    <span style="font-size:0.72rem;opacity:0.6;">Cant:</span>
+                    <button type="button" onclick="editAjustarCantidad('${servicio.IDServicio}',-1)"
+                            style="width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);background:transparent;color:#00d4ff;cursor:pointer;font-weight:700;font-size:0.9rem;line-height:1;padding:0;">−</button>
+                    <input type="number" class="edit-srv-qty" data-servicio-id="${servicio.IDServicio}"
+                           min="1" max="20" value="${cantidad}"
+                           style="width:38px;text-align:center;background:rgba(255,255,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:4px;color:#fff;font-size:0.82rem;padding:2px 0;"
+                           oninput="calcularTotalEdicion()">
+                    <button type="button" onclick="editAjustarCantidad('${servicio.IDServicio}',1)"
+                            style="width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);background:transparent;color:#00d4ff;cursor:pointer;font-weight:700;font-size:0.9rem;line-height:1;padding:0;">+</button>
+                    <span class="edit-srv-total" data-servicio-id="${servicio.IDServicio}"
+                          style="font-size:0.78rem;color:#00d4ff;font-weight:700;margin-left:0.2rem;"></span>
                 </div>
             </label>
         `;
         container.appendChild(div);
     });
+    calcularTotalEdicion();
 }
 
 function calcularTotalEdicion() {
@@ -428,7 +458,18 @@ function calcularTotalEdicion() {
     const alojPrecio = alojSelect ? Number(alojSelect.selectedOptions[0]?.dataset.precio || 0) : 0;
 
     const totalServicios = Array.from(document.querySelectorAll('.edit-servicio-check:checked'))
-        .reduce((sum, cb) => sum + Number(cb.dataset.costo || 0), 0);
+        .reduce((sum, cb) => {
+            const qty = parseInt(document.querySelector(`.edit-srv-qty[data-servicio-id="${cb.value}"]`)?.value || 1);
+            return sum + Number(cb.dataset.costo || 0) * qty;
+        }, 0);
+
+    // Actualizar totales por servicio
+    document.querySelectorAll('.edit-servicio-check').forEach(cb => {
+        const qty = parseInt(document.querySelector(`.edit-srv-qty[data-servicio-id="${cb.value}"]`)?.value || 1);
+        const t = Number(cb.dataset.costo || 0) * qty;
+        const lbl = document.querySelector(`.edit-srv-total[data-servicio-id="${cb.value}"]`);
+        if (lbl) lbl.textContent = cb.checked && qty > 1 ? `= $${t.toLocaleString()}` : '';
+    });
 
     const subtotal = alojPrecio * noches + totalServicios;
     const iva      = subtotal * 0.19;
@@ -444,11 +485,14 @@ async function guardarEdicion() {
     const id      = document.getElementById('editIdReserva').value;
     const tipo    = document.getElementById('editTipoAloj').value;
     const idAloj  = document.getElementById('editAlojamiento').value;
-    const servicioIds = Array.from(document.querySelectorAll('.edit-servicio-check:checked'))
-        .map(el => parseInt(el.value));
+    const serviciosAdicionales = Array.from(document.querySelectorAll('.edit-servicio-check:checked'))
+        .map(el => ({
+            IDServicio: parseInt(el.value),
+            Cantidad: parseInt(document.querySelector(`.edit-srv-qty[data-servicio-id="${el.value}"]`)?.value || 1)
+        }));
 
     const data = {
-        serviciosAdicionales: servicioIds,
+        serviciosAdicionales,
         FechaInicio:       document.getElementById('editFechaInicio').value,
         FechaFinalizacion: document.getElementById('editFechaFinalizacion').value,
         MetodoPago: parseInt(document.getElementById('editMetodoPago').value),

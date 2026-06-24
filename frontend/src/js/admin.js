@@ -483,9 +483,12 @@ window.verDetalleReserva = async (id) => {
         const alojamiento = r.NombreHabitacion || r.NombreCabana || r.NombrePaquete || '—';
         const serviciosHtml = (r.servicios && r.servicios.length > 0)
             ? r.servicios.map(s => {
-                const precio = s.Subtotal || s.PrecioUnitario || s.Costo || s.precio || 0;
-                return `<span class="rd-tag">${s.NombreServicio} x${s.Cantidad}
-                    <span style="margin-left:0.35rem;font-weight:700;color:#2B6CB0;">$${Number(precio).toLocaleString('es-CO')}</span>
+                const precioUnit = s.PrecioUnitario || s.Costo || s.precio || 0;
+                const cant = s.Cantidad || 1;
+                const totalS = s.Subtotal || (precioUnit * cant);
+                const extra = cant > 1 ? ` <span style="opacity:0.7;font-weight:400;">(x${cant} personas)</span>` : '';
+                return `<span class="rd-tag">${s.NombreServicio}
+                    <span style="margin-left:0.35rem;font-weight:700;color:#2B6CB0;">$${Number(totalS).toLocaleString('es-CO')}${extra}</span>
                 </span>`;
             }).join('')
             : '<span style="color:rgba(26,43,74,0.45); font-size:0.8rem;">Sin servicios adicionales</span>';
@@ -599,6 +602,14 @@ window.verDetalleReserva = async (id) => {
 };
 
 
+// ── Ajusta la cantidad de un servicio en el modal de edición ─────────────────
+window.erAjustarCantidad = function(id, delta) {
+    const input = document.querySelector(`.er-srv-qty[data-servicio-id="${id}"]`);
+    if (!input) return;
+    input.value = Math.max(1, Math.min(20, parseInt(input.value || 1) + delta));
+    erRecalcular();
+};
+
 // ── Recalcula el monto total visible en el modal de edición ──────────────────
 function erRecalcular() {
     const inicio = document.getElementById('er_fechaInicio')?.value;
@@ -608,8 +619,18 @@ function erRecalcular() {
         : 1;
     const alojSelect = document.getElementById('er_alojamiento');
     const alojPrecio = alojSelect ? Number(alojSelect.selectedOptions[0]?.dataset.precio || 0) : 0;
-    const totalServicios = [...document.querySelectorAll('#er_servicios_grid input[type=checkbox]:checked')]
-        .reduce((sum, cb) => sum + Number(cb.dataset.precio || 0), 0);
+    const totalServicios = [...document.querySelectorAll('#er_servicios_grid .er-srv-check:checked')]
+        .reduce((sum, cb) => {
+            const qty = parseInt(document.querySelector(`.er-srv-qty[data-servicio-id="${cb.value}"]`)?.value || 1);
+            return sum + Number(cb.dataset.precio || 0) * qty;
+        }, 0);
+    // Actualizar totales individuales por servicio
+    document.querySelectorAll('#er_servicios_grid .er-srv-check').forEach(cb => {
+        const qty = parseInt(document.querySelector(`.er-srv-qty[data-servicio-id="${cb.value}"]`)?.value || 1);
+        const t = Number(cb.dataset.precio || 0) * qty;
+        const lbl = document.querySelector(`.er-srv-total[data-servicio-id="${cb.value}"]`);
+        if (lbl) lbl.textContent = cb.checked && qty > 1 ? `= $${t.toLocaleString('es-CO')}` : '';
+    });
     const total = alojPrecio * noches + totalServicios;
     const el = document.getElementById('er_monto');
     if (el) el.value = `$${total.toLocaleString('es-CO')}`;
@@ -645,7 +666,7 @@ window.editarReserva = async (id) => {
         else if (r.IDCabana){ tipoActual = 'cabana';     idAlojActual = r.IDCabana;     }
         else if (r.IDHabitacion) { tipoActual = 'habitacion'; idAlojActual = r.IDHabitacion; }
 
-        const serviciosActivos = new Set((r.servicios || []).map(s => Number(s.IDServicio)));
+        const serviciosActivos = new Map((r.servicios || []).map(s => [Number(s.IDServicio), Number(s.Cantidad || 1)]));
 
         // Genera <option> para el tipo de alojamiento pedido
         const renderOpciones = (tipo, selId) => {
@@ -722,13 +743,26 @@ window.editarReserva = async (id) => {
 
                 <!-- Servicios -->
                 ${separador('⭐','Servicios Adicionales')}
-                <div id="er_servicios_grid" style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;">
-                    ${servicios.map(s => `
-                        <label style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0.65rem;border-radius:8px;border:1.5px solid rgba(49,130,206,0.15);background:#f8fbff;cursor:pointer;font-size:0.79rem;color:#1A2B4A;">
-                            <input type="checkbox" value="${s.IDServicio}" data-precio="${s.precio}"${serviciosActivos.has(s.IDServicio)?' checked':''} style="width:15px;height:15px;accent-color:#2B6CB0;flex-shrink:0;">
-                            <span style="flex:1;">${s.nombre}</span>
-                            <span style="color:#2B6CB0;font-weight:700;white-space:nowrap;">$${Number(s.precio).toLocaleString('es-CO')}</span>
-                        </label>`).join('')}
+                <div id="er_servicios_grid" style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;">
+                    ${servicios.map(s => {
+                        const isChecked = serviciosActivos.has(s.IDServicio);
+                        const cant = serviciosActivos.get(s.IDServicio) || 1;
+                        return `
+                        <div style="display:flex;flex-direction:column;gap:0.25rem;padding:0.45rem 0.65rem;border-radius:8px;border:1.5px solid rgba(49,130,206,0.15);background:#f8fbff;">
+                            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.79rem;color:#1A2B4A;margin:0;">
+                                <input type="checkbox" class="er-srv-check" value="${s.IDServicio}" data-precio="${s.precio}"${isChecked?' checked':''} style="width:15px;height:15px;accent-color:#2B6CB0;flex-shrink:0;" onchange="erRecalcular()">
+                                <span style="flex:1;">${s.nombre}</span>
+                                <span style="color:#2B6CB0;font-weight:700;white-space:nowrap;font-size:0.75rem;">$${Number(s.precio).toLocaleString('es-CO')}/p</span>
+                            </label>
+                            <div style="display:flex;align-items:center;gap:0.35rem;padding-left:1.4rem;">
+                                <span style="font-size:0.68rem;color:rgba(26,43,74,0.5);">Cant:</span>
+                                <button type="button" onclick="erAjustarCantidad('${s.IDServicio}',-1)" style="width:20px;height:20px;border-radius:50%;border:1px solid rgba(43,108,176,0.3);background:#fff;color:#2B6CB0;cursor:pointer;font-size:0.85rem;font-weight:700;line-height:1;padding:0;">−</button>
+                                <input type="number" class="er-srv-qty" data-servicio-id="${s.IDServicio}" min="1" max="20" value="${cant}" style="width:36px;text-align:center;border:1px solid rgba(43,108,176,0.25);border-radius:4px;font-size:0.78rem;padding:2px 0;color:#1A2B4A;" oninput="erRecalcular()">
+                                <button type="button" onclick="erAjustarCantidad('${s.IDServicio}',1)" style="width:20px;height:20px;border-radius:50%;border:1px solid rgba(43,108,176,0.3);background:#fff;color:#2B6CB0;cursor:pointer;font-size:0.85rem;font-weight:700;line-height:1;padding:0;">+</button>
+                                <span class="er-srv-total" data-servicio-id="${s.IDServicio}" style="font-size:0.72rem;color:#2B6CB0;font-weight:700;margin-left:0.1rem;"></span>
+                            </div>
+                        </div>`;
+                    }).join('')}
                 </div>
 
                 <!-- Monto total -->
@@ -772,9 +806,7 @@ window.editarReserva = async (id) => {
         ['er_fechaInicio','er_fechaFin','er_alojamiento'].forEach(elId =>
             document.getElementById(elId)?.addEventListener('change', erRecalcular)
         );
-        document.querySelectorAll('#er_servicios_grid input[type=checkbox]').forEach(cb =>
-            cb.addEventListener('change', erRecalcular)
-        );
+        // los checkboxes ya tienen onchange="erRecalcular()" en el HTML generado
 
         document.getElementById('modalOverlay').classList.add('activo');
     } catch(e) {
@@ -791,8 +823,11 @@ window.guardarReserva = async (id) => {
     const tipoAloj    = document.getElementById('er_tipoAloj')?.value;
     const idAloj      = document.getElementById('er_alojamiento')?.value;
 
-    const serviciosAdicionales = [...document.querySelectorAll('#er_servicios_grid input[type=checkbox]:checked')]
-        .map(cb => ({ IDServicio: Number(cb.value), Cantidad: 1 }));
+    const serviciosAdicionales = [...document.querySelectorAll('#er_servicios_grid .er-srv-check:checked')]
+        .map(cb => ({
+            IDServicio: Number(cb.value),
+            Cantidad: parseInt(document.querySelector(`.er-srv-qty[data-servicio-id="${cb.value}"]`)?.value || 1)
+        }));
 
     if (!fechaInicio || !fechaFin) {
         mostrarNotificacion('Las fechas de check-in y check-out son obligatorias.', 'warning');
