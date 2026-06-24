@@ -2860,17 +2860,17 @@ function renderForm(section, data = null, extra = {}) {
                         <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Inactivo</option>
                     </select>
                 </div>
-                <div class="form-group" style="grid-column:1/-1;">
+                <div class="form-group">
                     <label>⏱️ DURACIÓN</label>
                     <input type="text" name="Duracion" value="${data?.Duracion || ''}" placeholder="Ej: 2 horas">
+                </div>
+                <div class="form-group">
+                    <label>🖼️ IMAGEN URL</label>
+                    <input type="text" name="imagen" value="${data?.imagen || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'">
                 </div>
                 <div class="form-group" style="grid-column:1/-1;">
                     <label>📝 DESCRIPCIÓN</label>
                     <textarea name="Descripcion" rows="2">${data?.Descripcion || ''}</textarea>
-                </div>
-                <div class="form-group" style="grid-column:1/-1;">
-                    <label>🖼️ IMAGEN URL</label>
-                    <input type="text" name="imagen" value="${data?.imagen || ''}" oninput="document.getElementById('preview-img-modal').src = this.value || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'">
                 </div>
                 <div style="grid-column:1/-1;">
                     <img id="preview-img-modal" src="${data?.imagen || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'}" alt="Preview" style="width:100%;height:60px;object-fit:cover;border-radius:8px;border:1px solid rgba(49,130,206,0.15);">
