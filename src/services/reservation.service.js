@@ -325,7 +325,7 @@ const checkDateOverlap = async (type, id, fechaInicio, fechaFin, excludeReservaI
     FROM reserva r
     JOIN ${mapping.table} d ON r.IdReserva = d.IDReserva
     WHERE d.${mapping.col} = ?
-      AND r.IdEstadoReserva IN (1, 2)
+      AND r.IdEstadoReserva IN (1, 2, 5)
       AND r.FechaInicio IS NOT NULL
       AND r.FechaFinalizacion IS NOT NULL
       AND r.FechaInicio < ?
@@ -451,6 +451,15 @@ const updateReservation = async (id, data) => {
   try {
     await connection.beginTransaction();
 
+    // 0. Verificar que la reserva no esté Completada (historial inmutable)
+    const [check] = await connection.query('SELECT IdEstadoReserva FROM reserva WHERE IdReserva = ?', [id]);
+    if (check.length && check[0].IdEstadoReserva === ESTADO_COMPLETADO) {
+      await connection.rollback();
+      const err = new Error('No se pueden modificar reservas completadas. Esta reserva forma parte del historial.');
+      err.statusCode = 400;
+      throw err;
+    }
+
     // 1. Si SOLO viene IdEstadoReserva, hacemos un update rápido y salimos
     const keys = Object.keys(data);
     if (keys.length === 1 && keys[0] === 'IdEstadoReserva') {
@@ -522,6 +531,15 @@ const deleteReservation = async (id) => {
   try {
     await connection.beginTransaction();
 
+    // Protección historial: no eliminar reservas Completadas
+    const [check] = await connection.query('SELECT IdEstadoReserva FROM reserva WHERE IdReserva = ?', [id]);
+    if (check.length && check[0].IdEstadoReserva === ESTADO_COMPLETADO) {
+      await connection.rollback();
+      const err = new Error('No se pueden eliminar reservas completadas. Esta reserva forma parte del historial.');
+      err.statusCode = 400;
+      throw err;
+    }
+
     await connection.query('DELETE FROM detallereservaservicio WHERE IDReserva = ?', [id]);
     await connection.query('DELETE FROM detallereservapaquetes WHERE IDReserva = ?', [id]);
     await connection.query('DELETE FROM detallereservahabitacion WHERE IDReserva = ?', [id]);
@@ -542,9 +560,10 @@ const deleteReservation = async (id) => {
 // AGENTE DE GESTIÓN DE RESERVAS — Cambio de estado con lógica de negocio
 // ─────────────────────────────────────────────────────────────────────────────
 // ID de estados según schema.sql:
-//   1 = Pendiente   2 = Confirmada   3 = Cancelada   4 = Completada
+//   1 = Pendiente   2 = Confirmada   3 = Cancelada   4 = Completada   5 = En Proceso
 // Reglas:
 //   - CANCELADO → CONFIRMADO no permitido directamente (debe crear nueva reserva)
+//   - COMPLETADO → cualquier estado no permitido (historial inmutable)
 //   - Al confirmar (→2) se envía correo de reserva confirmada al cliente
 //   - Se registra timestamp del cambio en log de consola
 // ─────────────────────────────────────────────────────────────────────────────
@@ -552,6 +571,7 @@ const ESTADO_PENDIENTE  = 1;
 const ESTADO_CANCELADO  = 3;
 const ESTADO_CONFIRMADO = 2;
 const ESTADO_COMPLETADO = 4;
+const ESTADO_EN_PROCESO = 5;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POLÍTICA DE CANCELACIÓN — Constantes configurables centralizadas
@@ -573,7 +593,14 @@ const updateReservationStatus = async (id, nuevoEstadoId) => {
   const estadoActual = rows[0].IdEstadoReserva;
   const nuevoId      = Number(nuevoEstadoId);
 
-  // 2. Validar transición prohibida: CANCELADO → CONFIRMADO
+  // 2a. Validar: COMPLETADO es historial inmutable
+  if (estadoActual === ESTADO_COMPLETADO) {
+    const err = new Error('No se pueden modificar reservas completadas. Esta reserva forma parte del historial.');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  // 2b. Validar transición prohibida: CANCELADO → CONFIRMADO
   if (estadoActual === ESTADO_CANCELADO && nuevoId === ESTADO_CONFIRMADO) {
     const err = new Error(
       'No se puede confirmar una reserva cancelada. Debe crearse una nueva reserva.'
@@ -644,8 +671,8 @@ const getConfirmedReservations = async () => {
 
 // Obtener reservas confirmadas para una habitación/cabaña/paquete específico
 // ─────────────────────────────────────────────────────────────────────────────
-// FIX: ahora incluye IdEstadoReserva IN (1, 2) = Pendiente + Confirmada
-// para que fechas con reservas PENDIENTES también aparezcan bloqueadas.
+// FIX: ahora incluye IdEstadoReserva IN (1, 2, 5) = Pendiente + Confirmada + En Proceso
+// para que fechas con reservas PENDIENTES o EN PROCESO también aparezcan bloqueadas.
 // ─────────────────────────────────────────────────────────────────────────────
 const getConfirmedReservationsByAccommodation = async (accommodationId, type = 'habitacion') => {
   try {
@@ -662,8 +689,8 @@ const getConfirmedReservationsByAccommodation = async (accommodationId, type = '
              JOIN detallereservapaquetes drp ON r.IdReserva = drp.IDReserva
              JOIN paquetes p ON drp.IDPaquete = p.IDPaquete
              WHERE p.IDPaquete = ? 
-             AND r.IdEstadoReserva IN (1, 2)
-             AND r.FechaInicio IS NOT NULL 
+             AND r.IdEstadoReserva IN (1, 2, 5)
+             AND r.FechaInicio IS NOT NULL
              AND r.FechaFinalizacion IS NOT NULL
              ORDER BY r.FechaInicio ASC`;
     } else if (type === 'cabana') {
@@ -676,8 +703,8 @@ const getConfirmedReservationsByAccommodation = async (accommodationId, type = '
              JOIN detallereservacabana drc ON r.IdReserva = drc.IDReserva
              JOIN cabanas c ON drc.IDCabana = c.IDCabana
              WHERE c.IDCabana = ? 
-             AND r.IdEstadoReserva IN (1, 2)
-             AND r.FechaInicio IS NOT NULL 
+             AND r.IdEstadoReserva IN (1, 2, 5)
+             AND r.FechaInicio IS NOT NULL
              AND r.FechaFinalizacion IS NOT NULL
              ORDER BY r.FechaInicio ASC`;
     } else {
@@ -691,8 +718,8 @@ const getConfirmedReservationsByAccommodation = async (accommodationId, type = '
              JOIN detallereservahabitacion drh ON r.IdReserva = drh.IDReserva
              JOIN habitacion h ON drh.IDHabitacion = h.IDHabitacion
              WHERE h.IDHabitacion = ? 
-             AND r.IdEstadoReserva IN (1, 2)
-             AND r.FechaInicio IS NOT NULL 
+             AND r.IdEstadoReserva IN (1, 2, 5)
+             AND r.FechaInicio IS NOT NULL
              AND r.FechaFinalizacion IS NOT NULL
              ORDER BY r.FechaInicio ASC`;
     }

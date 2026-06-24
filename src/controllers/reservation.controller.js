@@ -59,6 +59,7 @@ const updateReservation = async (req, res, next) => {
 
     res.json(updated);
   } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json({ message: error.message });
     next(error);
   }
 };
@@ -74,6 +75,7 @@ const deleteReservation = async (req, res, next) => {
 
     res.json({ message: 'Reserva eliminada correctamente' });
   } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json({ message: error.message });
     next(error);
   }
 };

@@ -114,7 +114,8 @@ async function run() {
     (1, 'Pendiente'),
     (2, 'Confirmada'),
     (3, 'Cancelada'),
-    (4, 'Completada');
+    (4, 'Completada'),
+    (5, 'En Proceso');
   `);
 
   await conn.query(`
