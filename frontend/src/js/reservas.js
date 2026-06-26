@@ -117,6 +117,18 @@ async function cargarPaquetes() {
     paquetesData = await response.json();
 }
 
+function populatePaqueteAdicional(selectedId) {
+    const sel = document.getElementById('editPaqueteAdicional');
+    if (!sel) return;
+    const activos = paquetesData.filter(p => (p.Estado ?? 1) !== 0);
+    sel.innerHTML = '<option value="">Sin paquete adicional</option>' +
+        activos.map(p => {
+            const precio = Number(p.Precio || p.precio || 0);
+            const sel2 = selectedId && String(p.IDPaquete) === String(selectedId) ? ' selected' : '';
+            return `<option value="${p.IDPaquete}" data-precio="${precio}"${sel2}>${p.NombrePaquete || p.nombre} — $${precio.toLocaleString('es-CO')}/noche</option>`;
+        }).join('');
+}
+
 function renderOpcionesEdicion(tipo, selId) {
     const cfg = {
         habitacion: { list: habitacionesData, id: 'IDHabitacion', name: 'NombreHabitacion', price: h => Number(h.Costo || h.precio || h.Precio || 0) },
@@ -155,6 +167,15 @@ window.clientSwitchTipo = function(tipo) {
     const labels = { habitacion: 'Selecciona una habitación', cabana: 'Selecciona una cabaña', paquete: 'Selecciona un paquete' };
     document.getElementById('editAlojLabel').textContent = labels[tipo];
     updateTabStyles(tipo);
+    // Mostrar/ocultar paquete adicional según el tipo seleccionado
+    const paqWrap = document.getElementById('editPaqueteAdicionalWrap');
+    if (paqWrap) {
+        paqWrap.style.display = tipo === 'paquete' ? 'none' : '';
+        if (tipo === 'paquete') {
+            const paqSel = document.getElementById('editPaqueteAdicional');
+            if (paqSel) paqSel.value = '';
+        }
+    }
     calcularTotalEdicion();
 };
 
@@ -378,15 +399,28 @@ function populateEditForm(reservation) {
 
     let tipoActual = 'habitacion';
     let idAlojActual = null;
-    if (reservation.IDPaquete)         { tipoActual = 'paquete';    idAlojActual = reservation.IDPaquete;    }
-    else if (reservation.IDCabana)     { tipoActual = 'cabana';     idAlojActual = reservation.IDCabana;     }
-    else if (reservation.IDHabitacion) { tipoActual = 'habitacion'; idAlojActual = reservation.IDHabitacion; }
+    let idPaqueteAdicional = null;
+
+    if (reservation.IDCabana) {
+        tipoActual = 'cabana';     idAlojActual = reservation.IDCabana;
+        idPaqueteAdicional = reservation.IDPaquete || null;
+    } else if (reservation.IDHabitacion) {
+        tipoActual = 'habitacion'; idAlojActual = reservation.IDHabitacion;
+        idPaqueteAdicional = reservation.IDPaquete || null;
+    } else if (reservation.IDPaquete) {
+        tipoActual = 'paquete';    idAlojActual = reservation.IDPaquete;
+    }
 
     document.getElementById('editTipoAloj').value = tipoActual;
     document.getElementById('editAlojamiento').innerHTML = renderOpcionesEdicion(tipoActual, idAlojActual);
     const labels = { habitacion: 'Selecciona una habitación', cabana: 'Selecciona una cabaña', paquete: 'Selecciona un paquete' };
     document.getElementById('editAlojLabel').textContent = labels[tipoActual];
     updateTabStyles(tipoActual);
+
+    // Poblar y configurar paquete adicional
+    populatePaqueteAdicional(idPaqueteAdicional);
+    const paqWrap = document.getElementById('editPaqueteAdicionalWrap');
+    if (paqWrap) paqWrap.style.display = tipoActual === 'paquete' ? 'none' : '';
 
     document.getElementById('editFechaInicio').value = reservation.FechaInicio ? reservation.FechaInicio.split('T')[0] : '';
     document.getElementById('editFechaFinalizacion').value = reservation.FechaFinalizacion ? reservation.FechaFinalizacion.split('T')[0] : '';
@@ -448,8 +482,10 @@ function calcularTotalEdicion() {
     const noches = (inicio && fin && new Date(fin) > new Date(inicio))
         ? Math.round((new Date(fin) - new Date(inicio)) / 86400000) : 1;
 
-    const alojSelect = document.getElementById('editAlojamiento');
-    const alojPrecio = alojSelect ? Number(alojSelect.selectedOptions[0]?.dataset.precio || 0) : 0;
+    const alojSelect    = document.getElementById('editAlojamiento');
+    const alojPrecio    = alojSelect ? Number(alojSelect.selectedOptions[0]?.dataset.precio || 0) : 0;
+    const paqAdicSelect = document.getElementById('editPaqueteAdicional');
+    const paqAdicPrecio = paqAdicSelect?.value ? Number(paqAdicSelect.selectedOptions[0]?.dataset.precio || 0) : 0;
 
     const totalServicios = Array.from(document.querySelectorAll('.edit-servicio-check:checked'))
         .reduce((sum, cb) => {
@@ -465,7 +501,7 @@ function calcularTotalEdicion() {
         if (lbl) { lbl.textContent = cb.checked && qty > 1 ? `= $${t.toLocaleString('es-CO')}` : ''; lbl.style.color = '#2B6CB0'; }
     });
 
-    const subtotal = alojPrecio * noches + totalServicios;
+    const subtotal = (alojPrecio + paqAdicPrecio) * noches + totalServicios;
     const total    = subtotal + subtotal * 0.19;
 
     const el = document.getElementById('editMontoTotal');
@@ -491,6 +527,11 @@ async function guardarEdicion() {
     if (tipo === 'habitacion') data.IDHabitacion = parseInt(idAloj);
     else if (tipo === 'cabana')   data.IDCabana    = parseInt(idAloj);
     else if (tipo === 'paquete')  data.IDPaquete   = parseInt(idAloj);
+    // Paquete adicional: solo aplica cuando el alojamiento es habitación o cabaña
+    if (tipo !== 'paquete') {
+        const paqAdicId = document.getElementById('editPaqueteAdicional')?.value;
+        if (paqAdicId) data.IDPaquete = parseInt(paqAdicId);
+    }
 
     try {
         const response = await fetch(`/api/reservas/${id}`, {

@@ -255,13 +255,13 @@ function renderGraficaReservas(reservas) {
         labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
         datasets: [
             {
-                label: 'Check-ins',
+                label: 'Entradas',
                 data: checkins,
                 backgroundColor: '#10b981',
                 borderRadius: 4
             },
             {
-                label: 'Check-outs',
+                label: 'Salidas',
                 data: checkouts,
                 backgroundColor: '#e040fb',
                 borderRadius: 4

@@ -449,16 +449,16 @@ function updateSelectStates() {
     const pSel = document.getElementById('IDPaquete');
     const hSelected = hSel.value!=='';
     const cSelected = cSel.value!=='';
-    const pSelected = pSel.value!=='';
+    // Habitación y cabaña siguen siendo mutuamente excluyentes
     if (hSelected) {
-        cSel.disabled=true;cSel.value='';pSel.disabled=true;pSel.value='';
+        cSel.disabled=true;cSel.value='';
     } else if (cSelected) {
-        hSel.disabled=true;hSel.value='';pSel.disabled=true;pSel.value='';
-    } else if (pSelected) {
-        cSel.disabled=true;cSel.value='';hSel.disabled=true;hSel.value='';
+        hSel.disabled=true;hSel.value='';
     } else {
-        hSel.disabled=false;cSel.disabled=false;pSel.disabled=false;populatePaquetes(null,false);
+        hSel.disabled=false;cSel.disabled=false;populatePaquetes(null,false);
     }
+    // El paquete siempre está habilitado — puede combinarse con habitación o cabaña
+    pSel.disabled=false;
 }
 
 async function cargarServicios() {
@@ -628,12 +628,43 @@ function mostrarDetalleHabitacion(id) {
     card.style.display='block';
 }
 function mostrarDetallePaquete(id) {
-    const card=document.getElementById('detallePaquete');
-    if (!id){ card.style.display='none'; return; }
-    const p=paquetesData.find(p=>p.IDPaquete==id);
+    const detalleInline=document.getElementById('detallePaquete');
+    if (detalleInline){ detalleInline.style.display='none'; detalleInline.className='nr-detalle'; }
+    mostrarPreviewPaquete(id);
+}
+
+function mostrarPreviewPaquete(id) {
+    const card=document.getElementById('previewPaqueteCard');
+    if (!card) return;
+    if (!id){ card.style.display='none'; card.innerHTML=''; return; }
+    const p=paquetesData.find(p=>String(p.IDPaquete)===String(id));
     if (!p) return;
-    card.innerHTML=`<h4>${p.NombrePaquete||'Paquete'}</h4><p>${p.Descripcion||''}</p><span class="precio-tag">$${Number(p.Precio||0).toLocaleString()}</span>`;
-    card.style.display='block';
+    const paqueteNombre=p.NombrePaquete||p.nombre||'Paquete';
+    const descripcion=p.Descripcion||p.descripcion||'';
+    const precioPaquete=p.Precio||p.precio||0;
+    const imgUrl=getImageUrl(p);
+    card.innerHTML=`
+        <button type="button" class="nr-preview-close" aria-label="Quitar paquete" title="Quitar paquete">×</button>
+        <div class="nr-preview-card__inner">
+            <div class="nr-preview-card__image" style="background-image:url('${imgUrl||'../assets/images/placeholder.jpg'}')"></div>
+            <div class="nr-preview-card__content">
+                <span class="nr-preview-tipo">📦 Paquete</span>
+                <h3>${paqueteNombre}</h3>
+                <p class="nr-preview-desc">${descripcion}</p>
+                <div class="nr-preview-price">$${Number(precioPaquete).toLocaleString()}</div>
+                <button type="button" class="nr-preview-detail-btn" data-type="paquete" data-id="${id}">👁 Ver detalles</button>
+            </div>
+        </div>
+    `;
+    card.dataset.type='paquete'; card.dataset.activeId=String(id); card.style.display='block';
+    card.querySelector('.nr-preview-close').addEventListener('click',()=>{
+        document.getElementById('IDPaquete').value='';
+        card.style.display='none'; card.innerHTML='';
+        calcularTotal(); updateAvailabilityMessage(); validateDateSelection(); updateSelectStates(); updateDatePickerRestrictions();
+    });
+    card.querySelector('.nr-preview-detail-btn').addEventListener('click',(e)=>{
+        mostrarModalDetalle(e.currentTarget.dataset.type,e.currentTarget.dataset.id);
+    });
 }
 function mostrarDetalleCabana(id) {
     const card=document.getElementById('detalleCabana');
@@ -689,11 +720,72 @@ async function mostrarPreviewItem(type,id) {
                     ${habs?`<span>🛏️ ${habs} hab.</span>`:''}
                 </div>
                 <div class="nr-preview-price">$${Number(precio).toLocaleString()} / noche</div>
+                <button type="button" class="nr-preview-detail-btn" data-type="${type}" data-id="${id}">👁 Ver detalles</button>
             </div>
         </div>`;
     preview.dataset.type=type; preview.dataset.activeId=String(id); preview.style.display='block';
     preview.querySelector('.nr-preview-close').addEventListener('click',handleClosePreview);
+    preview.querySelector('.nr-preview-detail-btn').addEventListener('click',(e)=>{
+        mostrarModalDetalle(e.currentTarget.dataset.type,e.currentTarget.dataset.id);
+    });
     ['detalleHabitacion','detalleCabana','detallePaquete'].forEach(id=>{ const el=document.getElementById(id); if (el) el.style.display='none'; });
+}
+
+/* ──────────────────────────────────────────────────
+   MODAL DE DETALLE
+────────────────────────────────────────────────── */
+function mostrarModalDetalle(type,id) {
+    let data=null;
+    if (type==='habitacion') data=habitacionesData.find(h=>String(h.IDHabitacion)===String(id));
+    if (type==='cabana')     data=cabanasData.find(c=>String(c.IDCabana)===String(id));
+    if (type==='paquete')    data=paquetesData.find(p=>String(p.IDPaquete)===String(id));
+    if (!data) return;
+    const modal=document.getElementById('detalleModal');
+    const content=document.getElementById('detalleModalContent');
+    if (!modal||!content) return;
+    const imgUrl=getImageUrl(data);
+    let tipoLabel,titulo,descripcion,precio,sufijoPrecio,stats,incluidos;
+    if (type==='habitacion') {
+        tipoLabel='🛏️ Habitación'; titulo=data.NombreHabitacion||'Habitación';
+        descripcion=data.Descripcion||data.descripcion||''; precio=data.Costo||data.precio||0; sufijoPrecio='/ noche';
+        stats=[data.CapacidadPersonas?`👥 ${data.CapacidadPersonas} personas`:null,data.NumeroHabitaciones?`🛏️ ${data.NumeroHabitaciones} hab.`:null].filter(Boolean);
+        const ih={'Cabaña Simple':['🌲 Vista al bosque','🛏️ Cama individual','🪵 Decoración rústica','👤 1 persona'],'Cabaña Doble':['🌹 Ambiente romántico','🛏️ Cama doble','🪵 Decoración rústica','👥 2 personas'],'Cabaña Familiar':['🌿 Rodeada de naturaleza','🛏️ Múltiples camas','🪵 Amplio espacio','👨‍👩‍👧‍👦 Hasta 4 personas'],'Domo Glamping':['⭐ Bajo las estrellas','🔭 Techo transparente','🛏️ Cama queen','💫 Experiencia única'],'Tienda de Lujo':['🏔️ Vista panorámica','👑 Cama king size','✨ Acabados de lujo','🌄 Amanecer espectacular']};
+        incluidos=ih[titulo]||['🏠 Alojamiento confortable','🌿 Contacto con la naturaleza'];
+    } else if (type==='cabana') {
+        tipoLabel='🏡 Cabaña'; titulo=data.NombreCabana||'Cabaña';
+        descripcion=data.Descripcion||data.descripcion||''; precio=data.PrecioNoche||data.precio||0; sufijoPrecio='/ noche';
+        stats=[data.CapacidadPersonas?`👥 ${data.CapacidadPersonas} personas`:null,data.NumeroHabitaciones?`🛏️ ${data.NumeroHabitaciones} hab.`:null].filter(Boolean);
+        incluidos=['🌲 Entorno natural','🏡 Espacio privado','☕ Comodidades completas','🔒 Acceso exclusivo'];
+    } else {
+        tipoLabel='📦 Paquete'; titulo=data.NombrePaquete||'Paquete';
+        descripcion=data.Descripcion||data.descripcion||''; precio=data.Precio||data.precio||0; sufijoPrecio='';
+        stats=data.NombreHabitacion?[`🏠 ${data.NombreHabitacion}`]:[];
+        const pi={'Paquete Romántico':['🛁 Jacuzzi privado','💆 Masaje relajante','🍾 Decoración especial','🌹 Detalles románticos'],'Paquete Aventura':['🐴 Cabalgata guiada','🥾 Caminata ecológica','🗺️ Guía experto','🌿 Tour naturaleza'],'Paquete Familiar':['🍳 Desayuno campestre','🔥 Fogata nocturna','🎮 Actividades grupales','👨‍👩‍👧‍👦 Espacio familiar'],'Paquete Estrellas':['🔥 Fogata nocturna','🍳 Desayuno incluido','⭐ Observación estrellas','🌙 Experiencia nocturna'],'Paquete Relax':['💆 Masaje completo','🛁 Jacuzzi privado','🧘 Zona spa','🌿 Desconexión total']};
+        incluidos=pi[titulo]||['✨ Experiencia glamping','🌿 Contacto naturaleza','🏨 Alojamiento incluido','🎁 Actividades especiales'];
+    }
+    content.innerHTML=`
+        <div class="nr-modal__image" ${imgUrl?`style="background-image:url('${imgUrl}')"`:''}></div>
+        <div class="nr-modal__body">
+            <span class="nr-modal__tipo">${tipoLabel}</span>
+            <h2 class="nr-modal__titulo">${titulo}</h2>
+            <p class="nr-modal__desc">${descripcion}</p>
+            ${stats.length?`<div class="nr-modal__stats">${stats.map(s=>`<div class="nr-modal__stat">${s}</div>`).join('')}</div>`:''}
+            <div class="nr-modal__incluidos">
+                <p class="nr-modal__incluidos-titulo">Incluye</p>
+                <ul class="nr-modal__incluidos-list">${incluidos.map(i=>`<li>${i}</li>`).join('')}</ul>
+            </div>
+            <div class="nr-modal__precio">
+                <span class="nr-modal__precio-label">${sufijoPrecio?'Precio por noche':'Precio del paquete'}</span>
+                <span class="nr-modal__precio-val">$${Number(precio).toLocaleString()}${sufijoPrecio?` <small>${sufijoPrecio}</small>`:''}</span>
+            </div>
+        </div>`;
+    modal.style.display='flex';
+    document.getElementById('detalleModalClose').onclick=cerrarModal;
+    modal.onclick=(e)=>{ if(e.target===modal) cerrarModal(); };
+}
+function cerrarModal() {
+    const modal=document.getElementById('detalleModal');
+    if (modal) modal.style.display='none';
 }
 
 /* ──────────────────────────────────────────────────
@@ -770,9 +862,8 @@ const fechaInicioInput       = document.getElementById('FechaInicio');
 const fechaFinalizacionInput = document.getElementById('FechaFinalizacion');
 
 habitacionInput.addEventListener('change', async(e)=>{
-    if (e.target.value!=='') { paqueteInput.value=''; mostrarDetallePaquete(''); }
     mostrarPreviewItem('habitacion',e.target.value);
-    populatePaquetes(e.target.value);
+    populatePaquetes(null,false);
     calcularTotal(); updateAvailabilityMessage(); validateDateSelection(); updateSelectStates();
     await updateDatePickerRestrictions();
 });
@@ -782,7 +873,6 @@ cabanaInput.addEventListener('change', async(e)=>{
     await updateDatePickerRestrictions();
 });
 paqueteInput.addEventListener('change', async(e)=>{
-    if (e.target.value!=='') { habitacionInput.value=''; mostrarDetalleHabitacion(''); cabanaInput.value=''; mostrarDetalleCabana(''); }
     mostrarDetallePaquete(e.target.value);
     calcularTotal(); updateAvailabilityMessage(); validateDateSelection(); updateSelectStates();
     await updateDatePickerRestrictions();

@@ -617,8 +617,10 @@ function erRecalcular() {
     const noches = (inicio && fin && new Date(fin) > new Date(inicio))
         ? Math.round((new Date(fin) - new Date(inicio)) / 86400000)
         : 1;
-    const alojSelect = document.getElementById('er_alojamiento');
-    const alojPrecio = alojSelect ? Number(alojSelect.selectedOptions[0]?.dataset.precio || 0) : 0;
+    const alojSelect    = document.getElementById('er_alojamiento');
+    const alojPrecio    = alojSelect ? Number(alojSelect.selectedOptions[0]?.dataset.precio || 0) : 0;
+    const paqAdicSelect = document.getElementById('er_paqueteAdicional');
+    const paqAdicPrecio = paqAdicSelect?.value ? Number(paqAdicSelect.selectedOptions[0]?.dataset.precio || 0) : 0;
     const totalServicios = [...document.querySelectorAll('#er_servicios_grid .er-srv-check:checked')]
         .reduce((sum, cb) => {
             const qty = parseInt(document.querySelector(`.er-srv-qty[data-servicio-id="${cb.value}"]`)?.value || 1);
@@ -631,7 +633,7 @@ function erRecalcular() {
         const lbl = document.querySelector(`.er-srv-total[data-servicio-id="${cb.value}"]`);
         if (lbl) lbl.textContent = cb.checked && qty > 1 ? `= $${t.toLocaleString('es-CO')}` : '';
     });
-    const total = alojPrecio * noches + totalServicios;
+    const total = (alojPrecio + paqAdicPrecio) * noches + totalServicios;
     const el = document.getElementById('er_monto');
     if (el) el.value = `$${total.toLocaleString('es-CO')}`;
 }
@@ -658,13 +660,20 @@ window.editarReserva = async (id) => {
 
         const fmt = f => f ? new Date(f).toISOString().split('T')[0] : '';
 
-        // Determinar tipo y alojamiento preseleccionado
-        // Comprobar IDPaquete primero para no confundir con la habitación del paquete
+        // Determinar tipo de alojamiento y paquete adicional.
+        // Habitación/cabaña tienen prioridad; el paquete puede ser standalone o adicional.
         let tipoActual = 'habitacion';
         let idAlojActual = null;
-        if (r.IDPaquete)    { tipoActual = 'paquete';    idAlojActual = r.IDPaquete;    }
-        else if (r.IDCabana){ tipoActual = 'cabana';     idAlojActual = r.IDCabana;     }
-        else if (r.IDHabitacion) { tipoActual = 'habitacion'; idAlojActual = r.IDHabitacion; }
+        let idPaqueteAdicional = null;
+        if (r.IDCabana) {
+            tipoActual = 'cabana';     idAlojActual = r.IDCabana;
+            idPaqueteAdicional = r.IDPaquete || null;
+        } else if (r.IDHabitacion) {
+            tipoActual = 'habitacion'; idAlojActual = r.IDHabitacion;
+            idPaqueteAdicional = r.IDPaquete || null;
+        } else if (r.IDPaquete) {
+            tipoActual = 'paquete';    idAlojActual = r.IDPaquete;
+        }
 
         const serviciosActivos = new Map((r.servicios || []).map(s => [Number(s.IDServicio), Number(s.Cantidad || 1)]));
 
@@ -741,6 +750,15 @@ window.editarReserva = async (id) => {
                     </select>
                 </div>
 
+                <!-- Paquete adicional (visible cuando el alojamiento es habitación o cabaña) -->
+                <div id="er_paquete_adicional_wrap" class="form-group" style="grid-column:1/-1;${tipoActual === 'paquete' ? 'display:none;' : ''}">
+                    <label style="font-size:0.72rem;">📦 PAQUETE ADICIONAL <span style="font-weight:400;color:rgba(26,43,74,0.5);">(opcional)</span></label>
+                    <select id="er_paqueteAdicional" class="form-input" onchange="erRecalcular()">
+                        <option value="">Sin paquete adicional</option>
+                        ${paquetes.map(p => `<option value="${p.IDPaquete}" data-precio="${p.precio}"${p.IDPaquete == idPaqueteAdicional ? ' selected' : ''}>${p.nombre} — $${Number(p.precio).toLocaleString('es-CO')}/noche</option>`).join('')}
+                    </select>
+                </div>
+
                 <!-- Servicios -->
                 ${separador('⭐','Servicios Adicionales')}
                 <div id="er_servicios_grid" style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;">
@@ -792,6 +810,12 @@ window.editarReserva = async (id) => {
                 document.getElementById('er_alojamiento').innerHTML = renderOpciones(tipo, null);
                 const lbl = { habitacion:'🛏 Habitación', cabana:'🏕 Cabaña', paquete:'📦 Paquete' };
                 document.getElementById('er_aloj_label').textContent = lbl[tipo];
+                // Mostrar/ocultar paquete adicional según el tipo seleccionado
+                const paqWrap = document.getElementById('er_paquete_adicional_wrap');
+                if (paqWrap) {
+                    paqWrap.style.display = tipo === 'paquete' ? 'none' : '';
+                    if (tipo === 'paquete') document.getElementById('er_paqueteAdicional').value = '';
+                }
                 document.querySelectorAll('.er-tipo-btn').forEach(b => {
                     const a = b.dataset.tipo === tipo;
                     b.style.background     = a ? '#2B6CB0' : '#fff';
@@ -802,8 +826,8 @@ window.editarReserva = async (id) => {
             });
         });
 
-        // Recalcular al cambiar fechas, alojamiento o servicios
-        ['er_fechaInicio','er_fechaFin','er_alojamiento'].forEach(elId =>
+        // Recalcular al cambiar fechas, alojamiento, paquete adicional o servicios
+        ['er_fechaInicio','er_fechaFin','er_alojamiento','er_paqueteAdicional'].forEach(elId =>
             document.getElementById(elId)?.addEventListener('change', erRecalcular)
         );
         // los checkboxes ya tienen onchange="erRecalcular()" en el HTML generado
@@ -848,6 +872,11 @@ window.guardarReserva = async (id) => {
     if (tipoAloj === 'habitacion') payload.IDHabitacion = Number(idAloj);
     else if (tipoAloj === 'cabana')   payload.IDCabana    = Number(idAloj);
     else if (tipoAloj === 'paquete')  payload.IDPaquete   = Number(idAloj);
+    // Paquete adicional: solo aplica cuando el alojamiento es habitación o cabaña
+    if (tipoAloj !== 'paquete') {
+        const idPaqAdicional = document.getElementById('er_paqueteAdicional')?.value;
+        if (idPaqAdicional) payload.IDPaquete = Number(idPaqAdicional);
+    }
 
     try {
         const res = await fetch(`/api/reservas/${id}`, {
@@ -1367,6 +1396,9 @@ window.editarCliente = async (id) => {
         document.getElementById('modalTitle').textContent = 'Editar Cliente';
         document.getElementById('modalContent').innerHTML = renderForm('clientes', data);
         document.getElementById('modalOverlay').classList.add('activo');
+        if (data.Pais === 'Colombia') {
+            window.adminCargarDepartamentos(data.Departamento, data.Municipio);
+        }
     } catch (e) { mostrarNotificacion('Error al cargar datos del cliente.', 'error'); }
 };
 
@@ -2227,13 +2259,13 @@ function renderGraficaReservas(reservas) {
             labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
             datasets: [
                 {
-                    label: 'Check-ins',
+                    label: 'Entradas',
                     data: checkins,
                     backgroundColor: '#10b981',
                     borderRadius: 4
                 },
                 {
-                    label: 'Check-outs',
+                    label: 'Salidas',
                     data: checkouts,
                     backgroundColor: '#3182CE',
                     borderRadius: 4
@@ -2602,6 +2634,70 @@ window.calcularPrecioPaquete = () => {
     }
 };
 
+// ─── Helpers API Colombia — modal Clientes ────────────────────────────────────
+const _API_COL = 'https://api-colombia.com/api/v1';
+
+window.adminToggleColombia = (paisValue) => {
+    const cont = document.getElementById('cliente-col-fields');
+    if (!cont) return;
+    const esColombia = paisValue === 'Colombia';
+    cont.style.display = esColombia ? 'contents' : 'none';
+    if (esColombia) window.adminCargarDepartamentos();
+};
+
+window.adminCargarDepartamentos = async (valorActual, municipioActual) => {
+    const sel = document.getElementById('admin-dep-select');
+    if (!sel) return;
+    sel.disabled = true;
+    sel.innerHTML = '<option value="" disabled selected>Cargando departamentos...</option>';
+    try {
+        const res = await fetch(`${_API_COL}/Department`);
+        const deps = await res.json();
+        deps.sort((a, b) => a.name.localeCompare(b.name));
+        sel.innerHTML = '<option value="" disabled selected>Selecciona departamento...</option>';
+        let depIdActual = null;
+        deps.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.name;
+            opt.dataset.id = d.id;
+            opt.textContent = d.name;
+            if (valorActual && d.name === valorActual) { opt.selected = true; depIdActual = d.id; }
+            sel.appendChild(opt);
+        });
+        sel.disabled = false;
+        if (depIdActual) window.adminCargarMunicipios(sel, municipioActual);
+    } catch {
+        sel.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+        sel.disabled = false;
+    }
+};
+
+window.adminCargarMunicipios = async (selEl, municipioActual) => {
+    const depId = selEl.options[selEl.selectedIndex]?.dataset?.id;
+    if (!depId) return;
+    const munSel = document.getElementById('admin-mun-select');
+    if (!munSel) return;
+    munSel.disabled = true;
+    munSel.innerHTML = '<option value="" disabled selected>Cargando municipios...</option>';
+    try {
+        const res = await fetch(`${_API_COL}/Department/${depId}/cities`);
+        const cities = await res.json();
+        cities.sort((a, b) => a.name.localeCompare(b.name));
+        munSel.innerHTML = '<option value="" disabled selected>Selecciona municipio...</option>';
+        cities.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.name;
+            opt.textContent = c.name;
+            if (municipioActual && c.name === municipioActual) opt.selected = true;
+            munSel.appendChild(opt);
+        });
+        munSel.disabled = false;
+    } catch {
+        munSel.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+        munSel.disabled = false;
+    }
+};
+
 function renderForm(section, data = null, extra = {}) {
     const isEdit = !!data;
     let fields = '';
@@ -2642,33 +2738,69 @@ function renderForm(section, data = null, extra = {}) {
             break;
         case 'clientes':
             fields = `
+                ${!isEdit ? `
+                <div class="form-group" style="grid-column:1/-1;background:linear-gradient(135deg,rgba(49,130,206,0.08),rgba(49,130,206,0.04));border:1px solid rgba(49,130,206,0.25);border-radius:8px;padding:12px 16px;">
+                    <p style="margin:0;font-size:0.82rem;color:#2B6CB0;line-height:1.5;">
+                        📧 <strong>Nota:</strong> Al crear el cliente se le enviará un correo electrónico para que establezca su contraseña de acceso.
+                    </p>
+                </div>` : ''}
                 <div class="form-group">
-                    <label>🆔 NRO DOCUMENTO</label>
-                    <input type="text" name="NroDocumento" value="${data?.NroDocumento || ''}" pattern="\\d+" title="Solo debe contener números." required>
-                    <span class="field-error" id="err-NroDocumento"></span>
-                </div>
-                <div class="form-group">
-                    <label>📞 TELÉFONO</label>
-                    <input type="text" name="Telefono" value="${data?.Telefono || ''}" pattern="\\d+" title="Solo debe contener números.">
-                    <span class="field-error" id="err-Telefono"></span>
-                </div>
-                <div class="form-group">
-                    <label>👤 NOMBRE</label>
+                    <label>👤 NOMBRE(S)</label>
                     <input type="text" name="Nombre" value="${data?.Nombre || ''}" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo debe contener letras y espacios." required>
                     <span class="field-error" id="err-Nombre"></span>
                 </div>
                 <div class="form-group">
-                    <label>👤 APELLIDO</label>
+                    <label>👤 APELLIDO(S)</label>
                     <input type="text" name="Apellido" value="${data?.Apellido || ''}" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo debe contener letras y espacios.">
                     <span class="field-error" id="err-Apellido"></span>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label>🪪 DOCUMENTO</label>
+                    <div style="display:flex;gap:0.5rem;align-items:stretch;">
+                        <select name="TipoDocumento" style="width:72px;min-width:72px;max-width:72px;flex-shrink:0;padding:0.45rem 0.3rem;font-size:0.8rem;font-weight:600;border:1.5px solid rgba(123,82,171,0.58);background:#F5F0FF;border-radius:7px;color:#1A2B4A;cursor:pointer;appearance:auto;">
+                            <option value="CC"  ${data?.TipoDocumento === 'CC'  ? 'selected' : ''}>CC</option>
+                            <option value="CE"  ${data?.TipoDocumento === 'CE'  ? 'selected' : ''}>CE</option>
+                            <option value="PA"  ${data?.TipoDocumento === 'PA'  ? 'selected' : ''}>PA</option>
+                            <option value="NIT" ${data?.TipoDocumento === 'NIT' ? 'selected' : ''}>NIT</option>
+                        </select>
+                        <input type="text" name="NroDocumento" value="${data?.NroDocumento || ''}" placeholder="Ej. 1234567890" pattern="\\d+" title="Solo debe contener números." style="flex:1;min-width:0;" required>
+                    </div>
+                    <span class="field-error" id="err-NroDocumento"></span>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
                     <label>📧 EMAIL</label>
                     <input type="email" name="Email" value="${data?.Email || data?.Correo || ''}" required>
                 </div>
                 <div class="form-group">
+                    <label>🌍 PAÍS</label>
+                    <select name="Pais" onchange="adminToggleColombia(this.value)" style="width:100%;padding:0.5rem 0.75rem;font-size:0.85rem;border:1.5px solid rgba(49,130,206,0.35);border-radius:7px;color:#1A2B4A;background:#fff;cursor:pointer;">
+                        <option value="">Selecciona país...</option>
+                        ${['Alemania','Argentina','Australia','Bolivia','Brasil','Canadá','Chile','China','Colombia','Costa Rica','Cuba','Ecuador','Egipto','Emiratos Árabes Unidos','España','Estados Unidos','Finlandia','Francia','Guatemala','Honduras','India','Italia','Japón','México','Marruecos','Nigeria','Noruega','Nueva Zelanda','Países Bajos','Panamá','Paraguay','Perú','Portugal','Reino Unido','Rusia','Sudáfrica','Suecia','Suiza','Turquía','Uruguay','Venezuela']
+                            .map(p => `<option value="${p}" ${data?.Pais === p ? 'selected' : ''}>${p}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📞 TELÉFONO</label>
+                    <input type="text" name="Telefono" value="${data?.Telefono || ''}" pattern="\\d+" title="Solo debe contener números." placeholder="Ej. 3001234567">
+                    <span class="field-error" id="err-Telefono"></span>
+                </div>
+                <div id="cliente-col-fields" style="display:${data?.Pais === 'Colombia' ? 'contents' : 'none'};">
+                    <div class="form-group">
+                        <label>🗺️ DEPARTAMENTO</label>
+                        <select name="Departamento" id="admin-dep-select" onchange="adminCargarMunicipios(this)" style="width:100%;padding:0.5rem 0.75rem;font-size:0.85rem;border:1.5px solid rgba(49,130,206,0.35);border-radius:7px;color:#1A2B4A;background:#fff;cursor:pointer;" disabled>
+                            <option value="" disabled selected>Selecciona departamento...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🏙️ CIUDAD / MUNICIPIO</label>
+                        <select name="Municipio" id="admin-mun-select" style="width:100%;padding:0.5rem 0.75rem;font-size:0.85rem;border:1.5px solid rgba(49,130,206,0.35);border-radius:7px;color:#1A2B4A;background:#fff;cursor:pointer;" disabled>
+                            <option value="" disabled selected>Selecciona primero un departamento</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
                     <label>📍 DIRECCIÓN</label>
-                    <input type="text" name="Direccion" value="${data?.Direccion || ''}">
+                    <input type="text" name="Direccion" value="${data?.Direccion || ''}" placeholder="Calle 123 #45-67, Ciudad">
                 </div>
                 ${isEdit ? '<input type="hidden" name="Estado" value="' + (data?.Estado ?? 1) + '">' : ''}
                 ${isEdit ? '<input type="hidden" name="IDRol" value="' + (data?.IDRol ?? 1) + '">' : ''}`;

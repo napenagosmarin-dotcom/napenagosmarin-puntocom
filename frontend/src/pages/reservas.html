@@ -138,6 +138,14 @@
             </select>
           </div>
 
+          <!-- PAQUETE ADICIONAL (visible cuando el alojamiento es habitación o cabaña) -->
+          <div id="editPaqueteAdicionalWrap" class="er-group" style="grid-column:1/-1;">
+            <label class="er-label">📦 Paquete Adicional <span style="font-weight:400;color:rgba(26,43,74,0.5);">(opcional)</span></label>
+            <select id="editPaqueteAdicional" onchange="calcularTotalEdicion()">
+              <option value="">Sin paquete adicional</option>
+            </select>
+          </div>
+
           <!-- SEPARADOR SERVICIOS -->
           <div style="grid-column:1/-1;display:flex;align-items:center;gap:0.5rem;margin:0.35rem 0 0.1rem;padding-bottom:0.4rem;border-bottom:1.5px solid rgba(49,130,206,0.15);">
             <span style="font-size:1rem;">⭐</span>

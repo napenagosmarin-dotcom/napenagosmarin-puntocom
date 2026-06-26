@@ -2,8 +2,12 @@
  * Controller: Clientes
  */
 
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
+const db = require('../config/db');
 const Cliente = require('../models/models.cliente.js');
-
+const authService = require('../services/auth.service');
+const { sendAccountSetupEmail } = require('../services/email.service');
 
 const letrasEspaciosRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 const numerosRegex = /^\d+$/;
@@ -24,7 +28,6 @@ const ClientesController = {
             const limit = parseInt(req.query.limit);
             const search = req.query.search || '';
 
-            // Si no se envían parámetros de paginación, devolver todo (compatibilidad)
             if (isNaN(page) || isNaN(limit)) {
                 const clientes = await Cliente.getAll();
                 return res.json(clientes);
@@ -63,8 +66,60 @@ const ClientesController = {
             const errorValidacion = validarCliente(req.body);
             if (errorValidacion) return res.status(400).json({ error: errorValidacion });
 
-            const nuevoCliente = await Cliente.create(req.body);
-            res.status(201).json(nuevoCliente);
+            const { Nombre, Apellido, TipoDocumento, NroDocumento, Email, Pais, Departamento, Municipio, Telefono, Direccion } = req.body;
+
+            if (!Email) return res.status(400).json({ error: 'El correo electrónico es requerido.' });
+            if (!Nombre) return res.status(400).json({ error: 'El nombre es requerido.' });
+
+            // Verificar duplicados
+            const [[existingUser]] = await db.query('SELECT IDUsuario FROM usuarios WHERE LOWER(Email) = LOWER(?)', [Email]);
+            if (existingUser) return res.status(409).json({ error: 'Ya existe un usuario con este correo electrónico.' });
+
+            const [[existingCliente]] = await db.query('SELECT IDCliente FROM clientes WHERE LOWER(Email) = LOWER(?)', [Email]);
+            if (existingCliente) return res.status(409).json({ error: 'Ya existe un cliente con este correo electrónico.' });
+
+            const connection = await db.getConnection();
+            try {
+                await connection.beginTransaction();
+
+                // Crear usuario con contraseña aleatoria (el cliente la establecerá por email)
+                const randomPassword = crypto.randomBytes(32).toString('hex');
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+                await connection.query(
+                    `INSERT INTO usuarios
+                       (NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, Departamento, Municipio, IDRol)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [Nombre, hashedPassword, Apellido || null, Email,
+                     TipoDocumento || null, NroDocumento || null,
+                     Telefono || null, Pais || null, Direccion || null,
+                     Departamento || null, Municipio || null, 1]
+                );
+
+                await connection.query(
+                    `INSERT INTO clientes (NroDocumento, Nombre, Apellido, Direccion, Email, Telefono, IDRol)
+                     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                    [NroDocumento || null, Nombre, Apellido || null, Direccion || null, Email, Telefono || null, 1]
+                );
+
+                await connection.commit();
+            } catch (err) {
+                await connection.rollback();
+                throw err;
+            } finally {
+                connection.release();
+            }
+
+            // Enviar email de configuración de contraseña (no bloquea la respuesta)
+            try {
+                const setupToken = authService.createPasswordResetToken(Email);
+                await sendAccountSetupEmail(Email, setupToken, Nombre);
+            } catch (emailErr) {
+                console.warn('[clientes.createCliente] No se pudo enviar el correo de configuración:', emailErr.message);
+            }
+
+            res.status(201).json({ message: 'Cliente creado. Se envió un correo para que establezca su contraseña.' });
         } catch (error) {
             res.status(500).json({ error: 'Error al crear cliente', details: error.message });
         }
@@ -75,15 +130,43 @@ const ClientesController = {
             const errorValidacion = validarCliente(req.body);
             if (errorValidacion) return res.status(400).json({ error: errorValidacion });
 
+            // Obtener email actual para localizar el registro en usuarios
+            const existing = await Cliente.getById(req.params.IDCliente);
+            if (!existing) return res.status(404).json({ error: 'Cliente no encontrado' });
+            const oldEmail = existing.Email;
+
             const actualizado = await Cliente.update(req.params.IDCliente, req.body);
             if (!actualizado) return res.status(404).json({ error: 'Cliente no encontrado' });
+
+            // Sincronizar datos en la tabla usuarios si el usuario existe
+            const { Nombre, Apellido, TipoDocumento, NroDocumento, Email, Pais, Departamento, Municipio, Telefono, Direccion } = req.body;
+            const newEmail = Email || oldEmail;
+
+            await db.query(
+                `UPDATE usuarios SET
+                    NombreUsuario   = COALESCE(?, NombreUsuario),
+                    Apellido        = COALESCE(?, Apellido),
+                    TipoDocumento   = COALESCE(?, TipoDocumento),
+                    NumeroDocumento = COALESCE(?, NumeroDocumento),
+                    Telefono        = COALESCE(?, Telefono),
+                    Pais            = COALESCE(?, Pais),
+                    Direccion       = COALESCE(?, Direccion),
+                    Departamento    = COALESCE(?, Departamento),
+                    Municipio       = COALESCE(?, Municipio),
+                    Email           = ?
+                 WHERE LOWER(Email) = LOWER(?)`,
+                [Nombre || null, Apellido || null, TipoDocumento || null,
+                 NroDocumento || null, Telefono || null, Pais || null,
+                 Direccion || null, Departamento || null, Municipio || null,
+                 newEmail, oldEmail]
+            );
+
             res.json({ message: 'Cliente actualizado correctamente' });
         } catch (error) {
             res.status(500).json({ error: 'Error al actualizar cliente', details: error.message });
         }
     },
 
-    // ✅ CORREGIDO: usa Cliente.updateEstado() en vez de Cliente.update()
     async updateEstadoCliente(req, res) {
         try {
             const { Estado } = req.body;

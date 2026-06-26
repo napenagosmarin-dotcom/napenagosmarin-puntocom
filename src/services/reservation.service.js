@@ -406,12 +406,14 @@ const createReservation = async (data) => {
     const [result] = await connection.query('INSERT INTO reserva SET ?', reservaData);
     const reservaId = result.insertId;
 
-    // Guardar habitación o paquete en su tabla de detalle
+    // Guardar alojamiento: habitación y cabaña son mutuamente excluyentes;
+    // el paquete es independiente y puede combinarse con cualquiera de los dos.
     if (data.IDHabitacion) {
       await insertHabitacionDetail(connection, reservaId, data.IDHabitacion, totals.habitacionPrecio);
     } else if (data.IDCabana) {
       await insertCabanaDetail(connection, reservaId, data.IDCabana, totals.cabanaPrecio);
-    } else if (data.IDPaquete) {
+    }
+    if (data.IDPaquete) {
       await insertPackageDetail(connection, reservaId, data.IDPaquete, totals.paquetePrecio);
     }
     
@@ -509,7 +511,8 @@ const updateReservation = async (id, data) => {
         await insertHabitacionDetail(connection, id, data.IDHabitacion, totals.habitacionPrecio);
       } else if (data.IDCabana) {
         await insertCabanaDetail(connection, id, data.IDCabana, totals.cabanaPrecio);
-      } else if (data.IDPaquete) {
+      }
+      if (data.IDPaquete) {
         await insertPackageDetail(connection, id, data.IDPaquete, totals.paquetePrecio);
       }
       await insertServiceDetails(connection, id, totals.servicios);

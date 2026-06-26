@@ -459,6 +459,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   gap: 0.45rem;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .servicio-control-label {
@@ -532,6 +533,7 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
   white-space: nowrap;
   text-align: right;
   flex-shrink: 0;
+  padding-left: 0.5rem;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.25s ease, visibility 0.25s ease;
@@ -1126,3 +1128,336 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 .nr-resumen__item-name            { color: rgba(26, 43, 74, 0.85) !important; }
 .nr-resumen__item-details         { color: rgba(26, 43, 74, 0.72) !important; }
 .nr-resumen__fila                 { color: rgba(26, 43, 74, 0.82) !important; }
+
+/* -----------------------------------------------
+   TIPO BADGE EN PREVIEW CARD
+   ----------------------------------------------- */
+.nr-preview-tipo {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #2B6CB0, #3182CE);
+  color: #fff;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  margin-bottom: 0.3rem;
+}
+
+/* BOTÓN VER DETALLES */
+.nr-preview-detail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.45rem;
+  padding: 0.25rem 0.75rem;
+  border: 1.5px solid rgba(43,108,176,0.4);
+  border-radius: 999px;
+  background: transparent;
+  color: #2B6CB0;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.73rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nr-preview-detail-btn:hover {
+  background: rgba(43,108,176,0.09);
+  border-color: rgba(43,108,176,0.6);
+  transform: translateY(-1px);
+}
+
+/* -----------------------------------------------
+   MODAL DE DETALLE
+   ----------------------------------------------- */
+.nr-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,43,74,0.55);
+  backdrop-filter: blur(5px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: nrFadeIn 0.2s ease forwards;
+}
+
+@keyframes nrFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.nr-modal {
+  background: #fff;
+  border-radius: 18px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(26,43,74,0.22);
+  position: relative;
+  animation: nrModalUp 0.3s cubic-bezier(0.4,0,0.2,1) forwards;
+  scrollbar-width: thin;
+}
+
+@keyframes nrModalUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.nr-modal__close {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  color: #1A2B4A;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 5;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(26,43,74,0.15);
+}
+
+.nr-modal__close:hover {
+  background: rgba(220,38,38,0.12);
+  color: #DC2626;
+  transform: scale(1.1);
+}
+
+.nr-modal__image {
+  width: 100%;
+  height: 195px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 18px 18px 0 0;
+  background-color: rgba(49,130,206,0.08);
+}
+
+.nr-modal__body {
+  padding: 1.4rem 1.5rem 1.6rem;
+}
+
+.nr-modal__tipo {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #2B6CB0, #3182CE);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.7rem;
+  border-radius: 999px;
+  margin-bottom: 0.6rem;
+}
+
+.nr-modal__titulo {
+  font-family: var(--fuente-principal);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1A2B4A;
+  margin: 0 0 0.45rem 0;
+  line-height: 1.2;
+}
+
+.nr-modal__desc {
+  font-size: 0.88rem;
+  color: rgba(26,43,74,0.72);
+  line-height: 1.6;
+  margin: 0 0 0.9rem 0;
+}
+
+.nr-modal__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.nr-modal__stat {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  background: rgba(49,130,206,0.07);
+  border: 1px solid rgba(49,130,206,0.15);
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: #1A2B4A;
+  font-weight: 600;
+}
+
+.nr-modal__incluidos { margin-bottom: 1.1rem; }
+
+.nr-modal__incluidos-titulo {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(26,43,74,0.48);
+  margin: 0 0 0.5rem 0;
+}
+
+.nr-modal__incluidos-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nr-modal__incluidos-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: rgba(26,43,74,0.78);
+  padding: 0.38rem 0.6rem;
+  background: rgba(49,130,206,0.05);
+  border: 1px solid rgba(49,130,206,0.1);
+  border-radius: 8px;
+}
+
+.nr-modal__precio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1.5px solid rgba(49,130,206,0.15);
+  gap: 0.5rem;
+}
+
+.nr-modal__precio-label {
+  font-size: 0.78rem;
+  color: rgba(26,43,74,0.5);
+  font-weight: 600;
+}
+
+.nr-modal__precio-val {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #D4902B;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.nr-modal__precio-val small {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(26,43,74,0.5);
+  letter-spacing: 0;
+  margin-left: 0.2rem;
+}
+
+@media (max-width: 480px) {
+  .nr-modal__incluidos-list { grid-template-columns: 1fr; }
+  .nr-modal__titulo { font-size: 1.1rem; }
+  .nr-modal__body { padding: 1rem 1.1rem 1.3rem; }
+  .nr-modal__image { height: 150px; }
+}
+
+/* -----------------------------------------------
+   TARJETA DE PAQUETE SELECCIONADO (legacy — no se usa como clase principal)
+   ----------------------------------------------- */
+.nr-paquete-sel {
+  position: relative;
+  margin-top: 0.75rem;
+  background: linear-gradient(135deg, rgba(43,108,176,0.09), rgba(49,130,206,0.04));
+  border: 1.5px solid rgba(43,108,176,0.4);
+  border-radius: 12px;
+  padding: 0.85rem 2.8rem 0.85rem 1rem;
+  overflow: hidden;
+  animation: nrFadeUp 0.3s ease forwards;
+}
+
+.nr-paquete-sel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2B6CB0, #3182CE);
+}
+
+.nr-paquete-sel__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: linear-gradient(135deg, #2B6CB0, #3182CE);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.65rem;
+  border-radius: 999px;
+  margin-bottom: 0.45rem;
+}
+
+.nr-paquete-sel__nombre {
+  font-family: var(--fuente-principal);
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: #1A2B4A;
+  margin: 0 0 0.2rem 0;
+}
+
+.nr-paquete-sel__desc {
+  font-size: 0.82rem;
+  color: rgba(26,43,74,0.78);
+  margin: 0 0 0.6rem 0;
+  line-height: 1.4;
+}
+
+.nr-paquete-sel__precio {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #2B6CB0, #3182CE);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.28rem 0.85rem;
+  border-radius: 999px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(43,108,176,0.3);
+}
+
+.nr-paquete-sel__close {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(26,43,74,0.1);
+  color: #1A2B4A;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  line-height: 1;
+  padding: 0;
+}
+
+.nr-paquete-sel__close:hover {
+  background: rgba(220,38,38,0.13);
+  color: #DC2626;
+  transform: scale(1.12);
+}

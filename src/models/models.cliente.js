@@ -77,22 +77,32 @@ const Cliente = {
     // Helper para mapear el objeto cliente
     mapCliente(cliente) {
         return {
-            IDCliente:    cliente.IDCliente,
-            NroDocumento: cliente.NroDocumento,
-            Nombre:       cliente.Nombre,
-            Apellido:     cliente.Apellido,
-            Direccion:    cliente.Direccion,
-            Email:        cliente.Email,
-            Correo:       cliente.Email,
-            Telefono:     cliente.Telefono,
-            Estado:       cliente.Estado,
-            IDRol:        cliente.IDRol
+            IDCliente:     cliente.IDCliente,
+            NroDocumento:  cliente.NroDocumento,
+            Nombre:        cliente.Nombre,
+            Apellido:      cliente.Apellido,
+            Direccion:     cliente.Direccion,
+            Email:         cliente.Email,
+            Correo:        cliente.Email,
+            Telefono:      cliente.Telefono,
+            Estado:        cliente.Estado,
+            IDRol:         cliente.IDRol,
+            TipoDocumento: cliente.TipoDocumento || null,
+            Pais:          cliente.Pais          || null,
+            Departamento:  cliente.Departamento  || null,
+            Municipio:     cliente.Municipio     || null
         };
     },
 
-    // Obtener cliente por ID
+    // Obtener cliente por ID — JOIN con usuarios para obtener campos extra
     async getById(id) {
-        const [rows] = await pool.query('SELECT * FROM clientes WHERE IDCliente = ?', [id]);
+        const [rows] = await pool.query(
+            `SELECT c.*, u.TipoDocumento, u.Pais, u.Departamento, u.Municipio
+             FROM clientes c
+             LEFT JOIN usuarios u ON LOWER(u.Email) = LOWER(c.Email)
+             WHERE c.IDCliente = ?`,
+            [id]
+        );
         const c = rows[0];
         if (!c) return null;
         return this.mapCliente(c);

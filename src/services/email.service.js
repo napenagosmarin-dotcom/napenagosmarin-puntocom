@@ -639,12 +639,131 @@ const sendVerificationEmail = async (toEmail, verificationToken) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// CORREO: CUENTA CREADA POR ADMINISTRADOR — CONFIGURAR CONTRASEÑA
+// ─────────────────────────────────────────────────────────────────────────────
+const sendAccountSetupEmail = async (toEmail, setupToken, nombre) => {
+  let t;
+  try {
+    t = await getTransporter();
+  } catch (err) {
+    throw new Error('Servicio de email no configurado: ' + err.message);
+  }
+
+  const setupUrl = `${process.env.FRONTEND_URL || process.env.BACKEND_URL || 'http://localhost:3001'}/reset-password?token=${setupToken}`;
+  const nombreCliente = nombre || 'Cliente';
+
+  try {
+    const info = await t.sendMail({
+      from: senderEmail,
+      to: toEmail,
+      subject: `Bienvenido/a a ${GLAMPING.nombre} — Crea tu contraseña`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+        <body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,Helvetica,sans-serif;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 0;">
+            <tr><td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+
+                <!-- Encabezado -->
+                <tr>
+                  <td style="background:linear-gradient(135deg,#1A2B4A 0%,#2D4A7A 100%);padding:36px 40px;text-align:center;">
+                    <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:0.5px;">
+                      ¡Bienvenido/a a ${GLAMPING.nombre}!
+                    </h1>
+                    <p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:14px;">
+                      Tu cuenta ha sido creada por el administrador
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Cuerpo -->
+                <tr>
+                  <td style="padding:40px;">
+                    <p style="margin:0 0 20px;color:#1A2B4A;font-size:16px;line-height:1.6;">
+                      Hola, <strong>${nombreCliente}</strong>:
+                    </p>
+                    <p style="margin:0 0 20px;color:#4A5568;font-size:15px;line-height:1.7;">
+                      El equipo de <strong>${GLAMPING.nombre}</strong> ha creado una cuenta para ti.
+                      Para activarla y poder iniciar sesión, solo necesitas crear tu contraseña
+                      haciendo clic en el botón de abajo.
+                    </p>
+
+                    <!-- Botón CTA -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin:32px 0;">
+                      <tr><td align="center">
+                        <a href="${setupUrl}"
+                           style="display:inline-block;background:linear-gradient(135deg,#3182CE,#2B6CB0);color:#ffffff;text-decoration:none;padding:16px 40px;border-radius:8px;font-size:16px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 15px rgba(49,130,206,0.4);">
+                          Crear mi contraseña
+                        </a>
+                      </td></tr>
+                    </table>
+
+                    <!-- Aviso de expiración -->
+                    <table width="100%" cellpadding="0" cellspacing="0"
+                           style="background:#FFF8E1;border:1px solid #FFC107;border-radius:8px;margin-bottom:28px;">
+                      <tr>
+                        <td style="padding:16px 20px;">
+                          <p style="margin:0;color:#856404;font-size:14px;line-height:1.6;">
+                            ⏰ <strong>Este enlace expira en 24 horas.</strong>
+                            Si no lo utilizas, puedes solicitar uno nuevo desde la página de
+                            <a href="${(process.env.FRONTEND_URL || 'http://localhost:3001')}/src/pages/login.html"
+                               style="color:#856404;font-weight:700;">inicio de sesión</a>
+                            con la opción "¿Olvidaste tu contraseña?".
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin:0 0 8px;color:#4A5568;font-size:14px;line-height:1.6;">
+                      Si el botón no funciona, copia y pega este enlace en tu navegador:
+                    </p>
+                    <p style="margin:0 0 28px;font-size:12px;word-break:break-all;">
+                      <a href="${setupUrl}" style="color:#3182CE;">${setupUrl}</a>
+                    </p>
+
+                    <p style="margin:0;color:#718096;font-size:13px;line-height:1.6;">
+                      Si no esperabas recibir este correo, puedes ignorarlo con seguridad.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background:#f8fafc;padding:24px 40px;border-top:1px solid #e2e8f0;text-align:center;">
+                    <p style="margin:0 0 6px;color:#718096;font-size:13px;">
+                      ${GLAMPING.nombre} &nbsp;|&nbsp;
+                      📞 ${GLAMPING.telefono} &nbsp;|&nbsp;
+                      📸 ${GLAMPING.instagram}
+                    </p>
+                    <p style="margin:0;color:#A0AEC0;font-size:12px;">
+                      🌐 ${GLAMPING.sitioWeb}
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+            </td></tr>
+          </table>
+        </body>
+        </html>
+      `,
+    });
+    return info;
+  } catch (error) {
+    throw new Error(`Error enviando email de configuración de cuenta: ${error.message}`);
+  }
+};
+
 // ALIAS de compatibilidad — mantiene el nombre viejo que usa reservation.service.js
 const sendReservationConfirmationEmail = sendReservationPendingEmail;
 
 module.exports = {
   sendPasswordResetEmail,
   sendVerificationEmail,
+  sendAccountSetupEmail,
   sendReservationConfirmationEmail,   // alias (crea reserva → PENDIENTE)
   sendReservationPendingEmail,        // explícito
   sendReservationConfirmedEmail,      // pago confirmado

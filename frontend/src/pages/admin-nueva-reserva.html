@@ -405,6 +405,7 @@
                 </div>
 
                 <div id="previewCard" class="nr-preview-card" style="display:none;"></div>
+                <div id="previewPaqueteCard" class="nr-preview-card" style="display:none;"></div>
               </div>
 
               <!-- PASO 3: SERVICIOS ADICIONALES -->
@@ -444,12 +445,12 @@
               <!-- Detalles de Check-in y Check-out (siempre visible) -->
               <div id="resumenFechas" style="font-size:0.82rem;color:rgba(26,43,74,0.75);margin-bottom:1rem;background:rgba(43,108,176,0.06);padding:10px 12px;border-radius:8px;border:1px solid rgba(43,108,176,0.18);">
                 <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:5px;">
-                  🕒 <strong style="color:#1A2B4A;">Check-in:</strong>
+                  🕒 <strong style="color:#1A2B4A;">Entrada:</strong>
                   <span id="resumenCheckin" style="color:#2B6CB0;font-weight:600;"></span>
                   <span style="color:rgba(26,43,74,0.55);">(3:00 PM)</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:0.4rem;">
-                  🕒 <strong style="color:#1A2B4A;">Check-out:</strong>
+                  🕒 <strong style="color:#1A2B4A;">Salida:</strong>
                   <span id="resumenCheckout" style="color:#2B6CB0;font-weight:600;"></span>
                   <span style="color:rgba(26,43,74,0.55);">(12:00 PM)</span>
                 </div>
@@ -486,6 +487,14 @@
 
   <!-- Notificaciones -->
   <div id="notificationContainer" class="notification-container"></div>
+
+  <!-- Modal de detalle -->
+  <div id="detalleModal" class="nr-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="nr-modal">
+      <button type="button" class="nr-modal__close" id="detalleModalClose" aria-label="Cerrar">×</button>
+      <div id="detalleModalContent"></div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="../js/api.js"></script>

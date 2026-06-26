@@ -1,12 +1,8 @@
 const express = require('express');
-const crypto = require('crypto');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const authService = require('../services/auth.service');
 const { sendPasswordResetEmail, sendVerificationEmail } = require('../services/email.service');
-
-// Temporal en memoria
-const resetTokens = new Map();
 
 router.post('/login', authController.login);
 router.post('/register', authController.register);
@@ -27,13 +23,8 @@ router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
 
   try {
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hora
-
-    resetTokens.set(token, { email, expiresAt });
-
+    const token = authService.createPasswordResetToken(email);
     await sendPasswordResetEmail(email, token);
-
     res.json({ message: 'Si el correo existe, recibirás un enlace en breve.' });
   } catch (error) {
     console.error(error);
@@ -80,15 +71,14 @@ router.get('/verify-email', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   const { token, newPassword } = req.body;
 
-  const record = resetTokens.get(token);
+  const email = authService.validateAndConsumeResetToken(token);
 
-  if (!record || Date.now() > record.expiresAt) {
+  if (!email) {
     return res.status(400).json({ error: 'Token inválido o expirado.' });
   }
 
   try {
-    await authService.updatePassword(record.email, newPassword);
-    resetTokens.delete(token);
+    await authService.updatePassword(email, newPassword);
     res.json({ message: 'Contraseña actualizada correctamente.' });
   } catch (error) {
     console.error(error);
