@@ -344,6 +344,35 @@
       </div>
     </div>
   </div>
+  <!-- MODAL MOTIVO DE CANCELACIÓN DE RESERVA -->
+  <div id="cancelReasonModal" class="modal-overlay" style="display:none;align-items:center;justify-content:center;z-index:1100;">
+    <div class="modal-box" style="max-width:480px;width:90%;border-radius:16px;padding:0;overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#7f1d1d,#dc2626);padding:24px 28px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:1.6rem;">⚠️</span>
+          <div>
+            <h3 id="cancelReasonTitle" style="color:#fff;margin:0;font-size:1.1rem;font-weight:700;">Cancelar Reserva</h3>
+            <p id="cancelReasonSubtitle" style="color:rgba(255,255,255,0.8);margin:4px 0 0;font-size:0.85rem;">Esta acción notificará al cliente por correo.</p>
+          </div>
+        </div>
+      </div>
+      <div style="padding:24px 28px;background:#fff;">
+        <label style="display:block;font-size:0.82rem;font-weight:700;color:#1a2b4a;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">
+          Motivo de cancelación <span style="color:#dc2626;">*</span>
+        </label>
+        <textarea id="cancelReasonText"
+          placeholder="Describe claramente el motivo de la cancelación. El cliente recibirá esta información por correo electrónico."
+          style="width:100%;min-height:110px;padding:12px 14px;border:1.5px solid rgba(220,38,38,0.35);border-radius:10px;font-size:0.9rem;font-family:inherit;color:#1a2b4a;background:#fff9f9;resize:vertical;outline:none;box-sizing:border-box;"
+          oninput="document.getElementById('cancelReasonErr').style.display='none'"></textarea>
+        <p id="cancelReasonErr" style="display:none;color:#dc2626;font-size:0.8rem;margin:4px 0 0;">El motivo es obligatorio para cancelar una reserva activa.</p>
+        <div style="display:flex;gap:12px;margin-top:20px;justify-content:flex-end;">
+          <button onclick="cerrarModalMotivo()" style="padding:10px 20px;border:1.5px solid rgba(26,43,74,0.2);background:#fff;border-radius:8px;cursor:pointer;font-size:0.88rem;color:#1a2b4a;font-weight:600;">Cancelar</button>
+          <button onclick="confirmarCancelacionConMotivo()" style="padding:10px 22px;background:linear-gradient(135deg,#dc2626,#9f1239);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.88rem;font-weight:700;">Confirmar Cancelación</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- CONTENEDOR DE NOTIFICACIONES -->
   <div id="notificationContainer" class="notification-container"></div>
 </body>

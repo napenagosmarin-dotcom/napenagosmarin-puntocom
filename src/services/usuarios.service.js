@@ -16,7 +16,7 @@ const create = async (data) => {
   try {
     const { NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, IDRol, Estado } = data;
     const rolFinal = IDRol || 1;
-    const estadoFinal = Estado || 1;
+    const estadoFinal = Estado ?? 1;
 
     await connection.beginTransaction();
 
@@ -24,7 +24,7 @@ const create = async (data) => {
     const hashedPassword = await bcrypt.hash(Contrasena, salt);
 
     const [result] = await connection.query(
-      'INSERT INTO usuarios (NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, IDRol, Estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO usuarios (NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, IDRol, Estado, EmailVerificado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)',
       [NombreUsuario, hashedPassword, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, rolFinal, estadoFinal]
     );
 
@@ -67,12 +67,12 @@ const update = async (id, data) => {
       const hashedPassword = await bcrypt.hash(Contrasena.trim(), salt);
       await db.query(
         'UPDATE usuarios SET NombreUsuario=?, Apellido=?, Email=?, Telefono=?, Pais=?, IDRol=?, Estado=?, Contrasena=? WHERE IDUsuario=?',
-        [NombreUsuario, Apellido, Email, Telefono, Pais, IDRol, Estado || 1, hashedPassword, id]
+        [NombreUsuario, Apellido, Email, Telefono, Pais, IDRol, Estado ?? 1, hashedPassword, id]
       );
     } else {
       await db.query(
         'UPDATE usuarios SET NombreUsuario=?, Apellido=?, Email=?, Telefono=?, Pais=?, IDRol=?, Estado=? WHERE IDUsuario=?',
-        [NombreUsuario, Apellido, Email, Telefono, Pais, IDRol, Estado || 1, id]
+        [NombreUsuario, Apellido, Email, Telefono, Pais, IDRol, Estado ?? 1, id]
       );
     }
 
@@ -88,6 +88,57 @@ const updateStatus = async (id, estado) => {
     return { id, estado };
   } catch (error) {
     throw error;
+  }
+};
+
+const changeRole = async (id, nuevoRol) => {
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const [[usuario]] = await connection.query('SELECT IDUsuario, Email, NombreUsuario, Apellido, Telefono, NumeroDocumento, Direccion, IDRol FROM usuarios WHERE IDUsuario = ?', [id]);
+    if (!usuario) {
+      const err = new Error('Usuario no encontrado');
+      err.statusCode = 404;
+      throw err;
+    }
+    if (usuario.IDRol === nuevoRol) {
+      await connection.rollback();
+      return { id, IDRol: nuevoRol, message: 'El usuario ya tiene ese rol' };
+    }
+
+    await connection.query('UPDATE usuarios SET IDRol = ? WHERE IDUsuario = ?', [nuevoRol, id]);
+
+    if (nuevoRol === 1) {
+      // Promover a cliente: asegurarse de que exista en la tabla clientes
+      await connection.query(
+        `INSERT INTO clientes (NroDocumento, Nombre, Apellido, Email, Telefono, Direccion, Estado, IDRol)
+         SELECT ?, ?, ?, ?, ?, ?, 1, 1
+         FROM DUAL
+         WHERE NOT EXISTS (SELECT 1 FROM clientes WHERE LOWER(Email) = LOWER(?))`,
+        [usuario.NumeroDocumento || null, usuario.NombreUsuario, usuario.Apellido || null,
+         usuario.Email, usuario.Telefono || null, usuario.Direccion || null, usuario.Email]
+      );
+      // Si ya existe, actualizar su rol
+      await connection.query(
+        'UPDATE clientes SET IDRol = 1 WHERE LOWER(Email) = LOWER(?)',
+        [usuario.Email]
+      );
+    } else {
+      // Promover a admin: actualizar IDRol en clientes (se mantiene el historial)
+      await connection.query(
+        'UPDATE clientes SET IDRol = 2 WHERE LOWER(Email) = LOWER(?)',
+        [usuario.Email]
+      );
+    }
+
+    await connection.commit();
+    return getById(id);
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
   }
 };
 
@@ -111,4 +162,4 @@ const getByDocumento = async (numero) => {
   }
 };
 
-module.exports = { getAll, getById, create, update, updateStatus, remove, getByDocumento };
+module.exports = { getAll, getById, create, update, updateStatus, changeRole, remove, getByDocumento };

@@ -183,6 +183,21 @@ const ClientesController = {
 
     async deleteCliente(req, res) {
         try {
+            // Verificar si el cliente tiene reservas activas (Pendiente=1, Confirmada=2, En Proceso=5)
+            const [[{ total }]] = await db.query(
+                `SELECT COUNT(*) AS total
+                 FROM reserva r
+                 JOIN usuarios u ON r.UsuarioIdusuario = u.IDUsuario
+                 JOIN clientes c ON LOWER(u.Email) = LOWER(c.Email)
+                 WHERE c.IDCliente = ? AND r.IdEstadoReserva IN (1, 2, 5)`,
+                [req.params.IDCliente]
+            );
+            if (total > 0) {
+                return res.status(409).json({
+                    error: `No se puede eliminar el cliente porque tiene ${total} reserva${total > 1 ? 's' : ''} activa${total > 1 ? 's' : ''} (Pendiente, Confirmada o En Proceso). Cancela las reservas antes de eliminar el cliente.`
+                });
+            }
+
             const eliminado = await Cliente.delete(req.params.IDCliente);
             if (!eliminado) return res.status(404).json({ error: 'Cliente no encontrado' });
             res.json({ message: 'Cliente eliminado correctamente' });

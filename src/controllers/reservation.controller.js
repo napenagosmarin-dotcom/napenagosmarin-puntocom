@@ -65,9 +65,11 @@ const updateReservation = async (req, res, next) => {
 };
 
 // DELETE /reservations/:id
+// Body opcional: { motivo: string } — requerido cuando la reserva está activa
 const deleteReservation = async (req, res, next) => {
   try {
-    const deleted = await reservationService.deleteReservation(req.params.id);
+    const motivo = (req.body && req.body.motivo) ? req.body.motivo.trim() : '';
+    const deleted = await reservationService.deleteReservation(req.params.id, motivo);
 
     if (!deleted) {
       return res.status(404).json({ message: 'Reserva no encontrada' });

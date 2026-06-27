@@ -360,7 +360,8 @@ const sendReservationConfirmedEmail = async (toEmail, reservation) => {
 // PASO 3 — CORREO: RESERVA CANCELADA
 // ─────────────────────────────────────────────────────────────────────────────
 // cancellationInfo = { tipoCancelacion, porcentajePenalizacion, valorPenalizacion,
-//                      valorReembolso, diasRestantes, mensaje, fechaCancelacion }
+//                      valorReembolso, diasRestantes, mensaje, fechaCancelacion,
+//                      motivoAdmin (opcional – razón explicada por el administrador) }
 // ─────────────────────────────────────────────────────────────────────────────
 const sendReservationCancelledEmail = async (toEmail, reservation, cancellationInfo) => {
   let t;
@@ -386,6 +387,7 @@ const sendReservationCancelledEmail = async (toEmail, reservation, cancellationI
   const valorPenalizacion     = formatMoney(cancellationInfo.valorPenalizacion  || 0);
   const valorReembolso        = formatMoney(cancellationInfo.valorReembolso     || 0);
   const mensajePolitica       = cancellationInfo.mensaje                || '';
+  const motivoAdmin           = cancellationInfo.motivoAdmin            || '';
   const esGratuita            = tipoCancelacion === 'gratuita';
 
   // Fecha y hora de cancelación formateada
@@ -435,6 +437,17 @@ const sendReservationCancelledEmail = async (toEmail, reservation, cancellationI
             <p style="color:#4a5568;margin:0;line-height:1.7;">Te confirmamos que tu reserva <strong>#${idReserva}</strong> en <strong>${GLAMPING.nombre}</strong> ha sido <strong>cancelada</strong> exitosamente. A continuación encontrarás el resumen de la operación.</p>
           </td>
         </tr>
+
+        ${motivoAdmin ? `
+        <!-- MOTIVO DE CANCELACIÓN (admin) -->
+        <tr>
+          <td style="padding:20px 32px 0;">
+            <div style="background:#fff1f2;border-radius:12px;border-left:4px solid #e11d48;padding:20px 24px;">
+              <h3 style="margin:0 0 10px;color:#9f1239;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.5px;">📋 Motivo de la cancelación</h3>
+              <p style="margin:0;color:#881337;font-size:0.95rem;line-height:1.7;">${motivoAdmin}</p>
+            </div>
+          </td>
+        </tr>` : ''}
 
         <!-- BADGE DE TIPO DE CANCELACIÓN -->
         <tr>
@@ -760,6 +773,119 @@ const sendAccountSetupEmail = async (toEmail, setupToken, nombre) => {
 // ALIAS de compatibilidad — mantiene el nombre viejo que usa reservation.service.js
 const sendReservationConfirmationEmail = sendReservationPendingEmail;
 
+// ─────────────────────────────────────────────────────────────────────────────
+// REGLA 3 — CORREO: RESERVA CANCELADA AUTOMÁTICAMENTE (anticipo no recibido)
+// ─────────────────────────────────────────────────────────────────────────────
+const sendReservationExpiredEmail = async (toEmail, reservation) => {
+  let t;
+  try { t = await getTransporter(); } catch (e) {
+    console.warn('[email] No se envió correo de expiración:', e.message);
+    return null;
+  }
+  const recipient  = process.env.RESEND_TEST_RECIPIENT || toEmail;
+  const nombre     = reservation.NombreUsuario || reservation.Nombre || 'Cliente';
+  const idReserva  = reservation.IdReserva || reservation.id || '—';
+  const alojamiento = reservation.Alojamiento || reservation.NombreHabitacion || reservation.NombreCabana || '—';
+  const checkin    = formatFecha(reservation.FechaInicio);
+  const monto      = formatMoney(reservation.MontoTotal);
+
+  const html = `
+<!DOCTYPE html><html lang="es">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:32px 0;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <tr>
+        <td style="background:linear-gradient(135deg,#7f1d1d,#dc2626);padding:36px 32px;text-align:center;">
+          <div style="font-size:2.5rem;margin-bottom:8px;">⏰</div>
+          <h1 style="color:#fff;margin:0;font-size:1.5rem;">${GLAMPING.nombre}</h1>
+          <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;">Reserva cancelada automáticamente</p>
+        </td>
+      </tr>
+      <tr><td style="padding:32px;">
+        <h2 style="color:#1a2b4a;margin:0 0 12px;">Hola, ${nombre}</h2>
+        <p style="color:#4a5568;line-height:1.7;">Tu reserva <strong>#${idReserva}</strong> para <strong>${alojamiento}</strong> (check-in: ${checkin}) fue <strong style="color:#dc2626;">cancelada automáticamente</strong> porque no recibimos confirmación del anticipo dentro del plazo de <strong>2 horas</strong>.</p>
+        <div style="background:#fff1f2;border-radius:12px;border-left:4px solid #e11d48;padding:20px 24px;margin:20px 0;">
+          <p style="margin:0;color:#881337;">Monto de la reserva: <strong>$${monto} COP</strong><br>
+          Si deseas reservar nuevamente, puedes hacerlo en nuestro sitio web y recuerda completar el anticipo en las primeras 2 horas.</p>
+        </div>
+        <p style="color:#718096;font-size:0.9rem;">¿Tienes dudas? Escríbenos al WhatsApp <strong>${GLAMPING.whatsapp}</strong>.</p>
+      </td></tr>
+      <tr>
+        <td style="background:#f7fafc;padding:24px 32px;text-align:center;border-top:1px solid #e2e8f0;">
+          <p style="margin:0;color:#a0aec0;font-size:0.8rem;">${GLAMPING.nombre} · ${GLAMPING.sitioWeb}</p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+
+  await t.sendMail({ from: senderEmail, to: recipient, subject: `❌ Reserva #${idReserva} cancelada — ${GLAMPING.nombre}`, html });
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REGLA 7 — CORREO: RECORDATORIO DE CHECK-IN (24h antes)
+// ─────────────────────────────────────────────────────────────────────────────
+const sendCheckinReminderEmail = async (toEmail, reservation) => {
+  let t;
+  try { t = await getTransporter(); } catch (e) {
+    console.warn('[email] No se envió recordatorio check-in:', e.message);
+    return null;
+  }
+  const recipient   = process.env.RESEND_TEST_RECIPIENT || toEmail;
+  const nombre      = reservation.NombreUsuario || reservation.Nombre || 'Cliente';
+  const idReserva   = reservation.IdReserva || reservation.id || '—';
+  const alojamiento = reservation.Alojamiento || reservation.NombreHabitacion || reservation.NombreCabana || '—';
+  const checkin     = formatFecha(reservation.FechaInicio);
+  const checkout    = formatFecha(reservation.FechaFinalizacion);
+
+  const html = `
+<!DOCTYPE html><html lang="es">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:32px 0;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <tr>
+        <td style="background:linear-gradient(135deg,#1a472a,#2d6a4f,#40916c);padding:36px 32px;text-align:center;">
+          <div style="font-size:2.5rem;margin-bottom:8px;">🌿</div>
+          <h1 style="color:#fff;margin:0;font-size:1.5rem;">${GLAMPING.nombre}</h1>
+          <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;">¡Tu llegada es mañana! 🎉</p>
+        </td>
+      </tr>
+      <tr><td style="padding:32px;">
+        <h2 style="color:#1a472a;margin:0 0 12px;">¡Hola, ${nombre}! 👋</h2>
+        <p style="color:#4a5568;line-height:1.7;">Te recordamos que mañana llega el día esperado. Estamos listos para recibirte.</p>
+        <div style="background:#f0faf4;border-radius:12px;border:1px solid #c3e6cb;padding:24px;margin:16px 0;">
+          <h3 style="margin:0 0 12px;color:#1a472a;">📋 Resumen de tu reserva #${idReserva}</h3>
+          <table width="100%">
+            <tr><td style="color:#718096;padding:6px 0;">Alojamiento</td><td style="color:#2d3748;font-weight:600;text-align:right;">${alojamiento}</td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Check-in</td><td style="color:#2d3748;text-align:right;">${checkin}</td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Check-out</td><td style="color:#2d3748;text-align:right;">${checkout}</td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Hora de llegada</td><td style="color:#2d3748;font-weight:600;text-align:right;">${GLAMPING.horaCheckin}</td></tr>
+          </table>
+        </div>
+        <div style="background:#fffbeb;border-radius:12px;border-left:4px solid #f59e0b;padding:16px 20px;margin:16px 0;">
+          <p style="margin:0;color:#78350f;font-size:0.9rem;">📍 <strong>Ubicación:</strong> ${GLAMPING.direccion}<br>
+          📞 <strong>WhatsApp:</strong> ${GLAMPING.whatsapp}</p>
+        </div>
+        <p style="color:#4a5568;line-height:1.7;">¡Nos vemos mañana! Si tienes alguna pregunta, no dudes en contactarnos.</p>
+      </td></tr>
+      <tr>
+        <td style="background:#f7fafc;padding:24px 32px;text-align:center;border-top:1px solid #e2e8f0;">
+          <p style="margin:0;color:#a0aec0;font-size:0.8rem;">${GLAMPING.nombre} · ${GLAMPING.sitioWeb}</p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+
+  await t.sendMail({ from: senderEmail, to: recipient, subject: `🌿 ¡Tu check-in es mañana! Reserva #${idReserva} — ${GLAMPING.nombre}`, html });
+};
+
 module.exports = {
   sendPasswordResetEmail,
   sendVerificationEmail,
@@ -768,4 +894,6 @@ module.exports = {
   sendReservationPendingEmail,        // explícito
   sendReservationConfirmedEmail,      // pago confirmado
   sendReservationCancelledEmail,      // cancelación con política de penalización
+  sendReservationExpiredEmail,        // regla 3: auto-cancelada por expiración
+  sendCheckinReminderEmail,           // regla 7: recordatorio 24h antes
 };

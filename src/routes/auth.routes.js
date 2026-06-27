@@ -64,6 +64,13 @@ router.get('/verify-email', async (req, res) => {
     return res.redirect(`${FRONTEND}/src/pages/verify-email.html?status=failed`);
   }
 
+  // Regla 10: persistir verificación en DB
+  try {
+    await authService.markEmailVerified(email);
+  } catch (e) {
+    console.error('[verify-email] No se pudo persistir EmailVerificado:', e.message);
+  }
+
   return res.redirect(`${FRONTEND}/src/pages/verify-email.html?status=success`);
 });
 

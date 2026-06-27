@@ -57,8 +57,8 @@ const register = async (data) => {
     const hashedPassword = await bcrypt.hash(Contrasena, salt);
 
     const sqlUsuario = `INSERT INTO usuarios
-      (NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, Departamento, Municipio, IDRol)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      (NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion, Departamento, Municipio, IDRol, EmailVerificado)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`;
 
     const [result] = await connection.query(sqlUsuario, [
       NombreUsuario, hashedPassword, Apellido, Email,
@@ -102,6 +102,10 @@ const verifyEmailToken = (token) => {
   return record.email;
 };
 
+const markEmailVerified = async (email) => {
+  await db.query('UPDATE usuarios SET EmailVerificado = 1 WHERE LOWER(Email) = LOWER(?)', [email]);
+};
+
 const updatePassword = async (Email, newPassword) => {
   try {
     const salt = await bcrypt.genSalt(10);
@@ -128,4 +132,4 @@ const validateAndConsumeResetToken = (token) => {
   return record.email;
 };
 
-module.exports = { login, register, createVerificationToken, verifyEmailToken, updatePassword, createPasswordResetToken, validateAndConsumeResetToken };
+module.exports = { login, register, createVerificationToken, verifyEmailToken, markEmailVerified, updatePassword, createPasswordResetToken, validateAndConsumeResetToken };

@@ -8,6 +8,7 @@ router.get('/documento/:numero', usuariosController.getByDocumento);
 router.get('/:id', usuariosController.getById);
 router.put('/:id', usuariosController.update);
 router.put('/:id/estado', usuariosController.updateStatus);
+router.put('/:id/rol',    usuariosController.changeRole);
 
 router.delete('/:id', usuariosController.remove);
 

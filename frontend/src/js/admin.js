@@ -897,25 +897,71 @@ window.guardarReserva = async (id) => {
     }
 };
 
-window.eliminarReserva = (id) => {
-    mostrarConfirmacion(
-        '¿Eliminar Reserva?',
-        `¿Está seguro de que desea eliminar la reserva #${id}? Esta acción no se puede deshacer.`,
-        async () => {
-            try {
-                const res = await fetch(`/api/reservas/${id}`, { method: 'DELETE' });
-                if (res.ok) {
-                    cargarReservas(reservasCurrentPage);
-                    mostrarNotificacion('Reserva eliminada correctamente.', 'success');
-                } else {
-                    const err = await res.json().catch(() => ({}));
-                    mostrarNotificacion(`No se pudo eliminar: ${err.message || ''}`, 'error');
+// ── Motivo de cancelación de reserva ──────────────────────────────────────────
+let _cancelReservaId   = null;
+let _cancelReservaActiva = false;
+
+window.eliminarReserva = async (id) => {
+    // Consultar estado actual de la reserva para saber si es activa
+    try {
+        const r = await fetch(`/api/reservas/${id}`);
+        if (!r.ok) { mostrarNotificacion('No se pudo obtener la reserva.', 'error'); return; }
+        const reserva = await r.json();
+        const ESTADOS_ACTIVOS = [1, 2, 5]; // Pendiente, Confirmada, En Proceso
+        _cancelReservaId     = id;
+        _cancelReservaActiva = ESTADOS_ACTIVOS.includes(reserva.IdEstadoReserva || reserva.Estado);
+
+        if (_cancelReservaActiva) {
+            // Reserva activa → pedir motivo
+            document.getElementById('cancelReasonTitle').textContent    = `Cancelar Reserva #${id}`;
+            document.getElementById('cancelReasonSubtitle').textContent = 'Esta reserva está activa. El cliente recibirá un correo con el motivo de la cancelación.';
+            document.getElementById('cancelReasonText').value           = '';
+            document.getElementById('cancelReasonErr').style.display    = 'none';
+            const modal = document.getElementById('cancelReasonModal');
+            modal.style.display = 'flex';
+        } else {
+            // Reserva ya cancelada → confirmar eliminación física
+            mostrarConfirmacion(
+                '¿Eliminar Reserva?',
+                `La reserva #${id} ya está cancelada. ¿Desea eliminarla permanentemente del sistema?`,
+                async () => {
+                    try {
+                        const res = await fetch(`/api/reservas/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ motivo: '' }) });
+                        if (res.ok) { cargarReservas(reservasCurrentPage); mostrarNotificacion('Reserva eliminada correctamente.', 'success'); }
+                        else { const err = await res.json().catch(() => ({})); mostrarNotificacion(err.message || 'No se pudo eliminar la reserva.', 'error'); }
+                    } catch(e) { mostrarNotificacion('Error de conexión al servidor.', 'error'); }
                 }
-            } catch(e) {
-                mostrarNotificacion('Error de conexión al servidor.', 'error');
-            }
+            );
         }
-    );
+    } catch(e) { mostrarNotificacion('Error de conexión al servidor.', 'error'); }
+};
+
+window.cerrarModalMotivo = () => {
+    document.getElementById('cancelReasonModal').style.display = 'none';
+    _cancelReservaId = null;
+};
+
+window.confirmarCancelacionConMotivo = async () => {
+    const motivo = document.getElementById('cancelReasonText').value.trim();
+    if (!motivo) {
+        document.getElementById('cancelReasonErr').style.display = 'block';
+        return;
+    }
+    cerrarModalMotivo();
+    try {
+        const res = await fetch(`/api/reservas/${_cancelReservaId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ motivo })
+        });
+        if (res.ok) {
+            cargarReservas(reservasCurrentPage);
+            mostrarNotificacion('Reserva cancelada. Se envió un correo al cliente con el motivo.', 'success');
+        } else {
+            const err = await res.json().catch(() => ({}));
+            mostrarNotificacion(err.message || 'No se pudo cancelar la reserva.', 'error');
+        }
+    } catch(e) { mostrarNotificacion('Error de conexión al servidor.', 'error'); }
 };
 
 // ===== HABITACIONES =====
@@ -1008,17 +1054,57 @@ async function cargarHabitaciones() {
 }
 
 // ===== USUARIOS =====
+let _usuariosFiltro = 'todos'; // 'todos' | 'clientes' | 'admins'
+
 async function cargarUsuarios() {
     const list = document.getElementById('usuariosList');
+    if (!list) return;
     if (!list.innerHTML.trim()) {
         list.innerHTML = '<p style="color:rgba(26,43,74,0.5); padding:2rem;">Cargando usuarios...</p>';
     }
 
     try {
         const response = await fetch('/api/usuarios');
-        const usuarios = await response.json();
+        const todosUsuarios = await response.json();
+
+        // Aplicar filtro
+        const usuarios = todosUsuarios.filter(u => {
+            if (_usuariosFiltro === 'clientes') return u.IDRol === 1 && (u.Estado === 1 || u.Estado === undefined);
+            if (_usuariosFiltro === 'admins')   return u.IDRol === 2;
+            return true;
+        });
+
+        const totalClientes = todosUsuarios.filter(u => u.IDRol === 1 && (u.Estado === 1 || u.Estado === undefined)).length;
+        const totalAdmins   = todosUsuarios.filter(u => u.IDRol === 2).length;
 
         list.innerHTML = `
+            <!-- Tabs de filtro -->
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+                <button onclick="setUsuariosFiltro('todos')"
+                    style="padding:7px 18px;border-radius:20px;border:1.5px solid rgba(49,130,206,0.3);
+                           background:${_usuariosFiltro==='todos'?'linear-gradient(135deg,#1a3c5e,#2b6cb0)':'#fff'};
+                           color:${_usuariosFiltro==='todos'?'#fff':'#1a2b4a'};font-size:0.82rem;font-weight:600;cursor:pointer;">
+                    Todos <span style="opacity:.7;">(${todosUsuarios.length})</span>
+                </button>
+                <button onclick="setUsuariosFiltro('clientes')"
+                    style="padding:7px 18px;border-radius:20px;border:1.5px solid rgba(49,130,206,0.3);
+                           background:${_usuariosFiltro==='clientes'?'linear-gradient(135deg,#065f46,#059669)':'#fff'};
+                           color:${_usuariosFiltro==='clientes'?'#fff':'#1a2b4a'};font-size:0.82rem;font-weight:600;cursor:pointer;">
+                    Clientes activos <span style="opacity:.7;">(${totalClientes})</span>
+                </button>
+                <button onclick="setUsuariosFiltro('admins')"
+                    style="padding:7px 18px;border-radius:20px;border:1.5px solid rgba(49,130,206,0.3);
+                           background:${_usuariosFiltro==='admins'?'linear-gradient(135deg,#4c1d95,#7c3aed)':'#fff'};
+                           color:${_usuariosFiltro==='admins'?'#fff':'#1a2b4a'};font-size:0.82rem;font-weight:600;cursor:pointer;">
+                    Administradores <span style="opacity:.7;">(${totalAdmins})</span>
+                </button>
+                ${_usuariosFiltro === 'clientes' ? `
+                <span style="margin-left:auto;font-size:0.78rem;color:rgba(26,43,74,0.5);font-style:italic;">
+                    💡 Cambia el rol directamente con el botón <strong>🔄 Rol</strong>
+                </span>` : ''}
+            </div>
+
+            <!-- Tabla -->
             <div class="admin-table-wrapper">
                 <table class="admin-table">
                     <thead>
@@ -1035,23 +1121,31 @@ async function cargarUsuarios() {
                         </tr>
                     </thead>
                     <tbody>
-                        ${usuarios.map(u => {
-                            const isActive = u.Estado === 1 || u.Estado === undefined; // Fallback si no tiene estado
-                            const statusIcon = isActive ? 'check-circle-2' : 'x-circle';
+                        ${usuarios.length === 0 ? `
+                        <tr><td colspan="9" style="text-align:center;padding:2rem;color:rgba(26,43,74,0.4);">
+                            No hay usuarios en este filtro.
+                        </td></tr>` :
+                        usuarios.map(u => {
+                            const isActive    = u.Estado === 1 || u.Estado === undefined;
+                            const esCliente   = u.IDRol === 1;
+                            const statusIcon  = isActive ? 'check-circle-2' : 'x-circle';
                             const statusClass = isActive ? 'btn-status-active' : 'btn-status-inactive';
                             const statusTitle = isActive ? 'Desactivar' : 'Activar';
+                            const rolNuevo    = esCliente ? 2 : 1;
+                            const rolLabel    = esCliente ? 'Promover a Admin' : 'Cambiar a Cliente';
+                            const rolIcon     = esCliente ? 'shield' : 'user';
 
                             return `
                             <tr>
                                 <td><span style="color:var(--color-acento);font-weight:600;">${u.IDUsuario}</span></td>
                                 <td style="color:#1A2B4A;font-weight:500;">${u.NombreUsuario}</td>
                                 <td>${u.Apellido || '-'}</td>
-                                <td>${u.Email}</td>
+                                <td style="font-size:0.83rem;">${u.Email}</td>
                                 <td>${u.Telefono || '-'}</td>
                                 <td>${u.Pais || '-'}</td>
                                 <td>
-                                    <span class="badge ${u.IDRol === 2 ? 'badge-completada' : 'badge-confirmada'}">
-                                        ${u.IDRol === 2 ? 'Admin' : 'Cliente'}
+                                    <span class="badge ${esCliente ? 'badge-confirmada' : 'badge-completada'}">
+                                        ${esCliente ? 'Cliente' : 'Admin'}
                                     </span>
                                 </td>
                                 <td>
@@ -1060,9 +1154,16 @@ async function cargarUsuarios() {
                                     </span>
                                 </td>
                                 <td>
-                                    <div style="display:flex; gap:8px;">
-                                        <button onclick="toggleEstadoUsuario('${u.IDUsuario}', ${u.Estado || 1})" class="btn-icon-admin ${statusClass}" title="${statusTitle}">
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                        <button onclick="toggleEstadoUsuario('${u.IDUsuario}', ${u.Estado ?? 1})"
+                                            class="btn-icon-admin ${statusClass}" title="${statusTitle}">
                                             <i data-lucide="${statusIcon}" style="width:16px;"></i>
+                                        </button>
+                                        <button onclick="cambiarRolUsuario('${u.IDUsuario}', ${rolNuevo}, '${u.NombreUsuario}', '${esCliente?'Cliente':'Admin'}')"
+                                            class="btn-icon-admin"
+                                            title="${rolLabel}"
+                                            style="background:${esCliente?'rgba(124,58,237,0.1)':'rgba(5,150,105,0.1)'};color:${esCliente?'#7c3aed':'#059669'};border:1.5px solid ${esCliente?'rgba(124,58,237,0.3)':'rgba(5,150,105,0.3)'};">
+                                            <i data-lucide="${rolIcon}" style="width:14px;"></i>
                                         </button>
                                         <button onclick="verDetalleUsuario('${u.IDUsuario}')" class="btn-icon-admin btn-view" title="Ver Detalle">
                                             <i data-lucide="eye" style="width:16px;"></i>
@@ -1080,12 +1181,18 @@ async function cargarUsuarios() {
                     </tbody>
                 </table>
             </div>`;
+
         if (window.lucide) lucide.createIcons({ parent: list });
     } catch (error) {
         list.innerHTML = '<p style="color:#ef4444; padding:2rem;">Error al cargar usuarios.</p>';
         console.error('Error cargando usuarios:', error);
     }
 }
+
+window.setUsuariosFiltro = (filtro) => {
+    _usuariosFiltro = filtro;
+    cargarUsuarios();
+};
 
 // ===== CLIENTES =====
 async function cargarClientes() {
@@ -1429,7 +1536,8 @@ window.eliminarCliente = async (id) => {
                     cargarClientes();
                     mostrarNotificacion('Cliente eliminado correctamente.', 'success');
                 } else {
-                    mostrarNotificacion('No se pudo eliminar el cliente.', 'error');
+                    const err = await res.json().catch(() => ({}));
+                    mostrarNotificacion(err.error || 'No se pudo eliminar el cliente.', 'error');
                 }
             } catch (e) {
                 mostrarNotificacion('Error de conexión al servidor.', 'error');
@@ -1935,7 +2043,7 @@ async function cargarServicios() {
                     const imgUrl      = s.imagen || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80';
                     return `
                         <article class="room-card">
-                            <img src="${imgUrl}" alt="${s.NombreServicio || s.nombre || 'Servicio'}" />
+                            <img src="${imgUrl}" alt="${s.NombreServicio || s.nombre || 'Servicio'}" onerror="this.src='https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'" />
                             <div class="room-card-body">
                                 <div>
                                     <h3>${s.NombreServicio || s.nombre || 'Servicio'}</h3>
@@ -2427,6 +2535,31 @@ window.toggleEstadoUsuario = async (id, actual) => {
             mostrarNotificacion('Error al cambiar el estado del usuario.', 'error');
         }
     } catch (e) { mostrarNotificacion('Error de conexión.', 'error'); }
+};
+
+window.cambiarRolUsuario = async (id, nuevoRol, nombre, rolActualLabel) => {
+    const nuevoLabel = nuevoRol === 2 ? 'Administrador' : 'Cliente';
+    const accion     = nuevoRol === 2 ? 'le dará acceso al panel de administración' : 'quitará el acceso de administrador';
+    mostrarConfirmacion(
+        `¿Cambiar rol de "${nombre}"?`,
+        `Esta acción ${accion}.\n\nRol actual: ${rolActualLabel}  →  Nuevo rol: ${nuevoLabel}`,
+        async () => {
+            try {
+                const res = await fetch(`/api/usuarios/${id}/rol`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ IDRol: nuevoRol })
+                });
+                if (res.ok) {
+                    cargarUsuarios();
+                    mostrarNotificacion(`Rol de "${nombre}" actualizado a ${nuevoLabel}.`, 'success');
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    mostrarNotificacion(err.error || 'Error al cambiar el rol.', 'error');
+                }
+            } catch (e) { mostrarNotificacion('Error de conexión.', 'error'); }
+        }
+    );
 };
 
 window.editarUsuario = async (id) => {

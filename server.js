@@ -69,6 +69,8 @@ app.use((err, req, res, next) => {
 
 // ===== ARRANCAR SERVIDOR =====
 const db = require('./src/config/db.js');
+const { runMigrations } = require('./src/config/migrations');
+const { startJobs }     = require('./src/services/cron.service');
 const PORT = process.env.PORT || 3001;
 
 const startServer = async () => {
@@ -76,6 +78,10 @@ const startServer = async () => {
     const connection = await db.getConnection();
     connection.release();
     console.log(`✅ Conexión a la base de datos '${process.env.DB_NAME || 'aura'}' establecida.`);
+
+    await runMigrations();
+    startJobs();
+
     app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     });

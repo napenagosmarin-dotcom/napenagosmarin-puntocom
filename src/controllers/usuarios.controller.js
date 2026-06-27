@@ -16,8 +16,12 @@ const create = async (req, res, next) => {
     const usuario = await usuariosService.create(req.body);
 
     if (usuario && usuario.Email) {
-      const token = authService.createVerificationToken(usuario.Email);
-      await sendVerificationEmail(usuario.Email, token);
+      try {
+        const token = authService.createVerificationToken(usuario.Email);
+        await sendVerificationEmail(usuario.Email, token);
+      } catch (emailErr) {
+        console.error('Email de verificación no enviado:', emailErr.message);
+      }
     }
 
     res.status(201).json(usuario);
@@ -67,6 +71,20 @@ const updateStatus = async (req, res, next) => {
   }
 };
 
+const changeRole = async (req, res, next) => {
+  try {
+    const { IDRol } = req.body;
+    if (IDRol !== 1 && IDRol !== 2) {
+      return res.status(400).json({ error: 'IDRol debe ser 1 (Cliente) o 2 (Admin)' });
+    }
+    const resultado = await usuariosService.changeRole(req.params.id, IDRol);
+    res.status(200).json(resultado);
+  } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json({ error: error.message });
+    next(error);
+  }
+};
+
 const getByDocumento = async (req, res, next) => {
   try {
     const usuario = await usuariosService.getByDocumento(req.params.numero);
@@ -77,4 +95,4 @@ const getByDocumento = async (req, res, next) => {
   }
 };
 
-module.exports = { getAll, getById, create, update, updateStatus, remove, getByDocumento };
+module.exports = { getAll, getById, create, update, updateStatus, changeRole, remove, getByDocumento };

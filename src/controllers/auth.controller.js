@@ -33,8 +33,12 @@ const register = async (req, res, next) => {
 
     const result = await authService.register({ NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion });
 
-    const verificationToken = authService.createVerificationToken(Email);
-    await sendVerificationEmail(Email, verificationToken);
+    try {
+      const verificationToken = authService.createVerificationToken(Email);
+      await sendVerificationEmail(Email, verificationToken);
+    } catch (emailErr) {
+      console.error('Email de verificación no enviado:', emailErr.message);
+    }
 
     res.status(201).json({ message: 'Usuario registrado exitosamente. Revisa tu correo para verificar tu cuenta.', userId: result.id });
 
