@@ -305,6 +305,10 @@ function renderReservas(reservas, kpis) {
                 <span class="reservas-kpi__num">${kpis.confirmadas}</span>
                 <span class="reservas-kpi__label">Confirmadas</span>
             </div>
+            <div class="reservas-kpi" style="border-left:3px solid #0D9488;">
+                <span class="reservas-kpi__num" style="color:#0D9488;">${kpis.enProceso || 0}</span>
+                <span class="reservas-kpi__label">En Proceso</span>
+            </div>
             <div class="reservas-kpi reservas-kpi--monto">
                 <span class="reservas-kpi__num">$${kpis.montoTotal.toLocaleString('es-CO')}</span>
                 <span class="reservas-kpi__label">Ingresos totales</span>
@@ -324,8 +328,10 @@ function renderReservas(reservas, kpis) {
         <!-- CARDS DE RESERVAS -->
         <div class="reservas-grid" id="reservasGrid">
             ${reservas.map(r => {
-                const cfg        = getEstado(r.NombreEstadoReserva);
-                const esCompletada = (r.NombreEstadoReserva || '').toLowerCase() === 'completada';
+                const cfg          = getEstado(r.NombreEstadoReserva);
+                const estadoNombre = (r.NombreEstadoReserva || '').toLowerCase();
+                const esCompletada = estadoNombre === 'completada';
+                const esCancelada  = estadoNombre === 'cancelada';
                 const dias  = diasRestantes(r.FechaFinalizacion);
                 const diasTxt = dias !== null
                     ? dias > 0
@@ -334,6 +340,16 @@ function renderReservas(reservas, kpis) {
                             ? `<span style="color:#f59e0b; font-size:0.75rem;">⚡ Finaliza hoy</span>`
                             : `<span style="color:#ef4444; font-size:0.75rem;">✓ Finalizada hace ${Math.abs(dias)} días</span>`
                     : '';
+
+                // Acciones disponibles según flujo unidireccional de estados
+                const accionesEstado = {
+                    1: [{ id: 2, label: 'Confirmar',   icon: 'check-circle-2', color: '#10b981' },
+                        { id: 3, label: 'Cancelar',    icon: 'x-circle',       color: '#ef4444', esCancelacion: true }],
+                    2: [{ id: 5, label: 'Iniciar',     icon: 'play-circle',    color: '#0D9488' },
+                        { id: 3, label: 'Cancelar',    icon: 'x-circle',       color: '#ef4444', esCancelacion: true }],
+                    5: [{ id: 4, label: 'Completar',   icon: 'check-circle',   color: '#2B6CB0' }],
+                };
+                const acciones = accionesEstado[r.IdEstadoReserva] || [];
 
                 return `
                 <div class="reserva-card${esCompletada ? ' reserva-card--completada' : ''}" data-estado="${r.NombreEstadoReserva?.toLowerCase()}">
@@ -345,17 +361,22 @@ function renderReservas(reservas, kpis) {
                                 ${r.NombreEstadoReserva}
                             </span>
                             ${esCompletada ? '<span class="reserva-card__historial-tag">🔒 Historial</span>' : ''}
+                            ${esCancelada  ? '<span class="reserva-card__historial-tag" style="background:rgba(239,68,68,0.1);color:#ef4444;border-color:rgba(239,68,68,0.3);">✕ Cancelada</span>' : ''}
                         </div>
-                        <div class="reserva-card__select-wrap">
-                            <select class="reserva-estado-select" ${esCompletada ? 'disabled title="Las reservas completadas son de solo lectura"' : `onchange="cambiarEstado(${r.IdReserva}, this.value)"`}
-                                style="border-color: ${cfg.border}; color: ${cfg.color}; ${esCompletada ? 'opacity:0.5; cursor:not-allowed;' : ''}">
-                                ${reservasEstados.map(e => `
-                                    <option value="${e.IdEstadoReserva}"
-                                        ${e.IdEstadoReserva === r.IdEstadoReserva ? 'selected' : ''}>
-                                        ${e.NombreEstadoReserva}
-                                    </option>
-                                `).join('')}
-                            </select>
+                        <div class="reserva-card__select-wrap" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                            ${acciones.length === 0
+                                ? ''
+                                : acciones.map(a => `
+                                    <button onclick="${a.esCancelacion
+                                        ? `abrirCancelacionEstado(${r.IdReserva})`
+                                        : `cambiarEstado(${r.IdReserva}, ${a.id})`}"
+                                        style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid ${a.color}33;background:${a.color}11;color:${a.color};border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:background 0.15s;"
+                                        onmouseover="this.style.background='${a.color}22'" onmouseout="this.style.background='${a.color}11'">
+                                        <i data-lucide="${a.icon}" style="width:11px;height:11px;"></i>
+                                        ${a.label}
+                                    </button>
+                                `).join('')
+                            }
                         </div>
                     </div>
                     <div class="reserva-card__body">
@@ -447,16 +468,18 @@ function filtrarReservas(estado, btn) {
 
 async function cambiarEstado(idReserva, idEstado) {
     try {
-        const response = await fetch(`/api/reservas/${idReserva}`, {
-            method: 'PUT',
+        const response = await fetch(`/api/reservas/${idReserva}/status`, {
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ IdEstadoReserva: idEstado })
+            body: JSON.stringify({ IdEstadoReserva: Number(idEstado) })
         });
         if (response.ok) {
-            cargarReservas();
+            cargarReservas(reservasCurrentPage);
             mostrarNotificacion('Estado de la reserva actualizado.', 'success');
+        } else {
+            const err = await response.json().catch(() => ({}));
+            mostrarNotificacion(err.message || 'Error al cambiar el estado de la reserva.', 'error');
         }
-        else mostrarNotificacion('Error al cambiar el estado de la reserva.', 'error');
     } catch (error) {
         mostrarNotificacion('Error de conexión al servidor.', 'error');
     }
@@ -898,8 +921,10 @@ window.guardarReserva = async (id) => {
 };
 
 // ── Motivo de cancelación de reserva ──────────────────────────────────────────
-let _cancelReservaId   = null;
+let _cancelReservaId     = null;
 let _cancelReservaActiva = false;
+// 'viaEstado': cambio de estado con PATCH /status | 'viaEliminar': borrado con DELETE
+let _cancelReservaMode   = 'viaEliminar';
 
 window.eliminarReserva = async (id) => {
     // Consultar estado actual de la reserva para saber si es activa
@@ -913,6 +938,7 @@ window.eliminarReserva = async (id) => {
 
         if (_cancelReservaActiva) {
             // Reserva activa → pedir motivo
+            _cancelReservaMode = 'viaEliminar';
             document.getElementById('cancelReasonTitle').textContent    = `Cancelar Reserva #${id}`;
             document.getElementById('cancelReasonSubtitle').textContent = 'Esta reserva está activa. El cliente recibirá un correo con el motivo de la cancelación.';
             document.getElementById('cancelReasonText').value           = '';
@@ -938,7 +964,19 @@ window.eliminarReserva = async (id) => {
 
 window.cerrarModalMotivo = () => {
     document.getElementById('cancelReasonModal').style.display = 'none';
-    _cancelReservaId = null;
+    _cancelReservaId   = null;
+    _cancelReservaMode = 'viaEliminar';
+};
+
+// Abre el modal de motivo desde los botones de acción de estado (sin eliminar la reserva)
+window.abrirCancelacionEstado = (id) => {
+    _cancelReservaId   = id;
+    _cancelReservaMode = 'viaEstado';
+    document.getElementById('cancelReasonTitle').textContent    = `Cancelar Reserva #${id}`;
+    document.getElementById('cancelReasonSubtitle').textContent = 'El cliente recibirá un correo con el motivo de la cancelación.';
+    document.getElementById('cancelReasonText').value           = '';
+    document.getElementById('cancelReasonErr').style.display    = 'none';
+    document.getElementById('cancelReasonModal').style.display  = 'flex';
 };
 
 window.confirmarCancelacionConMotivo = async () => {
@@ -947,13 +985,26 @@ window.confirmarCancelacionConMotivo = async () => {
         document.getElementById('cancelReasonErr').style.display = 'block';
         return;
     }
+    const id   = _cancelReservaId;
+    const mode = _cancelReservaMode;
     cerrarModalMotivo();
     try {
-        const res = await fetch(`/api/reservas/${_cancelReservaId}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ motivo })
-        });
+        let res;
+        if (mode === 'viaEstado') {
+            // Cambio de estado a Cancelada (3) via PATCH /status — mantiene historial
+            res = await fetch(`/api/reservas/${id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ IdEstadoReserva: 3, motivo })
+            });
+        } else {
+            // Flujo de eliminación (botón Delete en reserva activa) via DELETE
+            res = await fetch(`/api/reservas/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ motivo })
+            });
+        }
         if (res.ok) {
             cargarReservas(reservasCurrentPage);
             mostrarNotificacion('Reserva cancelada. Se envió un correo al cliente con el motivo.', 'success');

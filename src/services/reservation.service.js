@@ -41,15 +41,17 @@ const getAllReservations = async (page = null, limit = null) => {
       const [countResult] = await db.query('SELECT COUNT(*) as total FROM reserva');
       
       // Obtener counts para KPIs rápidos
-      const [pendientesResult] = await db.query('SELECT COUNT(*) as count FROM reserva WHERE IdEstadoReserva = 1'); // 1 = Pendiente
-      const [confirmadasResult] = await db.query('SELECT COUNT(*) as count FROM reserva WHERE IdEstadoReserva = 2'); // 2 = Confirmada
-      const [montoResult] = await db.query('SELECT SUM(MontoTotal) as total FROM reserva');
+      const [pendientesResult]  = await db.query('SELECT COUNT(*) as count FROM reserva WHERE IdEstadoReserva = 1');
+      const [confirmadasResult] = await db.query('SELECT COUNT(*) as count FROM reserva WHERE IdEstadoReserva = 2');
+      const [enProcesoResult]   = await db.query('SELECT COUNT(*) as count FROM reserva WHERE IdEstadoReserva = 5');
+      const [montoResult]       = await db.query('SELECT SUM(MontoTotal) as total FROM reserva');
 
       return {
         data: results,
         total: countResult[0].total,
         pendientes: pendientesResult[0].count,
         confirmadas: confirmadasResult[0].count,
+        enProceso: enProcesoResult[0].count,
         montoTotal: montoResult[0].total || 0
       };
     }
@@ -697,17 +699,36 @@ const deleteReservation = async (id, motivo = '') => {
 // ─────────────────────────────────────────────────────────────────────────────
 // ID de estados según schema.sql:
 //   1 = Pendiente   2 = Confirmada   3 = Cancelada   4 = Completada   5 = En Proceso
-// Reglas:
-//   - CANCELADO → CONFIRMADO no permitido directamente (debe crear nueva reserva)
-//   - COMPLETADO → cualquier estado no permitido (historial inmutable)
-//   - Al confirmar (→2) se envía correo de reserva confirmada al cliente
-//   - Se registra timestamp del cambio en log de consola
+//
+// Flujo permitido (solo hacia adelante, sin retrocesos):
+//   Pendiente  → Confirmada | Cancelada
+//   Confirmada → En Proceso | Cancelada
+//   En Proceso → Completada
+//   Cancelada  → (terminal)
+//   Completada → (terminal, historial inmutable)
 // ─────────────────────────────────────────────────────────────────────────────
 const ESTADO_PENDIENTE  = 1;
-const ESTADO_CANCELADO  = 3;
 const ESTADO_CONFIRMADO = 2;
+const ESTADO_CANCELADO  = 3;
 const ESTADO_COMPLETADO = 4;
 const ESTADO_EN_PROCESO = 5;
+
+const NOMBRES_ESTADO = {
+  [ESTADO_PENDIENTE]:  'Pendiente',
+  [ESTADO_CONFIRMADO]: 'Confirmada',
+  [ESTADO_CANCELADO]:  'Cancelada',
+  [ESTADO_COMPLETADO]: 'Completada',
+  [ESTADO_EN_PROCESO]: 'En Proceso',
+};
+
+// Transiciones válidas por estado actual
+const TRANSICIONES_VALIDAS = {
+  [ESTADO_PENDIENTE]:  [ESTADO_CONFIRMADO, ESTADO_CANCELADO],
+  [ESTADO_CONFIRMADO]: [ESTADO_EN_PROCESO, ESTADO_CANCELADO],
+  [ESTADO_EN_PROCESO]: [ESTADO_COMPLETADO],
+  [ESTADO_CANCELADO]:  [],
+  [ESTADO_COMPLETADO]: [],
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POLÍTICA DE CANCELACIÓN — Constantes configurables centralizadas
@@ -718,7 +739,7 @@ const DIAS_CANCELACION_GRATIS  = 7;
 /** Fracción del MontoTotal que se retiene si se cancela dentro del plazo de penalización (0.40 = 40%) */
 const PORCENTAJE_PENALIZACION  = 0.40;
 
-const updateReservationStatus = async (id, nuevoEstadoId) => {
+const updateReservationStatus = async (id, nuevoEstadoId, motivo = null) => {
   // 1. Obtener estado actual
   const [rows] = await db.query(
     'SELECT r.IdEstadoReserva, r.UsuarioIdusuario FROM reserva r WHERE r.IdReserva = ?',
@@ -729,45 +750,75 @@ const updateReservationStatus = async (id, nuevoEstadoId) => {
   const estadoActual = rows[0].IdEstadoReserva;
   const nuevoId      = Number(nuevoEstadoId);
 
-  // 2a. Validar: COMPLETADO es historial inmutable
-  if (estadoActual === ESTADO_COMPLETADO) {
-    const err = new Error('No se pueden modificar reservas completadas. Esta reserva forma parte del historial.');
-    err.statusCode = 400;
-    throw err;
-  }
-
-  // 2b. Validar transición prohibida: CANCELADO → CONFIRMADO
-  if (estadoActual === ESTADO_CANCELADO && nuevoId === ESTADO_CONFIRMADO) {
-    const err = new Error(
-      'No se puede confirmar una reserva cancelada. Debe crearse una nueva reserva.'
-    );
+  // 2. Validar transición según tabla de flujo permitido
+  const permitidas = TRANSICIONES_VALIDAS[estadoActual] ?? [];
+  if (!permitidas.includes(nuevoId)) {
+    const from = NOMBRES_ESTADO[estadoActual] || estadoActual;
+    const to   = NOMBRES_ESTADO[nuevoId]    || nuevoId;
+    const esTerminal = permitidas.length === 0;
+    const msg = esTerminal
+      ? `La reserva en estado "${from}" no puede modificarse.`
+      : `Transición no permitida: ${from} → ${to}. El flujo de reserva es unidireccional.`;
+    const err = new Error(msg);
     err.statusCode = 409;
     throw err;
   }
 
-  // 3. Ejecutar cambio de estado con timestamp
   const timestamp = new Date().toISOString();
-  await db.query('UPDATE reserva SET IdEstadoReserva = ? WHERE IdReserva = ?', [nuevoId, id]);
 
-  // ── REGLA 8: Registrar cambio en historial ───────────────────────────────
-  await db.query(
-    `INSERT INTO reserva_historial (IdReserva, EstadoAnterior, EstadoNuevo, ModificadoPor)
-     VALUES (?, ?, ?, 'admin')`,
-    [id, estadoActual, nuevoId]
-  ).catch(e => console.warn('[historial]', e.message));
+  // 3a. Cancelación: actualiza campos adicionales y registra motivo
+  if (nuevoId === ESTADO_CANCELADO) {
+    const fechaCancelacion = new Date();
+    await db.query(
+      `UPDATE reserva SET IdEstadoReserva = ?, FechaCancelacion = ?, TipoCancelacion = 'admin' WHERE IdReserva = ?`,
+      [nuevoId, fechaCancelacion, id]
+    );
+    await db.query(
+      `INSERT INTO reserva_historial (IdReserva, EstadoAnterior, EstadoNuevo, ModificadoPor, Motivo)
+       VALUES (?, ?, ?, 'admin', ?)`,
+      [id, estadoActual, nuevoId, motivo || 'Cancelado por administrador']
+    ).catch(e => console.warn('[historial]', e.message));
 
-  console.log(
-    `[reservas] #${id} estado ${estadoActual} → ${nuevoId} | ${timestamp}`
-  );
+    // Enviar correo de cancelación al cliente
+    try {
+      const fullReservation = await getReservationById(id);
+      const userId = rows[0].UsuarioIdusuario;
+      const user   = userId ? await usuariosService.getById(userId) : null;
+      const email  = user?.Email || fullReservation?.Email;
+      if (email) {
+        await emailService.sendReservationCancelledEmail(email, fullReservation || {}, {
+          tipoCancelacion: 'gratuita',
+          porcentajePenalizacion: 0,
+          valorPenalizacion: 0,
+          valorReembolso: fullReservation?.MontoTotal || 0,
+          mensaje: 'La reserva fue cancelada por el administrador.',
+          motivoAdmin: motivo || 'Cancelado por administrador',
+          fechaCancelacion,
+        });
+        console.log(`[reservas] Correo CANCELACIÓN enviado a ${email} para reserva #${id}`);
+      }
+    } catch (emailErr) {
+      console.error(`[reservas] Error enviando correo de cancelación para #${id}:`, emailErr.message);
+    }
+  } else {
+    // 3b. Cambio de estado regular
+    await db.query('UPDATE reserva SET IdEstadoReserva = ? WHERE IdReserva = ?', [nuevoId, id]);
+    await db.query(
+      `INSERT INTO reserva_historial (IdReserva, EstadoAnterior, EstadoNuevo, ModificadoPor)
+       VALUES (?, ?, ?, 'admin')`,
+      [id, estadoActual, nuevoId]
+    ).catch(e => console.warn('[historial]', e.message));
+  }
 
-  // 4. Si el nuevo estado es CONFIRMADO, enviar correo al cliente
+  console.log(`[reservas] #${id} estado ${estadoActual} → ${nuevoId} | ${timestamp}`);
+
+  // 4. Enviar correo según nuevo estado
   if (nuevoId === ESTADO_CONFIRMADO) {
     try {
       const fullReservation = await getReservationById(id);
       const userId = rows[0].UsuarioIdusuario;
       const user   = userId ? await usuariosService.getById(userId) : null;
       const email  = user?.Email || fullReservation?.Email;
-
       if (email) {
         await emailService.sendReservationConfirmedEmail(email, fullReservation || {});
         console.log(`[reservas] Correo CONFIRMADO enviado a ${email} para reserva #${id}`);
@@ -775,7 +826,6 @@ const updateReservationStatus = async (id, nuevoEstadoId) => {
         console.warn(`[reservas] No se encontró email para reserva #${id}. Correo no enviado.`);
       }
     } catch (emailErr) {
-      // El error de email no debe revertir el cambio de estado
       console.error(`[reservas] Error enviando correo de confirmación para #${id}:`, emailErr.message);
     }
   }
