@@ -35,7 +35,14 @@ const runMigrations = async () => {
     `);
     console.log('[migration] reserva_historial ready');
 
-    // Nuevos usuarios deben verificar — los existentes ya tienen DEFAULT 1 (verificados)
+    // Estado 'En Proceso' (ID=5) — requerido por el flujo unidireccional de reservas
+    await db.query(`
+      INSERT INTO estadosreserva (IdEstadoReserva, NombreEstadoReserva)
+      VALUES (5, 'En Proceso')
+      ON DUPLICATE KEY UPDATE NombreEstadoReserva = NombreEstadoReserva
+    `);
+    console.log('[migration] estadosreserva: En Proceso (5) ready');
+
     console.log('[migration] all migrations OK');
   } catch (err) {
     console.error('[migration] Error:', err.message);

@@ -60,10 +60,31 @@ app.get(/.*/, (req, res) => {
 });
 
 // ===== MANEJADOR DE ERRORES GLOBAL =====
+function traducirErrorMySQL(err) {
+  if (!err.code) return null;
+  switch (err.code) {
+    case 'ER_NO_REFERENCED_ROW_2':
+    case 'ER_NO_REFERENCED_ROW':
+      return 'El valor indicado no existe en la tabla de referencia. Verifica los datos enviados.';
+    case 'ER_ROW_IS_REFERENCED_2':
+    case 'ER_ROW_IS_REFERENCED':
+      return 'No se puede eliminar este registro porque está siendo usado por otros datos del sistema.';
+    case 'ER_DUP_ENTRY':
+      return 'Ya existe un registro con esos datos. Verifica que no haya duplicados.';
+    case 'ER_DATA_TOO_LONG':
+      return 'Uno de los campos supera la longitud máxima permitida.';
+    case 'ER_BAD_NULL_ERROR':
+      return 'Falta un campo obligatorio. Por favor completa todos los datos requeridos.';
+    default:
+      return null;
+  }
+}
+
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   const statusCode = err.statusCode || 500;
-  const message = err.message || 'Error interno del servidor';
+  const mensajeTraducido = traducirErrorMySQL(err);
+  const message = mensajeTraducido || err.message || 'Error interno del servidor';
   res.status(statusCode).json({ message, error: process.env.NODE_ENV === 'development' ? err : {} });
 });
 
