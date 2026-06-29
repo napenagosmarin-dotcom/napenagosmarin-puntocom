@@ -35,6 +35,27 @@ const runMigrations = async () => {
     `);
     console.log('[migration] reserva_historial ready');
 
+    // Columnas de ubicación en usuarios (usadas en registro y perfil de cliente)
+    await addColumnIfMissing('usuarios', 'Departamento', 'VARCHAR(100) NULL');
+    await addColumnIfMissing('usuarios', 'Municipio',    'VARCHAR(100) NULL');
+
+    // Índice UNIQUE en Email de usuarios (solo si no hay duplicados existentes)
+    const [idxRows] = await db.query(
+      `SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'usuarios' AND COLUMN_NAME = 'Email' AND NON_UNIQUE = 0`
+    );
+    if (idxRows.length === 0) {
+      const [[{ dupes }]] = await db.query(
+        `SELECT COUNT(*) - COUNT(DISTINCT LOWER(Email)) AS dupes FROM usuarios`
+      );
+      if (dupes === 0) {
+        await db.query(`ALTER TABLE usuarios ADD UNIQUE INDEX idx_usuarios_email (Email)`);
+        console.log('[migration] + usuarios.Email UNIQUE');
+      } else {
+        console.warn(`[migration] Hay ${dupes} email(s) duplicados en usuarios — índice UNIQUE no aplicado`);
+      }
+    }
+
     // Estado 'En Proceso' (ID=5) — requerido por el flujo unidireccional de reservas
     await db.query(`
       INSERT INTO estadosreserva (IdEstadoReserva, NombreEstadoReserva)

@@ -25,13 +25,21 @@ const login = async (req, res, next) => {
 
 const register = async (req, res, next) => {
   try {
-    const { NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion } = req.body;
+    const {
+      NombreUsuario, Contrasena, Apellido, Email,
+      TipoDocumento, NumeroDocumento, Telefono,
+      Pais, Direccion, Departamento, Municipio
+    } = req.body;
 
     if (!NombreUsuario || !Contrasena || !Email) {
-      return res.status(400).json({ message: 'NombreUsuario, Email y Contrasena son requeridos' });
+      return res.status(400).json({ message: 'Nombre, correo electrónico y contraseña son requeridos.' });
     }
 
-    const result = await authService.register({ NombreUsuario, Contrasena, Apellido, Email, TipoDocumento, NumeroDocumento, Telefono, Pais, Direccion });
+    const result = await authService.register({
+      NombreUsuario, Contrasena, Apellido, Email,
+      TipoDocumento, NumeroDocumento, Telefono,
+      Pais, Direccion, Departamento, Municipio
+    });
 
     try {
       const verificationToken = authService.createVerificationToken(Email);
@@ -44,7 +52,18 @@ const register = async (req, res, next) => {
 
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ message: 'Error al registrar el usuario' });
+
+    // Errores de negocio con código HTTP explícito
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+
+    // Correo ya registrado
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ message: 'Ya existe una cuenta registrada con ese correo electrónico.' });
+    }
+
+    res.status(500).json({ message: 'Ocurrió un error al crear la cuenta. Intenta nuevamente.' });
   }
 };
 

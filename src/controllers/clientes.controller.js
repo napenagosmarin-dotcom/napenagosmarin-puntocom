@@ -96,6 +96,7 @@ const ClientesController = {
                      Telefono || null, Pais || null, Direccion || null,
                      Departamento || null, Municipio || null, 1]
                 );
+                // Nota: las columnas Departamento y Municipio se crean via migration al arrancar el servidor
 
                 await connection.query(
                     `INSERT INTO clientes (NroDocumento, Nombre, Apellido, Direccion, Email, Telefono, IDRol)

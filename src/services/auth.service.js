@@ -53,6 +53,17 @@ const register = async (data) => {
 
     await connection.beginTransaction();
 
+    // Verificar email duplicado antes de intentar el INSERT
+    const [[existing]] = await connection.query(
+      'SELECT IDUsuario FROM usuarios WHERE LOWER(Email) = LOWER(?)', [Email]
+    );
+    if (existing) {
+      await connection.rollback();
+      const err = new Error('Ya existe una cuenta registrada con ese correo electrónico.');
+      err.statusCode = 409;
+      throw err;
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(Contrasena, salt);
 
