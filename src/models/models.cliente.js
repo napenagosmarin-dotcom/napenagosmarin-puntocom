@@ -36,18 +36,18 @@ const Cliente = {
     // Obtener todos los clientes
     async getAll() {
         await this.syncFromUsuarios();
-        const [rows] = await pool.query('SELECT * FROM clientes ORDER BY Nombre ASC');
+        const [rows] = await pool.query('SELECT * FROM clientes WHERE (IDRol IS NULL OR IDRol = 1) ORDER BY Nombre ASC');
         return rows.map(this.mapCliente);
     },
 
     // Obtener clientes paginados y con búsqueda
     async getPaginated(limit, offset, search = '') {
         await this.syncFromUsuarios();
-        let query = 'SELECT * FROM clientes';
+        let query = 'SELECT * FROM clientes WHERE (IDRol IS NULL OR IDRol = 1)';
         let params = [];
 
         if (search) {
-            query += ' WHERE Nombre LIKE ? OR Apellido LIKE ? OR NroDocumento LIKE ? OR Email LIKE ?';
+            query += ' AND (Nombre LIKE ? OR Apellido LIKE ? OR NroDocumento LIKE ? OR Email LIKE ?)';
             const searchParam = `%${search}%`;
             params.push(searchParam, searchParam, searchParam, searchParam);
         }
@@ -61,11 +61,11 @@ const Cliente = {
 
     // Contar total de clientes (para paginación)
     async count(search = '') {
-        let query = 'SELECT COUNT(*) as total FROM clientes';
+        let query = 'SELECT COUNT(*) as total FROM clientes WHERE (IDRol IS NULL OR IDRol = 1)';
         let params = [];
 
         if (search) {
-            query += ' WHERE Nombre LIKE ? OR Apellido LIKE ? OR NroDocumento LIKE ? OR Email LIKE ?';
+            query += ' AND (Nombre LIKE ? OR Apellido LIKE ? OR NroDocumento LIKE ? OR Email LIKE ?)';
             const searchParam = `%${search}%`;
             params.push(searchParam, searchParam, searchParam, searchParam);
         }
