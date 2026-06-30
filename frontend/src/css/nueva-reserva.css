@@ -77,6 +77,10 @@
 }
 
 .nr-card--step4 { border-color: rgba(49,130,206,0.2); }
+.nr-card--step1 {
+  overflow: visible;
+  z-index: 3;
+}
 .nr-card--step3 {
   overflow: visible;
   z-index: 2;
