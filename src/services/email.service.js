@@ -1,7 +1,7 @@
 // Servicio de correos usando la API REST HTTP de Brevo (Puerto 443)
 // Evade bloqueos SMTP en plataformas Cloud como Railway
 
-const senderEmail = 'godienser@gmail.com';
+const senderEmail = 'napenagosmarin@gmail.com';
 
 const getTransporter = async () => {
   if (!process.env.BREVO_API_KEY) {
