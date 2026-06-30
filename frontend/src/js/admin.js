@@ -1205,7 +1205,7 @@ async function cargarUsuarios() {
                                     </span>
                                 </td>
                                 <td>
-                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <div style="display:flex;gap:6px;flex-wrap:nowrap;">
                                         <button onclick="toggleEstadoUsuario('${u.IDUsuario}', ${u.Estado ?? 1})"
                                             class="btn-icon-admin ${statusClass}" title="${statusTitle}">
                                             <i data-lucide="${statusIcon}" style="width:16px;"></i>
@@ -3041,7 +3041,7 @@ function renderForm(section, data = null, extra = {}) {
                     <label>👤 APELLIDO</label>
                     <input type="text" name="Apellido" value="${data?.Apellido || ''}">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="grid-column:1/-1;">
                     <label>📧 EMAIL</label>
                     <input type="email" name="Email" value="${data?.Email || ''}" required>
                 </div>
@@ -3066,19 +3066,13 @@ function renderForm(section, data = null, extra = {}) {
                     <input type="text" name="Pais" value="${data?.Pais || ''}">
                 </div>
                 <div class="form-group">
-                    <label>🔑 ROL</label>
-                    <select name="IDRol">
-                        <option value="1" ${data?.IDRol === 1 ? 'selected' : ''}>Cliente</option>
-                        <option value="2" ${data?.IDRol === 2 ? 'selected' : ''}>Administrador</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label>⚙️ ESTADO</label>
                     <select name="Estado">
                         <option value="1" ${data?.Estado === 1 ? 'selected' : ''}>Activo</option>
                         <option value="0" ${data?.Estado === 0 ? 'selected' : ''}>Inactivo</option>
                     </select>
                 </div>
+                ${isEdit ? '<input type="hidden" name="IDRol" value="' + (data?.IDRol ?? 1) + '">' : ''}
                 ${!isEdit
                     ? '<div class="form-group" style="grid-column:1/-1;"><label>🔒 CONTRASEÑA</label><input type="password" name="Contrasena" required></div>'
                     : `<div class="form-group" style="grid-column:1/-1;">
