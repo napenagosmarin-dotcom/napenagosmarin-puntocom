@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://ficha3312967aura-production.up.railway.app/api/:path*"
+      "destination": "https://aura-travel-backend-t1ca.onrender.com/api/:path*"
     },
     {
       "source": "/uploads/:path*",
-      "destination": "https://ficha3312967aura-production.up.railway.app/uploads/:path*"
+      "destination": "https://aura-travel-backend-t1ca.onrender.com/uploads/:path*"
     }
   ]
 }
