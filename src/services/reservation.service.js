@@ -410,6 +410,29 @@ const createReservation = async (data) => {
       }
     }
 
+    // ── VALIDACIÓN: alojamiento no puede duplicar el incluido en el paquete ────
+    if (data.IDPaquete && (data.IDHabitacion || data.IDCabana)) {
+      const [[paquete]] = await connection.query(
+        'SELECT IDHabitacion, IDCabana FROM paquetes WHERE IDPaquete = ?',
+        [data.IDPaquete]
+      );
+      if (paquete) {
+        if (paquete.IDHabitacion && String(paquete.IDHabitacion) === String(data.IDHabitacion)) {
+          await connection.rollback();
+          const err = new Error('No puedes agregar una habitación que ya está incluida en el paquete seleccionado.');
+          err.statusCode = 400;
+          throw err;
+        }
+        if (paquete.IDCabana && String(paquete.IDCabana) === String(data.IDCabana)) {
+          await connection.rollback();
+          const err = new Error('No puedes agregar una cabaña que ya está incluida en el paquete seleccionado.');
+          err.statusCode = 400;
+          throw err;
+        }
+      }
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     const servicioIds = Array.isArray(data.serviciosAdicionales) ? data.serviciosAdicionales : [];
     const totals = await calculateTotals(data.IDPaquete, data.IDHabitacion, data.IDCabana, servicioIds, data.FechaInicio, data.FechaFinalizacion);
 

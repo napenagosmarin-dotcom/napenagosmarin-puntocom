@@ -410,6 +410,43 @@ function populatePaquetes(selectedRoomId = null, isDisabled = false) {
     select.disabled = isDisabled;
 }
 
+function aplicarRestriccionPaquete(paquete) {
+    limpiarRestriccionPaquete();
+    if (!paquete) return;
+    const restringe = (selId, idIncluido, nombreIncluido, tipo) => {
+        if (!idIncluido) return;
+        const sel = document.getElementById(selId);
+        const opt = sel ? sel.querySelector(`option[value="${idIncluido}"]`) : null;
+        if (!opt) return;
+        opt.dataset.originalText = opt.textContent;
+        opt.textContent = `${nombreIncluido || opt.textContent.split(' - ')[0]} (incluida en el paquete)`;
+        opt.disabled = true;
+        opt.dataset.paqueteRestricted = 'true';
+        if (sel.value === String(idIncluido)) {
+            sel.value = '';
+            const previewCard = document.getElementById('previewCard');
+            if (previewCard && previewCard.dataset.type === tipo) {
+                previewCard.style.display = 'none';
+                previewCard.innerHTML = '';
+            }
+            alert(`Se quitó "${nombreIncluido || tipo}" porque ya está incluida en el paquete seleccionado.`);
+            calcularTotal();
+            updateSelectStates();
+        }
+    };
+    restringe('IDHabitacion', paquete.IDHabitacion, paquete.NombreHabitacion, 'habitacion');
+    restringe('IDCabana',     paquete.IDCabana,     paquete.NombreCabana,     'cabana');
+}
+
+function limpiarRestriccionPaquete() {
+    document.querySelectorAll('option[data-paquete-restricted="true"]').forEach(opt => {
+        opt.disabled = false;
+        if (opt.dataset.originalText) opt.textContent = opt.dataset.originalText;
+        delete opt.dataset.originalText;
+        delete opt.dataset.paqueteRestricted;
+    });
+}
+
 function updateSelectStates() {
     const habitacionSelect = document.getElementById('IDHabitacion');
     const cabanaSelect = document.getElementById('IDCabana');
@@ -426,7 +463,9 @@ function updateSelectStates() {
     } else {
         habitacionSelect.disabled = false;
         cabanaSelect.disabled = false;
+        const savedPaquete = paqueteSelect.value;
         populatePaquetes(null, false);
+        if (savedPaquete) paqueteSelect.value = savedPaquete;
     }
     // El paquete siempre está habilitado — puede combinarse con habitación o cabaña
     paqueteSelect.disabled = false;
@@ -827,6 +866,7 @@ function mostrarPreviewPaquete(id) {
     const card = document.getElementById('previewPaqueteCard');
     if (!card) return;
     if (!id) {
+        limpiarRestriccionPaquete();
         card.style.display = 'none';
         card.innerHTML = '';
         return;
@@ -855,8 +895,10 @@ function mostrarPreviewPaquete(id) {
     card.dataset.type = 'paquete';
     card.dataset.activeId = String(id);
     card.style.display = 'block';
+    aplicarRestriccionPaquete(p);
 
     card.querySelector('.nr-preview-close').addEventListener('click', () => {
+        limpiarRestriccionPaquete();
         document.getElementById('IDPaquete').value = '';
         card.style.display = 'none';
         card.innerHTML = '';
