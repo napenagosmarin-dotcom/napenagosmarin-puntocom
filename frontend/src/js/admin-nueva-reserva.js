@@ -31,10 +31,10 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     if (!container) { alert(mensaje); return; }
     const id = 'notif-' + Date.now();
     const colors = {
-        success: { bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.4)', icon: '✓', color: '#10b981' },
-        error:   { bg: 'rgba(239,68,68,0.15)',  border: 'rgba(239,68,68,0.4)',  icon: '✕', color: '#ef4444' },
-        warning: { bg: 'rgba(245,158,11,0.15)', border: 'rgba(245,158,11,0.4)', icon: '⚠', color: '#f59e0b' },
-        info:    { bg: 'rgba(0,212,255,0.15)',  border: 'rgba(0,212,255,0.4)',  icon: 'ℹ', color: '#00d4ff' }
+        success: { bg: '#D1FAE5', border: '#059669', icon: '✓', color: '#064E3B', text: '#064E3B' },
+        error:   { bg: '#FEE2E2', border: '#DC2626', icon: '✕', color: '#7F1D1D', text: '#7F1D1D' },
+        warning: { bg: '#FEF3C7', border: '#F59E0B', icon: '⚠', color: '#78350F', text: '#78350F' },
+        info:    { bg: '#DBEAFE', border: '#3B82F6', icon: 'ℹ', color: '#1E3A8A', text: '#1E3A8A' }
     };
     const cfg = colors[tipo] || colors.info;
     const notif = document.createElement('div');
@@ -42,9 +42,9 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     notif.style.cssText = `
         display:flex;align-items:center;gap:0.75rem;
         padding:0.9rem 1.2rem;border-radius:12px;
-        background:${cfg.bg};border:1px solid ${cfg.border};
-        color:#fff;font-family:var(--fuente-secundaria,'Inter',sans-serif);
-        font-size:0.88rem;box-shadow:0 8px 24px rgba(0,0,0,0.3);
+        background:${cfg.bg};border:1.5px solid ${cfg.border};opacity:1;
+        color:${cfg.text};font-family:var(--fuente-secundaria,'Inter',sans-serif);
+        font-size:0.88rem;font-weight:500;box-shadow:0 10px 25px rgba(0,0,0,0.15);
         animation:slideIn 0.3s ease;max-width:360px;
     `;
     notif.innerHTML = `<span style="color:${cfg.color};font-size:1.1rem;font-weight:700;">${cfg.icon}</span><span>${mensaje}</span>`;
@@ -476,7 +476,12 @@ function updateSelectStates() {
     } else if (cSelected) {
         hSel.disabled=true;hSel.value='';
     } else {
-        hSel.disabled=false;cSel.disabled=false;populatePaquetes(null,false);
+        hSel.disabled=false;cSel.disabled=false;
+        // Preservar el paquete ya elegido: populatePaquetes() reconstruye
+        // el <select> y perdía la selección, dejando el resumen en $0.
+        const paqueteActual = pSel.value;
+        populatePaquetes(null,false);
+        if (paqueteActual) pSel.value = paqueteActual;
     }
     // El paquete siempre está habilitado — puede combinarse con habitación o cabaña
     pSel.disabled=false;
@@ -1023,7 +1028,7 @@ document.getElementById('reservationForm').addEventListener('submit', async(e)=>
     document.getElementById('FechaFinalizacion').value  = tomorrow;
 
     fpStart = flatpickr('#FechaInicio',{
-        minDate:today, disable:[], dateFormat:'Y-m-d', defaultDate:today,
+        locale:'es', minDate:today, disable:[], dateFormat:'Y-m-d', defaultDate:today,
         onChange(selectedDates){
             if (selectedDates.length>0) {
                 const nextDay = new Date(selectedDates[0].getTime() + 86400000);
@@ -1033,7 +1038,7 @@ document.getElementById('reservationForm').addEventListener('submit', async(e)=>
         }
     });
     fpEnd = flatpickr('#FechaFinalizacion',{
-        minDate:today, disable:[], dateFormat:'Y-m-d', defaultDate:tomorrow,
+        locale:'es', minDate:today, disable:[], dateFormat:'Y-m-d', defaultDate:tomorrow,
         onChange(){ actualizarContadorNoches(); calcularTotal(); validateDateSelection(); }
     });
 
