@@ -91,6 +91,26 @@ async function buscarClientePorDocumento() {
             const cliente = await r.json();
             selectedClienteUserId = cliente.IDUsuario;
             const nombreCompleto = `${cliente.NombreUsuario || ''}${cliente.Apellido ? ' ' + cliente.Apellido : ''}`.trim();
+
+            // Conectar resultado con el campo oculto y el chip de selección
+            document.getElementById('IDClienteReserva').value = cliente.IDUsuario;
+            docInput.value = '';
+            const resultsEl = document.getElementById('docSearchResults');
+            if (resultsEl) resultsEl.style.display = 'none';
+            const chip = document.getElementById('clienteSeleccionado');
+            if (chip) {
+                chip.style.display = 'flex';
+                chip.innerHTML = `
+                    <span style="font-size:1.15rem;">👤</span>
+                    <div class="nr-cliente-chip__info">
+                        <div class="nr-cliente-chip__name">${nombreCompleto}</div>
+                        <div class="nr-cliente-chip__doc">${cliente.TipoDocumento || 'Doc'}: ${cliente.NumeroDocumento} &bull; ${cliente.Email || ''}</div>
+                    </div>
+                    <span class="nr-cliente-chip__clear" onclick="limpiarCliente()" title="Cambiar cliente">&times;</span>
+                `;
+            }
+
+            // Elementos opcionales del diseño anterior (compatibilidad)
             const nombreEl = document.getElementById('clienteNombreDisplay');
             const emailEl  = document.getElementById('clienteEmailDisplay');
             const docEl    = document.getElementById('clienteDocDisplay');
@@ -101,6 +121,7 @@ async function buscarClientePorDocumento() {
             if (noEncontradoEl) noEncontradoEl.style.display = 'none';
             if (badgeEl)        badgeEl.style.display        = 'inline-flex';
         } else {
+            mostrarNotificacion('No se encontró ningún cliente con ese número de documento.', 'warning');
             if (noEncontradoEl) noEncontradoEl.style.display = 'block';
             if (encontradoEl)   encontradoEl.style.display   = 'none';
         }
