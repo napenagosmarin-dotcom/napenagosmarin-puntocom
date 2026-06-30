@@ -1,3 +1,13 @@
 node_modules/
 .env
 .DS_Store
+.env.local
+
+# Dump de datos y script de importación a Aiven (contienen datos sensibles/credenciales)
+aura_aiven.sql
+import_to_aiven.js
+
+# Artefactos de pruebas locales
+screenshots/
+server_restart.log
+test_app_temp.js
