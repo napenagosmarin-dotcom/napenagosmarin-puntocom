@@ -1067,15 +1067,9 @@ function mostrarModalDetalle(type, id) {
         stats = [
             data.CapacidadPersonas  ? `👥 ${data.CapacidadPersonas} personas`   : null,
             data.NumeroHabitaciones ? `🛏️ ${data.NumeroHabitaciones} hab.`      : null,
+            data.tipo               ? `🏷️ ${data.tipo}`                        : null,
         ].filter(Boolean);
-        const iconosHab = {
-            'Cabaña Simple':   ['🌲 Vista al bosque','🛏️ Cama individual','🪵 Decoración rústica','👤 Ideal para 1 persona'],
-            'Cabaña Doble':    ['🌹 Ambiente romántico','🛏️ Cama doble','🪵 Decoración rústica','👥 Ideal para 2 personas'],
-            'Cabaña Familiar': ['🌿 Rodeada de naturaleza','🛏️ Múltiples camas','🪵 Amplio espacio','👨‍👩‍👧‍👦 Hasta 4 personas'],
-            'Domo Glamping':   ['⭐ Duerme bajo las estrellas','🔭 Techo transparente','🛏️ Cama queen','💫 Experiencia única'],
-            'Tienda de Lujo':  ['🏔️ Vista panorámica','👑 Cama king size','✨ Acabados de lujo','🌄 Amanecer espectacular']
-        };
-        incluidos = iconosHab[titulo] || ['🏠 Alojamiento confortable','🌿 Contacto con la naturaleza'];
+        incluidos = [];
     } else if (type === 'cabana') {
         tipoLabel    = '🏡 Cabaña';
         titulo       = data.NombreCabana || 'Cabaña';
@@ -1086,22 +1080,19 @@ function mostrarModalDetalle(type, id) {
             data.CapacidadPersonas  ? `👥 ${data.CapacidadPersonas} personas`   : null,
             data.NumeroHabitaciones ? `🛏️ ${data.NumeroHabitaciones} hab.`      : null,
         ].filter(Boolean);
-        incluidos = ['🌲 Entorno natural','🏡 Espacio privado','☕ Comodidades completas','🔒 Acceso exclusivo'];
+        incluidos = [];
     } else {
         tipoLabel    = '📦 Paquete';
         titulo       = data.NombrePaquete || 'Paquete';
         descripcion  = data.Descripcion || data.descripcion || '';
         precio       = data.Precio || data.precio || 0;
         sufijoPrecio = '';
-        stats = data.NombreHabitacion ? [`🏠 ${data.NombreHabitacion}`] : [];
-        const pkgInc = {
-            'Paquete Romántico': ['🛁 Jacuzzi privado','💆 Masaje relajante','🍾 Decoración especial','🌹 Detalles románticos'],
-            'Paquete Aventura':  ['🐴 Cabalgata guiada','🥾 Caminata ecológica','🗺️ Guía experto','🌿 Tour por naturaleza'],
-            'Paquete Familiar':  ['🍳 Desayuno campestre','🔥 Fogata nocturna','🎮 Actividades grupales','👨‍👩‍👧‍👦 Espacio para todos'],
-            'Paquete Estrellas': ['🔥 Fogata nocturna','🍳 Desayuno incluido','⭐ Observación de estrellas','🌙 Experiencia nocturna'],
-            'Paquete Relax':     ['💆 Masaje completo','🛁 Jacuzzi privado','🧘 Zona de spa','🌿 Desconexión total']
-        };
-        incluidos = pkgInc[titulo] || ['✨ Experiencia glamping','🌿 Contacto con naturaleza','🏨 Alojamiento incluido','🎁 Actividades especiales'];
+        stats = data.NombreHabitacion ? [`🏠 ${data.NombreHabitacion}`] : (data.NombreCabana ? [`🏡 ${data.NombreCabana}`] : []);
+        incluidos = [
+            data.NombreHabitacion ? `🛏️ Alojamiento: ${data.NombreHabitacion}` : null,
+            data.NombreCabana     ? `🏡 Alojamiento: ${data.NombreCabana}`     : null,
+            ...(data.NombreServicio ? data.NombreServicio.split(',').map(s => `✨ ${s.trim()}`) : []),
+        ].filter(Boolean);
     }
 
     content.innerHTML = `
@@ -1111,12 +1102,13 @@ function mostrarModalDetalle(type, id) {
             <h2 class="nr-modal__titulo">${titulo}</h2>
             <p class="nr-modal__desc">${descripcion}</p>
             ${stats.length ? `<div class="nr-modal__stats">${stats.map(s => `<div class="nr-modal__stat">${s}</div>`).join('')}</div>` : ''}
+            ${incluidos.length ? `
             <div class="nr-modal__incluidos">
                 <p class="nr-modal__incluidos-titulo">Incluye</p>
                 <ul class="nr-modal__incluidos-list">
                     ${incluidos.map(i => `<li>${i}</li>`).join('')}
                 </ul>
-            </div>
+            </div>` : ''}
             <div class="nr-modal__precio">
                 <span class="nr-modal__precio-label">${sufijoPrecio ? 'Precio por noche' : 'Precio del paquete'}</span>
                 <span class="nr-modal__precio-val">$${Number(precio).toLocaleString()}${sufijoPrecio ? ` <small>${sufijoPrecio}</small>` : ''}</span>
