@@ -553,10 +553,14 @@ async function cargarServicios() {
                             <div class="servicio-controls">
                                 <label class="servicio-control-label">${ctrl.label}</label>
                                 <div class="servicio-input-row">
-                                    <input type="number" class="servicio-quantity-input"
-                                        data-servicio-id="${s.IDServicio}"
-                                        min="${ctrl.min}" max="${ctrl.max}" step="${ctrl.step}"
-                                        value="1" aria-label="${ctrl.label} para ${s.NombreServicio}" disabled />
+                                    <div class="servicio-stepper">
+                                        <button type="button" class="servicio-step-btn" data-dir="-1" data-servicio-id="${s.IDServicio}" aria-label="Reducir ${ctrl.label.toLowerCase()}" disabled>−</button>
+                                        <input type="number" class="servicio-quantity-input"
+                                            data-servicio-id="${s.IDServicio}"
+                                            min="${ctrl.min}" max="${ctrl.max}" step="${ctrl.step}"
+                                            value="1" aria-label="${ctrl.label} para ${s.NombreServicio}" disabled />
+                                        <button type="button" class="servicio-step-btn" data-dir="1" data-servicio-id="${s.IDServicio}" aria-label="Aumentar ${ctrl.label.toLowerCase()}" disabled>+</button>
+                                    </div>
                                     <span class="servicio-input-suffix">${ctrl.unit}</span>
                                 </div>
                                 <div class="servicio-help" aria-live="polite"></div>
@@ -908,6 +912,7 @@ function toggleServicioDetails(servicioId,isActive) {
     item.classList.toggle('active',isActive);
     const qInput=item.querySelector('.servicio-quantity-input');
     if (qInput){ qInput.disabled=!isActive; if(!isActive){ qInput.value=1; const h=item.querySelector('.servicio-help'); if(h) h.textContent=''; } }
+    item.querySelectorAll('.servicio-step-btn').forEach(btn => { btn.disabled = !isActive; });
     if (!isActive) item.classList.remove('tooltip-open');
     updateServicioTotal(servicioId);
 }
@@ -979,7 +984,17 @@ document.addEventListener('change',(e)=>{
 });
 document.addEventListener('click',(e)=>{
     // El botón "!" solo muestra el tooltip al pasar el mouse (hover CSS).
-    if (e.target.closest('.servicio-info-btn')) e.stopPropagation();
+    if (e.target.closest('.servicio-info-btn')) { e.stopPropagation(); return; }
+    const stepBtn = e.target.closest('.servicio-step-btn');
+    if (stepBtn && !stepBtn.disabled) {
+        const sid = stepBtn.dataset.servicioId;
+        const input = document.querySelector(`.servicio-quantity-input[data-servicio-id="${sid}"]`);
+        if (input && !input.disabled) {
+            const current = parseInt(input.value, 10) || 0;
+            input.value = current + Number(stepBtn.dataset.dir);
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
 });
 
 /* ──────────────────────────────────────────────────

@@ -534,17 +534,21 @@ async function cargarServicios() {
                             <div class="servicio-controls">
                                 <label class="servicio-control-label">${control.label}</label>
                                 <div class="servicio-input-row">
-                                    <input
-                                        type="number"
-                                        class="servicio-quantity-input"
-                                        data-servicio-id="${s.IDServicio}"
-                                        min="${control.min}"
-                                        max="${control.max}"
-                                        step="${control.step}"
-                                        value="1"
-                                        aria-label="${control.label} para ${nombre}"
-                                        disabled
-                                    />
+                                    <div class="servicio-stepper">
+                                        <button type="button" class="servicio-step-btn" data-dir="-1" data-servicio-id="${s.IDServicio}" aria-label="Reducir ${control.label.toLowerCase()}" disabled>−</button>
+                                        <input
+                                            type="number"
+                                            class="servicio-quantity-input"
+                                            data-servicio-id="${s.IDServicio}"
+                                            min="${control.min}"
+                                            max="${control.max}"
+                                            step="${control.step}"
+                                            value="1"
+                                            aria-label="${control.label} para ${nombre}"
+                                            disabled
+                                        />
+                                        <button type="button" class="servicio-step-btn" data-dir="1" data-servicio-id="${s.IDServicio}" aria-label="Aumentar ${control.label.toLowerCase()}" disabled>+</button>
+                                    </div>
                                     <span class="servicio-input-suffix">${control.unit}</span>
                                 </div>
                                 <div class="servicio-help" aria-live="polite"></div>
@@ -607,6 +611,7 @@ function toggleServicioDetails(servicioId, isActive) {
             if (help) help.textContent = '';
         }
     }
+    item.querySelectorAll('.servicio-step-btn').forEach(btn => { btn.disabled = !isActive; });
     if (!isActive) {
         item.classList.remove('tooltip-open');
     }
@@ -1312,6 +1317,18 @@ document.addEventListener('click', (e) => {
     // Bloqueamos el clic para que no propague ni active comportamientos no deseados.
     if (e.target.closest('.servicio-info-btn')) {
         e.stopPropagation();
+        return;
+    }
+
+    const stepBtn = e.target.closest('.servicio-step-btn');
+    if (stepBtn && !stepBtn.disabled) {
+        const servicioId = stepBtn.dataset.servicioId;
+        const input = document.querySelector(`.servicio-quantity-input[data-servicio-id="${servicioId}"]`);
+        if (input && !input.disabled) {
+            const current = parseInt(input.value, 10) || 0;
+            input.value = current + Number(stepBtn.dataset.dir);
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
     }
 });
 
