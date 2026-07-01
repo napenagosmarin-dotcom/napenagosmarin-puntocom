@@ -3271,7 +3271,7 @@ function renderForm(section, data = null, extra = {}) {
 
         // Conversión de tipos para números
         ['precio', 'PrecioNoche', 'CapacidadPersonas', 'CantidadMaximaPersonas', 'NumeroHabitaciones', 'IDHabitacion', 'IDServicio', 'IDCabana', 'IDRol', 'Estado'].forEach(key => {
-            if (body[key] !== undefined && body[key] !== '') body[key] = Number(body[key]);
+            if (body[key] !== undefined && body[key] !== '' && !Array.isArray(body[key])) body[key] = Number(body[key]);
         });
 
         const method = id ? 'PUT' : 'POST';
