@@ -479,6 +479,7 @@ const createReservation = async (data) => {
       FechaReserva: data.FechaReserva || new Date(),
       FechaInicio: data.FechaInicio || null,
       FechaFinalizacion: data.FechaFinalizacion || null,
+      NumeroPersonas: data.NumeroPersonas ? parseInt(data.NumeroPersonas) : null,
       SubTotal: totals.subtotal,
       Descuento: 0,
       IVA: totals.iva,

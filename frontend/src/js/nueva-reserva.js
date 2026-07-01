@@ -436,6 +436,24 @@ function aplicarRestriccionPaquete(paquete) {
     };
     restringe('IDHabitacion', paquete.IDHabitacion, paquete.NombreHabitacion, 'habitacion');
     restringe('IDCabana',     paquete.IDCabana,     paquete.NombreCabana,     'cabana');
+
+    const idsIncluidos = paquete.IDServicio
+        ? String(paquete.IDServicio).split(',').map(id => id.trim()).filter(Boolean)
+        : [];
+    let servicioOcultado = false;
+    idsIncluidos.forEach(sid => {
+        const item = document.querySelector(`.servicio-item[data-servicio-id="${sid}"]`);
+        if (!item) return;
+        const cb = item.querySelector('.servicio-check');
+        if (cb && cb.checked) {
+            cb.checked = false;
+            toggleServicioDetails(sid, false);
+            servicioOcultado = true;
+        }
+        item.style.display = 'none';
+        item.dataset.paqueteHidden = 'true';
+    });
+    if (servicioOcultado) calcularTotal();
 }
 
 function limpiarRestriccionPaquete() {
@@ -444,6 +462,10 @@ function limpiarRestriccionPaquete() {
         if (opt.dataset.originalText) opt.textContent = opt.dataset.originalText;
         delete opt.dataset.originalText;
         delete opt.dataset.paqueteRestricted;
+    });
+    document.querySelectorAll('.servicio-item[data-paquete-hidden="true"]').forEach(item => {
+        item.style.display = '';
+        delete item.dataset.paqueteHidden;
     });
 }
 
@@ -616,15 +638,15 @@ async function cargarAllReservations() {
 async function cargarReservasConfirmadasPorAlojamiento(accommodationId, type = 'habitacion') {
     try {
         if (!accommodationId) return [];
-        const url = `/api/reservas/confirmed/accommodation/${accommodationId}?type=${type}`;
+        const url = `/api/reservas/availability/${type}/${accommodationId}`;
         const response = await fetch(url);
         if (!response.ok) {
-            console.warn(`No se pudieron cargar reservas confirmadas: ${response.status}`);
+            console.warn(`No se pudieron cargar fechas bloqueadas: ${response.status}`);
             return [];
         }
         return await response.json();
     } catch (error) {
-        console.error('Error cargando reservas confirmadas:', error);
+        console.error('Error cargando fechas bloqueadas:', error);
         return [];
     }
 }
@@ -634,18 +656,7 @@ async function cargarReservasConfirmadasPorAlojamiento(accommodationId, type = '
    ----------------------------------------------- */
 function getDisabledDatesForRoom(roomId) {
     if (!roomId) return [];
-    const blockedRanges = getRoomBlockedRanges(roomId);
-    const disabledDates = [];
-    blockedRanges.forEach(range => {
-        const startDate = new Date(range.start);
-        const endDate = new Date(range.end);
-        let currentDate = new Date(startDate);
-        while (currentDate <= endDate) {
-            disabledDates.push(formatDateForInput(currentDate.toISOString()));
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-    });
-    return disabledDates;
+    return getRoomBlockedRanges(roomId).map(r => ({ from: r.start, to: r.end }));
 }
 
 function initFlatpickrs(disabledDates, startDefault, endDefault) {
@@ -731,12 +742,7 @@ function getSelectedAccommodationType() {
 
 function getRoomBlockedRanges(roomId) {
     if (!roomId) return [];
-    return allReservations
-        .filter(r => r.FechaInicio && r.FechaFinalizacion)
-        .map(r => ({
-            start: formatDateForInput(r.FechaInicio),
-            end: formatDateForInput(r.FechaFinalizacion)
-        }));
+    return allReservations.filter(r => r.start && r.end);
 }
 
 function isRangeOverlapping(start, end, range) {
@@ -1356,6 +1362,7 @@ document.getElementById('reservationForm').addEventListener('submit', async (e) 
         serviciosAdicionales: serviciosSeleccionados,
         FechaInicio: document.getElementById('FechaInicio').value,
         FechaFinalizacion: document.getElementById('FechaFinalizacion').value,
+        NumeroPersonas: parseInt(document.getElementById('NumeroPersonas').value) || 1,
         MetodoPago: metodoPagoVal ? parseInt(metodoPagoVal) : null,
         UsuarioIdusuario: user.IDUsuario
     };

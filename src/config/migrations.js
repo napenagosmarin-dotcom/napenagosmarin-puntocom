@@ -56,6 +56,9 @@ const runMigrations = async () => {
       }
     }
 
+    // Número de personas por reserva
+    await addColumnIfMissing('reserva', 'NumeroPersonas', 'INT NULL');
+
     // Estado 'En Proceso' (ID=5) — requerido por el flujo unidireccional de reservas
     await db.query(`
       INSERT INTO estadosreserva (IdEstadoReserva, NombreEstadoReserva)
