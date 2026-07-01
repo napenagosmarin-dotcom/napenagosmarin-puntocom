@@ -937,8 +937,8 @@ window.eliminarReserva = async (id) => {
         _cancelReservaActiva = ESTADOS_ACTIVOS.includes(reserva.IdEstadoReserva || reserva.Estado);
 
         if (_cancelReservaActiva) {
-            // Reserva activa → pedir motivo
-            _cancelReservaMode = 'viaEliminar';
+            // Reserva activa → pedir motivo y cancelar vía cambio de estado
+            _cancelReservaMode = 'viaEstado';
             document.getElementById('cancelReasonTitle').textContent    = `Cancelar Reserva #${id}`;
             document.getElementById('cancelReasonSubtitle').textContent = 'Esta reserva está activa. El cliente recibirá un correo con el motivo de la cancelación.';
             document.getElementById('cancelReasonText').value           = '';
@@ -998,11 +998,11 @@ window.confirmarCancelacionConMotivo = async () => {
                 body: JSON.stringify({ IdEstadoReserva: 3, motivo })
             });
         } else {
-            // Flujo de eliminación (botón Delete en reserva activa) via DELETE
-            res = await fetch(`/api/reservas/${id}`, {
-                method: 'DELETE',
+            // Cancelación de reserva activa vía PATCH /status en lugar de DELETE para mayor compatibilidad
+            res = await fetch(`/api/reservas/${id}/status`, {
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ motivo })
+                body: JSON.stringify({ IdEstadoReserva: 3, motivo })
             });
         }
         if (res.ok) {

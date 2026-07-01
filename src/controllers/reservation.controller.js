@@ -68,7 +68,12 @@ const updateReservation = async (req, res, next) => {
 // Body opcional: { motivo: string } — requerido cuando la reserva está activa
 const deleteReservation = async (req, res, next) => {
   try {
-    const motivo = (req.body && req.body.motivo) ? req.body.motivo.trim() : '';
+    const motivo = (req.body && typeof req.body.motivo === 'string' && req.body.motivo.trim())
+      ? req.body.motivo.trim()
+      : (req.query && typeof req.query.motivo === 'string' && req.query.motivo.trim())
+        ? req.query.motivo.trim()
+        : (req.headers['x-motivo'] ? String(req.headers['x-motivo']).trim() : '');
+
     const deleted = await reservationService.deleteReservation(req.params.id, motivo);
 
     if (!deleted) {
@@ -164,9 +169,10 @@ const getAvailability = async (req, res, next) => {
 const cancelReservation = async (req, res, next) => {
   try {
     const { confirmarConPenalizacion } = req.body || {};
+    const confirmed = confirmarConPenalizacion === true || confirmarConPenalizacion === 'true' || confirmarConPenalizacion === 1;
     const result = await reservationService.cancelReservation(
       req.params.id,
-      { confirmarConPenalizacion: confirmarConPenalizacion === true }
+      { confirmarConPenalizacion: confirmed }
     );
 
     if (!result) {
