@@ -148,6 +148,27 @@ function formatCurrency(value) {
     return Number(value||0).toLocaleString('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
+function getSeasonalInfo(fechaInicio, fechaFin) {
+    if (!fechaInicio || !fechaFin) return { multiplicador: 1.0, temporada: null };
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFin);
+    let multiplicador = 1.0;
+    let temporada = null;
+    while (inicio < fin) {
+        const mes = inicio.getMonth() + 1;
+        const dia = inicio.getDate();
+        if ((mes === 12 && dia >= 15) || (mes === 1 && dia <= 15)) {
+            if (1.30 > multiplicador) { multiplicador = 1.30; temporada = 'Temporada Alta (Navidad / Año Nuevo)'; }
+        } else if ((mes === 3 && dia >= 20) || (mes === 4 && dia <= 10)) {
+            if (1.25 > multiplicador) { multiplicador = 1.25; temporada = 'Semana Santa'; }
+        } else if (mes === 7) {
+            if (1.15 > multiplicador) { multiplicador = 1.15; temporada = 'Temporada de Vacaciones (Julio)'; }
+        }
+        inicio.setDate(inicio.getDate() + 1);
+    }
+    return { multiplicador, temporada };
+}
+
 /* ──────────────────────────────────────────────────
    SERVICIOS — CONTROL INFO
 ────────────────────────────────────────────────── */
@@ -262,14 +283,24 @@ function actualizarDesglose() {
     if (!container) return;
     const items = [];
     const noches = actualizarContadorNoches();
+    const { multiplicador } = getSeasonalInfo(
+        document.getElementById('FechaInicio')?.value,
+        document.getElementById('FechaFinalizacion')?.value
+    );
+    const temporadaLabel = multiplicador > 1 ? ` × ${multiplicador.toFixed(2)}` : '';
 
     const hSel = document.getElementById('IDHabitacion');
     if (hSel.value) {
         const h = habitacionesData.find(h=>String(h.IDHabitacion)===String(hSel.value));
         if (h) {
             const pn = parseFloat(h.Costo||h.precio||0);
-            const sub = noches>0?pn*noches:0;
-            items.push({name:h.NombreHabitacion,val:sub,detail:noches>0?`$${formatCurrency(pn)}/noche × ${noches} noches`:'',type:'accommodation'});
+            const sub = noches>0?pn*noches*multiplicador:0;
+            items.push({
+                name: h.NombreHabitacion,
+                val: sub,
+                detail: noches>0?`$${formatCurrency(pn)}/noche × ${noches} noches${temporadaLabel}`:'',
+                type:'accommodation'
+            });
         }
     }
     const cSel = document.getElementById('IDCabana');
@@ -277,8 +308,13 @@ function actualizarDesglose() {
         const c = cabanasData.find(c=>String(c.IDCabana)===String(cSel.value));
         if (c) {
             const pn = parseFloat(c.PrecioNoche||0);
-            const sub = noches>0?pn*noches:0;
-            items.push({name:c.NombreCabana,val:sub,detail:noches>0?`$${formatCurrency(pn)}/noche × ${noches} noches`:'',type:'accommodation'});
+            const sub = noches>0?pn*noches*multiplicador:0;
+            items.push({
+                name: c.NombreCabana,
+                val: sub,
+                detail: noches>0?`$${formatCurrency(pn)}/noche × ${noches} noches${temporadaLabel}`:'',
+                type:'accommodation'
+            });
         }
     }
     const pSel = document.getElementById('IDPaquete');
@@ -286,8 +322,13 @@ function actualizarDesglose() {
         const p = paquetesData.find(p=>String(p.IDPaquete)===String(pSel.value));
         if (p) {
             const pn = parseFloat(p.Precio||p.precio||0);
-            const sub = noches>0?pn*noches:0;
-            items.push({name:p.NombrePaquete||'Paquete',val:sub,detail:noches>0?`$${formatCurrency(pn)}/noche × ${noches} noches`:'',type:'accommodation'});
+            const sub = noches>0?pn*noches*multiplicador:0;
+            items.push({
+                name: p.NombrePaquete||'Paquete',
+                val: sub,
+                detail: noches>0?`$${formatCurrency(pn)}/noche × ${noches} noches${temporadaLabel}`:'',
+                type:'accommodation'
+            });
         }
     }
     document.querySelectorAll('.servicio-check:checked').forEach(cb=>{
@@ -867,13 +908,26 @@ function calcularTotal() {
     const noches=actualizarContadorNoches();
     const animate=(elId,newVal)=>{ const el=document.getElementById(elId); if(!el)return; el.style.transition='opacity 0.15s'; el.style.opacity='0'; setTimeout(()=>{ el.textContent=`$${formatCurrency(newVal)}`; el.style.opacity='1'; },120); };
     if (noches<=0){ animate('subtotal',0); animate('iva',0); animate('total',0); actualizarDesglose(); actualizarSubtotalServicios(); return; }
+    const { multiplicador } = getSeasonalInfo(
+        document.getElementById('FechaInicio')?.value,
+        document.getElementById('FechaFinalizacion')?.value
+    );
     let precioAloj=0;
     const pSel=document.getElementById('IDPaquete');
-    if (pSel.value){ const p=paquetesData.find(p=>String(p.IDPaquete)===String(pSel.value)); if(p) precioAloj=parseFloat(p.Precio||p.precio||0)*noches; }
+    if (pSel.value) {
+        const p=paquetesData.find(p=>String(p.IDPaquete)===String(pSel.value));
+        if (p) precioAloj += parseFloat(p.Precio||p.precio||0)*noches*multiplicador;
+    }
     const hSel=document.getElementById('IDHabitacion');
-    if (hSel.value){ const h=habitacionesData.find(h=>String(h.IDHabitacion)===String(hSel.value)); if(h) precioAloj=parseFloat(h.Costo||h.precio||0)*noches; }
+    if (hSel.value) {
+        const h=habitacionesData.find(h=>String(h.IDHabitacion)===String(hSel.value));
+        if (h) precioAloj += parseFloat(h.Costo||h.precio||0)*noches*multiplicador;
+    }
     const cSel=document.getElementById('IDCabana');
-    if (cSel.value){ const c=cabanasData.find(c=>String(c.IDCabana)===String(cSel.value)); if(c) precioAloj=parseFloat(c.PrecioNoche||0)*noches; }
+    if (cSel.value) {
+        const c=cabanasData.find(c=>String(c.IDCabana)===String(cSel.value));
+        if (c) precioAloj += parseFloat(c.PrecioNoche||0)*noches*multiplicador;
+    }
     const totalServ=Array.from(document.querySelectorAll('.servicio-check:checked')).reduce((sum,s)=>sum+(parseFloat(s.dataset.costo)*getServicioQuantity(s.value)),0);
     const sub_total=precioAloj+totalServ;
     const sub=Math.round((sub_total / 1.19)*100)/100;

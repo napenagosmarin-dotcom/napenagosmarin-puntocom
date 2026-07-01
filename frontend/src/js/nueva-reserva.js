@@ -41,6 +41,28 @@ function formatCurrency(value) {
     });
 }
 
+function getSeasonalInfo(fechaInicio, fechaFinalizacion) {
+    if (!fechaInicio || !fechaFinalizacion) return { multiplicador: 1.0, temporada: null };
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFinalizacion);
+    let mult = 1.0;
+    let temporada = null;
+    const current = new Date(inicio);
+    while (current < fin) {
+        const month = current.getMonth() + 1;
+        const day = current.getDate();
+        if ((month === 12 && day >= 15) || (month === 1 && day <= 15)) {
+            if (1.30 > mult) { mult = 1.30; temporada = 'Temporada Alta (Navidad / Año Nuevo)'; }
+        } else if ((month === 3 && day >= 20) || (month === 4 && day <= 10)) {
+            if (1.25 > mult) { mult = 1.25; temporada = 'Semana Santa'; }
+        } else if (month === 7) {
+            if (1.15 > mult) { mult = 1.15; temporada = 'Temporada de Vacaciones (Julio)'; }
+        }
+        current.setDate(current.getDate() + 1);
+    }
+    return { multiplicador: mult, temporada };
+}
+
 function getServicioControlInfo(servicio) {
     const nombre = String(servicio.NombreServicio || servicio.nombre || '').toLowerCase();
     const maxPersonas = servicio.CantidadMaximaPersonas || servicio.cantidadMaximaPersonas || 0;
@@ -246,6 +268,11 @@ function actualizarDesglose() {
 
     const items = [];
     const noches = actualizarContadorNoches();
+    const { multiplicador } = getSeasonalInfo(
+        document.getElementById('FechaInicio')?.value,
+        document.getElementById('FechaFinalizacion')?.value
+    );
+    const temporada = multiplicador > 1 ? ` × temporada ${multiplicador.toFixed(2)}` : '';
 
     // Habitación
     const habitacionSelect = document.getElementById('IDHabitacion');
@@ -253,10 +280,10 @@ function actualizarDesglose() {
         const h = habitacionesData.find(h => String(h.IDHabitacion) === String(habitacionSelect.value));
         if (h) {
             const precioPorNoche = parseFloat(h.Costo || h.precio || 0);
-            const subtotal = noches > 0 ? precioPorNoche * noches : 0;
+            const subtotal = noches > 0 ? precioPorNoche * noches * multiplicador : 0;
             const label = `${h.NombreHabitacion}`;
             const detail = noches > 0 
-                ? `$${formatCurrency(precioPorNoche)}/noche × ${noches} ${noches === 1 ? 'noche' : 'noches'}` 
+                ? `$${formatCurrency(precioPorNoche)} / noche × ${noches} ${noches === 1 ? 'noche' : 'noches'}${temporada}` 
                 : '';
             items.push({ name: label, val: subtotal, detail, type: 'accommodation' });
         }
@@ -268,10 +295,10 @@ function actualizarDesglose() {
         const c = cabanasData.find(c => String(c.IDCabana) === String(cabanaSelect.value));
         if (c) {
             const precioPorNoche = parseFloat(c.PrecioNoche || 0);
-            const subtotal = noches > 0 ? precioPorNoche * noches : 0;
+            const subtotal = noches > 0 ? precioPorNoche * noches * multiplicador : 0;
             const label = `${c.NombreCabana}`;
             const detail = noches > 0 
-                ? `$${formatCurrency(precioPorNoche)}/noche × ${noches} ${noches === 1 ? 'noche' : 'noches'}` 
+                ? `$${formatCurrency(precioPorNoche)} / noche × ${noches} ${noches === 1 ? 'noche' : 'noches'}${temporada}` 
                 : '';
             items.push({ name: label, val: subtotal, detail, type: 'accommodation' });
         }
@@ -283,10 +310,10 @@ function actualizarDesglose() {
         const p = paquetesData.find(p => String(p.IDPaquete) === String(paqueteSelect.value));
         if (p) {
             const precioPorNoche = parseFloat(p.Precio || p.precio || 0);
-            const subtotal = noches > 0 ? precioPorNoche * noches : 0;
+            const subtotal = noches > 0 ? precioPorNoche * noches * multiplicador : 0;
             const label = p.NombrePaquete || p.nombre || 'Paquete';
             const detail = noches > 0 
-                ? `$${formatCurrency(precioPorNoche)}/noche × ${noches} ${noches === 1 ? 'noche' : 'noches'}` 
+                ? `$${formatCurrency(precioPorNoche)} / noche × ${noches} ${noches === 1 ? 'noche' : 'noches'}${temporada}` 
                 : '';
             items.push({ name: label, val: subtotal, detail, type: 'accommodation' });
         }
@@ -1159,14 +1186,19 @@ function calcularTotal() {
         return;
     }
 
-    // Cálculo de alojamiento × noches
+    // Cálculo de alojamiento × noches (apoya paquete + habitación/cabaña combinados)
     let precioAlojamiento = 0;
+    const { multiplicador } = getSeasonalInfo(
+        document.getElementById('FechaInicio')?.value,
+        document.getElementById('FechaFinalizacion')?.value
+    );
+
     const paqueteSelect = document.getElementById('IDPaquete');
     if (paqueteSelect.value) {
         const p = paquetesData.find(p => String(p.IDPaquete) === String(paqueteSelect.value));
         if (p) {
             const precioPorNoche = parseFloat(p.Precio || p.precio || 0);
-            precioAlojamiento = precioPorNoche * noches;
+            precioAlojamiento += precioPorNoche * noches * multiplicador;
         }
     }
 
@@ -1175,7 +1207,7 @@ function calcularTotal() {
         const h = habitacionesData.find(h => String(h.IDHabitacion) === String(habitacionSelect.value));
         if (h) {
             const precioPorNoche = parseFloat(h.Costo || h.precio || 0);
-            precioAlojamiento = precioPorNoche * noches;
+            precioAlojamiento += precioPorNoche * noches * multiplicador;
         }
     }
 
@@ -1184,7 +1216,7 @@ function calcularTotal() {
         const c = cabanasData.find(c => String(c.IDCabana) === String(cabanaSelect.value));
         if (c) {
             const precioPorNoche = parseFloat(c.PrecioNoche || 0);
-            precioAlojamiento = precioPorNoche * noches;
+            precioAlojamiento += precioPorNoche * noches * multiplicador;
         }
     }
 
