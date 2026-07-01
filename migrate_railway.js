@@ -177,6 +177,13 @@ async function run() {
   try {
     await conn.query(`ALTER TABLE \`paquetes\` ADD COLUMN \`NumeroPersonas\` INT NULL DEFAULT NULL AFTER \`TipoDescuento\``);
   } catch(e) { /* columna ya existe */ }
+  try {
+    // IDServicio en paquetes almacena una lista CSV de IDs (ej. "5,7,8"), no un único ID
+    await conn.query(`ALTER TABLE \`paquetes\` DROP FOREIGN KEY \`paquetes_ibfk_2\``);
+  } catch(e) { /* FK ya eliminada */ }
+  try {
+    await conn.query(`ALTER TABLE \`paquetes\` MODIFY COLUMN \`IDServicio\` VARCHAR(255) NULL DEFAULT NULL`);
+  } catch(e) { /* columna ya es VARCHAR */ }
 
   console.log('OK: migraciones de esquema completadas');
 
