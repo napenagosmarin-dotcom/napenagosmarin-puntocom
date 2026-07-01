@@ -1087,7 +1087,7 @@ function mostrarModalDetalle(type, id) {
         descripcion  = data.Descripcion || data.descripcion || '';
         precio       = data.Precio || data.precio || 0;
         sufijoPrecio = '';
-        stats = data.NombreHabitacion ? [`🏠 ${data.NombreHabitacion}`] : (data.NombreCabana ? [`🏡 ${data.NombreCabana}`] : []);
+        stats = [];
         incluidos = [
             data.NombreHabitacion ? `🛏️ Alojamiento: ${data.NombreHabitacion}` : null,
             data.NombreCabana     ? `🏡 Alojamiento: ${data.NombreCabana}`     : null,
