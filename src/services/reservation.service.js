@@ -66,7 +66,7 @@ const getAllReservations = async (page = null, limit = null) => {
 // Obtener reserva por ID
 const getReservationById = async (id) => {
   try {
-    const sql = `SELECT r.*, u.NombreUsuario, u.NumeroDocumento AS NroDocumentoCliente,
+    const sql = `SELECT r.*, u.NombreUsuario, u.Email, u.NumeroDocumento AS NroDocumentoCliente,
                         e.NombreEstadoReserva, m.NomMetodoPago,
                          p.IDPaquete, p.nombre AS NombrePaquete, p.precio AS PrecioPaquete,
                          COALESCE(h_direct.IDHabitacion, h_paq.IDHabitacion) AS IDHabitacion,
@@ -763,15 +763,25 @@ const DIAS_CANCELACION_GRATIS  = 7;
 /** Fracción del MontoTotal que se retiene si se cancela dentro del plazo de penalización (0.40 = 40%) */
 const PORCENTAJE_PENALIZACION  = 0.40;
 
+const areSameCalendarDay = (a, b) => {
+  if (!a || !b) return false;
+  const dateA = new Date(a);
+  const dateB = new Date(b);
+  return dateA.getFullYear() === dateB.getFullYear()
+      && dateA.getMonth() === dateB.getMonth()
+      && dateA.getDate() === dateB.getDate();
+};
+
 const updateReservationStatus = async (id, nuevoEstadoId, motivo = null) => {
-  // 1. Obtener estado actual
+  // 1. Obtener estado actual y fecha de inicio para validaciones de negocio
   const [rows] = await db.query(
-    'SELECT r.IdEstadoReserva, r.UsuarioIdusuario FROM reserva r WHERE r.IdReserva = ?',
+    'SELECT r.IdEstadoReserva, r.UsuarioIdusuario, r.FechaInicio FROM reserva r WHERE r.IdReserva = ?',
     [id]
   );
   if (!rows.length) return null;
 
   const estadoActual = rows[0].IdEstadoReserva;
+  const fechaInicio  = rows[0].FechaInicio;
   const nuevoId      = Number(nuevoEstadoId);
 
   // 2. Validar transición según tabla de flujo permitido
@@ -786,6 +796,16 @@ const updateReservationStatus = async (id, nuevoEstadoId, motivo = null) => {
     const err = new Error(msg);
     err.statusCode = 409;
     throw err;
+  }
+
+  // 2.5. Validación adicional: solo se puede poner a En Proceso el día de llegada
+  if (nuevoId === ESTADO_EN_PROCESO) {
+    const hoy = new Date();
+    if (!areSameCalendarDay(hoy, fechaInicio)) {
+      const err = new Error('Solo se puede iniciar la reserva en la fecha de llegada. Cambia el estado a En Proceso únicamente el día de check-in.');
+      err.statusCode = 409;
+      throw err;
+    }
   }
 
   const timestamp = new Date().toISOString();
